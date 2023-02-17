@@ -41,7 +41,7 @@ make all-target-libgcc && \
 make install-gcc && \
 make install-target-libgcc && \
 #### cleanup ####
-rm /build/*
+rm -rf /build/*
 
 #### Second stage
 FROM alpine:3.17.2
