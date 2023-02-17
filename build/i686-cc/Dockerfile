@@ -25,7 +25,7 @@ WORKDIR /build
 # We need a single RUN not to overwelm github's cache
 RUN curl -O https://ftp.gnu.org/gnu/gcc/gcc-${GCC_VERS}/gcc-${GCC_VERS}.tar.xz && \
 curl -O https://ftp.gnu.org/gnu/binutils/binutils-${BINUTILS_VERS}.tar.xz  && \
-find . -name "./*.xz" -exec tar -xf {} \; && \
+find . -name \*.xz -exec tar -xf {} \; && \
 #### building binutils ####
 mkdir -p    /build/binutils-${BINUTILS_VERS}/build && \
 cd          /build/binutils-${BINUTILS_VERS}/build && \
@@ -41,8 +41,7 @@ make all-target-libgcc && \
 make install-gcc && \
 make install-target-libgcc && \
 #### cleanup ####
-rm "/build/*"
-
+rm /build/*
 
 #### Second stage
 FROM alpine:3.17.2
