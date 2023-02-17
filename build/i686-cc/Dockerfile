@@ -3,13 +3,13 @@ LABEL org.opencontainers.image.source="https://github.com/l-aurelie/kfs"
 
 # dependencies needed to build gcc and binutils
 RUN apk add --no-cache \
-    build-base=0.5-r3 \
-    gmp-dev=6.2.1-r2 \
-    mpc1-dev=1.3.1-r0 \
-    mpfr-dev=4.2.0-r0 \
-    texinfo=7.0.2-r0 \
-    curl=7.88.0-r1 \
-    xz=5.4.1-r0
+    build-base \
+    gmp-dev \
+    mpc1-dev \
+    mpfr-dev \
+    texinfo \
+    curl \
+    xz
 
 # tool versions
 ARG GCC_VERS=12.2.0
