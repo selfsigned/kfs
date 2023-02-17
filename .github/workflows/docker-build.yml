@@ -2,7 +2,7 @@ name: Build Docker Images
 on:
   push:
     paths:
-    - build/i686-cc
+    - 'build/i686-cc/**'
 jobs:
   push-to-ghcr:
     name: Build and Push to the github container repository
