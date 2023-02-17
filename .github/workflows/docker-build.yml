@@ -20,5 +20,5 @@ jobs:
 
       - name: Build and push images
         run: |
-          docker build/i686-cc --tag ghcr.io/aleconte/i686-cc:latest
+          docker build build/i686-cc --tag ghcr.io/aleconte/i686-cc:latest
           docker push ghcr.io/aleconte/i686-cc:latest
