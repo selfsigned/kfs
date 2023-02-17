@@ -1,49 +1,51 @@
-FROM alpine as BUILD
+FROM alpine:3.17.2 as BUILD
 LABEL org.opencontainers.image.source="https://github.com/l-aurelie/kfs"
 
 # dependencies needed to build gcc and binutils
-RUN apk add --no-cache build-base \
-    gmp-dev \
-    mpc1-dev \
-    mpfr-dev \
-    texinfo \
-    curl \
-    xz
+RUN apk add --no-cache \
+    build-base=0.5-r3 \
+    gmp-dev=6.2.1-r2 \
+    mpc1-dev=1.3.1-r0 \
+    mpfr-dev=4.2.0-r0 \
+    texinfo=7.0.2-r0 \
+    curl=7.88.0-r1 \
+    xz=5.4.1-r0
 
 # tool versions
 ARG GCC_VERS=12.2.0
 ARG BINUTILS_VERS=2.40
 
-WORKDIR /build
-# download gcc and binutils and extract them
-# Could do everything in this step and remove the build artifacts to get a much smaller docker image
-#   but we can also just extract the artifacts we want in a second stage
-RUN curl -O https://ftp.gnu.org/gnu/gcc/gcc-${GCC_VERS}/gcc-${GCC_VERS}.tar.xz && \
-    curl -O https://ftp.gnu.org/gnu/binutils/binutils-${BINUTILS_VERS}.tar.xz  && \
-    find . -name "*.xz" -exec tar -xf {} \; && \
-    rm *.xz 
-
-#### building binutils ####
-#Export cross-build variables
+# cross-build environment variables
 ENV PREFIX="/opt/cross"
 ENV TARGET=i686-elf
 ENV PATH="$PREFIX/bin:$PATH"
 
-WORKDIR /build/binutils-${BINUTILS_VERS}/build
-RUN ../configure --target=$TARGET --prefix="$PREFIX" --with-sysroot --disable-nls --disable-werror && \
-    make && \
-    make install
-
+WORKDIR /build
+# download gcc and binutils and extract them
+# We need a single RUN not to overwelm github's cache
+RUN curl -O https://ftp.gnu.org/gnu/gcc/gcc-${GCC_VERS}/gcc-${GCC_VERS}.tar.xz && \
+curl -O https://ftp.gnu.org/gnu/binutils/binutils-${BINUTILS_VERS}.tar.xz  && \
+find . -name "./*.xz" -exec tar -xf {} \; && \
+#### building binutils ####
+mkdir -p    /build/binutils-${BINUTILS_VERS}/build && \
+cd          /build/binutils-${BINUTILS_VERS}/build && \
+../configure --target=$TARGET --prefix="$PREFIX" --with-sysroot --disable-nls --disable-werror && \
+make && \
+make install && \
 #### building gcc ####
-WORKDIR /build/gcc-${GCC_VERS}/build
-RUN ../configure --target=$TARGET --prefix="$PREFIX" --disable-nls --enable-languages=c,c++ --without-headers && \
-    make all-gcc && \
-    make all-target-libgcc && \
-    make install-gcc && \
-    make install-target-libgcc
+mkdir -p    /build/gcc-${GCC_VERS}/build && \
+cd          /build/gcc-${GCC_VERS}/build && \
+../configure --target=$TARGET --prefix="$PREFIX" --disable-nls --enable-languages=c,c++ --without-headers && \
+make all-gcc && \
+make all-target-libgcc && \
+make install-gcc && \
+make install-target-libgcc && \
+#### cleanup ####
+rm "/build/*"
 
-#### Second stage ####
-FROM alpine
+
+#### Second stage
+FROM alpine:3.17.2
 
 # Not DRY but docker didn't give me a choice
 ENV PREFIX="/opt/cross"
@@ -51,3 +53,4 @@ ENV TARGET=i686-elf
 ENV PATH="$PREFIX/bin:$PATH"
 
 COPY --from=BUILD /opt/cross /opt/cross
+WORKDIR /build
