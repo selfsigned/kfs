@@ -1,7 +1,7 @@
 name: Build the i686-cc image
 on:
   push:
-    # branches: TODO enable that once we're ready
+    # branches:
     #   - "main"
     #   - "master"
     paths:

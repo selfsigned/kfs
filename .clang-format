@@ -1,2 +1,3 @@
 BasedOnStyle: LLVM
 AllowShortIfStatementsOnASingleLine: false
+IndentWidth: 2

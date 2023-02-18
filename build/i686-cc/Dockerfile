@@ -52,4 +52,10 @@ ENV TARGET=i686-elf
 ENV PATH="$PREFIX/bin:$PATH"
 
 COPY --from=BUILD /opt/cross /opt/cross
+
+RUN apk add --no-cache \
+    make \
+    grub
+
+VOLUME ["/build"]
 WORKDIR /build
