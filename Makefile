@@ -1,7 +1,10 @@
 ## Vars ##
 # files
-NAME			:= kfs
-IMG_NAME	:= $(NAME).iso
+NAME			:= kfs.bin
+IMG_NAME	:= $(NAME:.bin=.iso)
+
+# iso
+IMG_BUILD_DIR := .iso
 
 # toolchain, hard-coded but we provide containers!
 ARCH		:=	i686
@@ -16,7 +19,8 @@ CFLAGS := -fno-builtin \
  -fno-stack-protector \
  -fno-rtti \
  -nostdlib \
- -nodefaultlibs
+ -nodefaultlibs \
+ -ffreestanding
 
 # docker
 DOCKER_BIN		?= docker
@@ -27,16 +31,17 @@ HAS_DOCKER_CC = $(shell $(DOCKER_BIN) image inspect $(DOCKER_CC) 2>/dev/null)
 # helpers
 ROOT_DIR := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 
-SRC_ASM	= $(shell find src/ -name "*.s")
-SRC			= $(shell find src/ -name "*.c")
-OBJ			= $(SRC_ASM:.s=.o) $(SRC:.c=.o)
+SRC_ASM			= $(shell find src/ -name "*.s")
+SRC					= $(shell find src/ -name "*.c")
+OBJ					= $(SRC_ASM:.s=.o) $(SRC:.c=.o)
+LINKER_FILE	= src/linker.ld
 
 ## Rulez ##
-.PHONY: all toolchain_set
+.PHONY: all toolchain_set clean fclean
 
 all:
 	@$(MAKE) $(NAME)
-	# $(IMG_NAME)
+	@$(MAKE) $(IMG_NAME)
 
 toolchain_set:
 	echo my objects $(OBJ)
@@ -56,13 +61,24 @@ endif
 $(NAME): toolchain_set $(OBJ)
 	echo $(OBJ)
 ifdef HAS_CC
-	$(CC) $(CFLAGS) -o $(NAME) $(OBJ) -lgcc
+	$(CC) $(CFLAGS) -T $(LINKER_FILE) -o $(NAME) $(OBJ) -lgcc
 endif
 
+# TODO check if installed and if not run in docker
 $(IMG_NAME): $(NAME)
+	mkdir -p $(IMG_BUILD_DIR)/boot/grub
+	cp $(NAME) $(IMG_BUILD_DIR)/boot
+	echo "menuentry \"$(NAME:.bin)\" { multiboot /boot/$(NAME) }" > $(IMG_BUILD_DIR)/boot/grub.cfg 
+	grub-mkrescue -o $(IMG_NAME) $(IMG_BUILD_DIR)
 
  %.o: %.c 
 	$(CC) $(CFLAGS) -c $< -o $@
 
  %.o: %.s
 	$(AS) $< -o $@
+
+clean:
+	$(shell find src/ -name "*.o" -delete)
+
+fclean: clean
+	$(RM) -r $(NAME) $(IMG_NAME) $(IMG_BUILD_DIR)

@@ -1,6 +1,7 @@
-# Our binaries
-kfs
-kfs.iso
+# Our stuff
+*.iso
+kfs.bin
+.iso/
 
 # vim
 *.swp
