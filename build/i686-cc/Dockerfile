@@ -55,6 +55,9 @@ COPY --from=BUILD /opt/cross /opt/cross
 
 RUN apk add --no-cache \
     make \
+    gmp-dev \
+    mpc1-dev \
+    mpfr-dev \
     grub
 
 VOLUME ["/build"]
