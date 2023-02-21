@@ -58,7 +58,8 @@ RUN apk add --no-cache \
     gmp-dev \
     mpc1-dev \
     mpfr-dev \
-    grub
+    grub \
+    xorriso # needed for grub-mkrescue
 
 VOLUME ["/build"]
 WORKDIR /build

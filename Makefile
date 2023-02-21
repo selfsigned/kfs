@@ -68,7 +68,7 @@ endif
 $(IMG_NAME): $(NAME)
 	mkdir -p $(IMG_BUILD_DIR)/boot/grub
 	cp $(NAME) $(IMG_BUILD_DIR)/boot
-	echo "menuentry \"$(NAME:.bin)\" { multiboot /boot/$(NAME) }" > $(IMG_BUILD_DIR)/boot/grub.cfg 
+	echo "menuentry \"$(NAME)\" { multiboot /boot/$(NAME) }" > $(IMG_BUILD_DIR)/boot/grub/grub.cfg
 	grub-mkrescue -o $(IMG_NAME) $(IMG_BUILD_DIR)
 
  %.o: %.c 
