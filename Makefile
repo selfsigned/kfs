@@ -22,6 +22,9 @@ CFLAGS := -fno-builtin \
  -nodefaultlibs \
  -ffreestanding
 
+# grub
+HAS_GRUB		= $(shell grub-file -u 1>/dev/null && xoriso -version 1>/dev/null)
+
 # docker
 DOCKER_BIN		?= docker
 HAS_DOCKER		:= $(shell $(DOCKER_BIN) ps 2>/dev/null)
@@ -29,22 +32,23 @@ DOCKER_CC			:= ghcr.io/l-aurelie/i686-cc:latest
 HAS_DOCKER_CC = $(shell $(DOCKER_BIN) image inspect $(DOCKER_CC) 2>/dev/null) 
 
 # helpers
-ROOT_DIR := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
+ROOT_DIR			:= $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
+ifndef_any_of	= $(filter undefined,$(foreach v,$(1),$(origin $(v))))
 
-SRC_ASM			= $(shell find src/ -name "*.s")
-SRC					= $(shell find src/ -name "*.c")
+SRC_PATH		:= src/
+SRC_ASM			= $(shell find $(SRC_PATH) -name "*.s")
+SRC					= $(shell find $(SRC_PATH) -name "*.c")
 OBJ					= $(SRC_ASM:.s=.o) $(SRC:.c=.o)
 LINKER_FILE	= src/linker.ld
 
 ## Rulez ##
-.PHONY: all toolchain_set clean fclean
+.PHONY: all use_docker clean fclean
 
 all:
 	@$(MAKE) $(NAME)
 	@$(MAKE) $(IMG_NAME)
 
-toolchain_set:
-	echo my objects $(OBJ)
+use_docker:
 ifdef HAS_CC
 	@echo "[INFO] using $(CC) "
 else ifdef HAS_DOCKER_CC
@@ -58,27 +62,46 @@ else
 	@$(error "[ERROR] Couldn't find $(CC) or use docker")
 endif
 
-$(NAME): toolchain_set $(OBJ)
-	echo $(OBJ)
+$(NAME): $(OBJ)
 ifdef HAS_CC
 	$(CC) $(CFLAGS) -T $(LINKER_FILE) -o $(NAME) $(OBJ) -lgcc
+else
+	$(MAKE) use_docker $(MAKECMDGOALS)
 endif
 
-# TODO check if installed and if not run in docker
+grub_set:
+ifneq ($(call ifndef_any_of,VAR1 VAR2),)
+	echo "lol"
+endif
+
+# TODO need to check grub_pc_bin or add flag to force execution in docker
 $(IMG_NAME): $(NAME)
+ifdef HAS_GRUB
 	mkdir -p $(IMG_BUILD_DIR)/boot/grub
 	cp $(NAME) $(IMG_BUILD_DIR)/boot
 	echo "menuentry \"$(NAME)\" { multiboot /boot/$(NAME) }" > $(IMG_BUILD_DIR)/boot/grub/grub.cfg
 	grub-mkrescue -o $(IMG_NAME) $(IMG_BUILD_DIR)
+else
+	echo "[INFO] grub or xoriso not found, using docker"
+	$(MAKE) use_docker $(MAKECMDGOALS)
+endif
 
  %.o: %.c 
+ifdef HAS_CC
 	$(CC) $(CFLAGS) -c $< -o $@
+else
+	$(MAKE) use_docker $(MAKECMDGOALS)
+endif
 
  %.o: %.s
+ifdef HAS_CC
 	$(AS) $< -o $@
+else
+	$(MAKE) use_docker $(MAKECMDGOALS)
+endif
 
 clean:
-	$(shell find src/ -name "*.o" -delete)
+	find src/ -name "*.o" -delete
 
 fclean: clean
 	$(RM) -r $(NAME) $(IMG_NAME) $(IMG_BUILD_DIR)
