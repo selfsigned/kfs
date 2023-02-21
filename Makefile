@@ -33,7 +33,6 @@ HAS_DOCKER_CC = $(shell $(DOCKER_BIN) image inspect $(DOCKER_CC) 2>/dev/null)
 
 # helpers
 ROOT_DIR			:= $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
-ifndef_any_of	= $(filter undefined,$(foreach v,$(1),$(origin $(v))))
 
 SRC_PATH		:= src/
 SRC_ASM			= $(shell find $(SRC_PATH) -name "*.s")
@@ -67,11 +66,6 @@ ifdef HAS_CC
 	$(CC) $(CFLAGS) -T $(LINKER_FILE) -o $(NAME) $(OBJ) -lgcc
 else
 	$(MAKE) use_docker $(MAKECMDGOALS)
-endif
-
-grub_set:
-ifneq ($(call ifndef_any_of,VAR1 VAR2),)
-	echo "lol"
 endif
 
 # TODO need to check grub_pc_bin or add flag to force execution in docker
