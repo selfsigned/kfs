@@ -1,3 +1,5 @@
+# requires GNU make >4.2.0
+
 ## Vars ##
 # files
 NAME			:= kfs.bin
@@ -17,13 +19,15 @@ HAS_CC	:= $(shell $(CC) --version 2>/dev/null)
 CFLAGS := -fno-builtin \
  -fno-exceptions \
  -fno-stack-protector \
- -fno-rtti \
  -nostdlib \
  -nodefaultlibs \
  -ffreestanding
 
 # grub
-HAS_GRUB		= $(shell grub-file -u 1>/dev/null && xoriso -version 1>/dev/null)
+TEST_GRUB		:= $(shell grub-file -u && xorriso -version 2>/dev/null && test -d /usr/lib/grub/i386-pc)
+ifneq ($(.SHELLSTATUS),1)
+HAS_GRUB		:= true
+endif
 
 # docker
 DOCKER_BIN		?= docker
@@ -41,7 +45,7 @@ OBJ					= $(SRC_ASM:.s=.o) $(SRC:.c=.o)
 LINKER_FILE	= src/linker.ld
 
 ## Rulez ##
-.PHONY: all use_docker clean fclean
+.PHONY: all use_docker clean fclean re run
 
 all:
 	@$(MAKE) $(NAME)
@@ -68,7 +72,6 @@ else
 	$(MAKE) use_docker $(MAKECMDGOALS)
 endif
 
-# TODO need to check grub_pc_bin or add flag to force execution in docker
 $(IMG_NAME): $(NAME)
 ifdef HAS_GRUB
 	mkdir -p $(IMG_BUILD_DIR)/boot/grub
@@ -76,7 +79,7 @@ ifdef HAS_GRUB
 	echo "menuentry \"$(NAME)\" { multiboot /boot/$(NAME) }" > $(IMG_BUILD_DIR)/boot/grub/grub.cfg
 	grub-mkrescue -o $(IMG_NAME) $(IMG_BUILD_DIR)
 else
-	echo "[INFO] grub or xoriso not found, using docker"
+	@echo "[INFO] grub or xoriso not found, using docker"
 	$(MAKE) use_docker $(MAKECMDGOALS)
 endif
 
@@ -99,3 +102,10 @@ clean:
 
 fclean: clean
 	$(RM) -r $(NAME) $(IMG_NAME) $(IMG_BUILD_DIR)
+
+re:
+	$(MAKE) fclean
+	$(MAKE) all
+
+run: $(IMG_NAME)
+	qemu-system-i386 -m 32M -boot d -cdrom $(IMG_NAME) -nographic
