@@ -1,0 +1,16 @@
+# TODO depend on docker-cc-build.yml
+# TODO create artifacts on release
+name: Compile KFS
+on: [push]
+jobs:
+  formatting-check:
+    name: Compiling KFS
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/${{ github.repository_owner }}/i686-cc:latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build the kernel
+        run: make all

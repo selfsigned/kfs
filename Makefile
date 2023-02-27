@@ -16,7 +16,9 @@ CC			:= $(PREFIX)-gcc
 AS			:= $(PREFIX)-as
 HAS_CC	:= $(shell $(CC) --version 2>/dev/null)
 
+# todo -g only when needed
 CFLAGS := \
+ -Wextra -Wall \
  -g -O2 \
  -fno-builtin \
  -fno-exceptions \
@@ -46,13 +48,14 @@ SRC_ASM			= $(shell find $(SRC_PATH) -name "*.s")
 SRC					= $(shell find $(SRC_PATH) -name "*.c")
 HEADERS			= $(shell find $(SRC_PATH) -name "*.h")
 OBJ					= $(SRC_ASM:.s=.o) $(SRC:.c=.o)
-LINKER_FILE	= src/linker.ld
+LINKER_FILE	= $(SRC_PATH)/linker.ld
 
 # helpers
 ROOT_DIR			:= $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 
 ## Rulez ##
 .PHONY: all use_docker run gdb clean fclean re
+.NOTPARALLEL:
 
 all:
 	@$(MAKE) $(NAME)
@@ -110,7 +113,7 @@ run:
 	$(MAKE) $(IMG_NAME)
 	@echo "[INFO] Qemu is running a gdb server at $(GDB_PORT)"
 	qemu-system-i386 -boot d -cdrom $(IMG_NAME) \
-		-m 64M \
+		-m 4M \
 		-display curses \
 		-gdb tcp:localhost:$(GDB_PORT) # ncurses interface and gdb server
 
