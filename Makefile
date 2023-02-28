@@ -125,7 +125,9 @@ run:
 
 test:
 	$(MAKE) $(NAME)
-	timeout 15 $(MAKE) run &
+	timeout 15 qemu-system-i386 \
+    -boot d -cdrom $(IMG_NAME) \
+		-m 4M -nographic -gdb tcp:localhost:$(GDB_PORT) &
 	sleep 8 && (echo "x/wx $(SIGNATURE_ADDRESS)") | make gdb 2>/dev/null| grep -i $(SIGNATURE_VALUE)
 
 gdb:
