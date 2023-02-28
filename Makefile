@@ -16,17 +16,25 @@ CC			:= $(PREFIX)-gcc
 AS			:= $(PREFIX)-as
 HAS_CC	:= $(shell $(CC) --version 2>/dev/null)
 
-CFLAGS := \
+# macros
+SIGNATURE_ADDRESS=0x0030DEAD
+SIGNATURE_VALUE=0x00DEAD42 # !! NEEDS TO BE A WORD FOR THE TEST TO WORK !!
+
+# todo -g only when needed
+CFLAGS += \
+ -Wextra -Wall \
  -g -O2 \
  -fno-builtin \
  -fno-exceptions \
  -fno-stack-protector \
  -nostdlib \
  -nodefaultlibs \
- -ffreestanding
-
+ -ffreestanding \
+ -D SIGNATURE_ADDRESS=$(SIGNATURE_ADDRESS) \
+ -D SIGNATURE_VALUE=$(SIGNATURE_VALUE)
 # grub
-TEST_GRUB		:= $(shell grub-file -u && xorriso -version 2>/dev/null && test -d /usr/lib/grub/i386-pc)
+TIMEOUT_GRUB  := 5
+TEST_GRUB     := $(shell grub-file -u && xorriso -version 2>/dev/null && test -d /usr/lib/grub/i386-pc)
 ifneq ($(.SHELLSTATUS),1)
 HAS_GRUB		:= true
 endif
@@ -46,13 +54,15 @@ SRC_ASM			= $(shell find $(SRC_PATH) -name "*.s")
 SRC					= $(shell find $(SRC_PATH) -name "*.c")
 HEADERS			= $(shell find $(SRC_PATH) -name "*.h")
 OBJ					= $(SRC_ASM:.s=.o) $(SRC:.c=.o)
-LINKER_FILE	= src/linker.ld
+LINKER_FILE	= $(SRC_PATH)/linker.ld
+
 
 # helpers
 ROOT_DIR			:= $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 
 ## Rulez ##
-.PHONY: all use_docker run gdb clean fclean re
+.PHONY: all use_docker run gdb test clean fclean re
+.NOTPARALLEL:
 
 all:
 	@$(MAKE) $(NAME)
@@ -83,7 +93,7 @@ $(IMG_NAME): $(NAME)
 ifdef HAS_GRUB
 	mkdir -p $(IMG_BUILD_DIR)/boot/grub
 	cp $(NAME) $(IMG_BUILD_DIR)/boot
-	echo "menuentry \"$(NAME:.bin=)\" { multiboot /boot/$(NAME) }" > $(IMG_BUILD_DIR)/boot/grub/grub.cfg
+	printf "set timeout=$(TIMEOUT_GRUB)\nmenuentry \"$(NAME:.bin=)\" { multiboot /boot/$(NAME) }" > $(IMG_BUILD_DIR)/boot/grub/grub.cfg
 	grub-mkrescue -o $(IMG_NAME) $(IMG_BUILD_DIR)
 else
 	@echo "[INFO] grub or xoriso not found, using docker"
@@ -110,9 +120,16 @@ run:
 	$(MAKE) $(IMG_NAME)
 	@echo "[INFO] Qemu is running a gdb server at $(GDB_PORT)"
 	qemu-system-i386 -boot d -cdrom $(IMG_NAME) \
-		-m 64M \
+		-m 4M \
 		-display curses \
 		-gdb tcp:localhost:$(GDB_PORT) # ncurses interface and gdb server
+
+test:
+	$(MAKE) $(NAME)
+	timeout 15 qemu-system-i386 \
+    -boot d -cdrom $(IMG_NAME) \
+		-m 4M -nographic -gdb tcp:localhost:$(GDB_PORT) &
+	sleep 8 && (echo "x/wx $(SIGNATURE_ADDRESS)") | make gdb 2>/dev/null| grep -i $(SIGNATURE_VALUE)
 
 gdb:
 	$(MAKE) $(NAME)

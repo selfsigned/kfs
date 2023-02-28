@@ -2,6 +2,7 @@
 *.iso
 *.in
 .iso/
+.nfs*
 kfs.bin
 
 # vim

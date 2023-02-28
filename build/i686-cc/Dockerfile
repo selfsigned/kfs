@@ -53,7 +53,7 @@ ENV PATH="$PREFIX/bin:$PATH"
 
 COPY --from=BUILD /opt/cross /opt/cross
 
-run apk add --no-cache \
+RUN apk add --no-cache \
     make \
     gmp-dev \
     mpc1-dev \

@@ -1,0 +1,25 @@
+# TODO depend on docker-cc-build.yml
+# TODO add kfs.iso in upload-release-asset
+name: Compile KFS
+on: [push]
+jobs:
+  kernel-build:
+    name: Compiling KFS
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/${{ github.repository_owner }}/i686-cc:latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build the kernel
+        run: make all
+
+      - name: Upload the kernel build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: kfs.iso
+          path: kfs.iso
+
+      - name: Run kernel and test memory for our signature
+        run: make test
