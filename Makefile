@@ -56,6 +56,7 @@ HEADERS			= $(shell find $(SRC_PATH) -name "*.h")
 OBJ					= $(SRC_ASM:.s=.o) $(SRC:.c=.o)
 LINKER_FILE	= $(SRC_PATH)/linker.ld
 
+
 # helpers
 ROOT_DIR			:= $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 

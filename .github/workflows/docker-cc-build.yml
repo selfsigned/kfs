@@ -1,9 +1,9 @@
 name: Build the i686-cc image
 on:
   push:
-    # branches:
-    #   - "main"
-    #   - "master"
+    branches:
+      - "main"
+      - "master"
     paths:
     - 'build/i686-cc/**'
   release:
