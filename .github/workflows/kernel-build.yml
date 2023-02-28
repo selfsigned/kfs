@@ -1,9 +1,9 @@
 # TODO depend on docker-cc-build.yml
-# TODO create artifacts on release
+# TODO add kfs.iso in upload-release-asset
 name: Compile KFS
 on: [push]
 jobs:
-  formatting-check:
+  kernel-build:
     name: Compiling KFS
     runs-on: ubuntu-latest
     container:
@@ -14,3 +14,12 @@ jobs:
 
       - name: Build the kernel
         run: make all
+
+      - name: Upload the kernel build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: kfs.iso
+          path: kfs.iso
+
+      - name: Run kernel and test memory for our signature
+        run: make test

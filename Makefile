@@ -16,8 +16,12 @@ CC			:= $(PREFIX)-gcc
 AS			:= $(PREFIX)-as
 HAS_CC	:= $(shell $(CC) --version 2>/dev/null)
 
+# macros
+SIGNATURE_ADDRESS=0x0030DEAD
+SIGNATURE_VALUE=0x00DEAD42 # !! NEEDS TO BE A WORD FOR THE TEST TO WORK !!
+
 # todo -g only when needed
-CFLAGS := \
+CFLAGS += \
  -Wextra -Wall \
  -g -O2 \
  -fno-builtin \
@@ -25,10 +29,12 @@ CFLAGS := \
  -fno-stack-protector \
  -nostdlib \
  -nodefaultlibs \
- -ffreestanding
-
+ -ffreestanding \
+ -D SIGNATURE_ADDRESS=$(SIGNATURE_ADDRESS) \
+ -D SIGNATURE_VALUE=$(SIGNATURE_VALUE)
 # grub
-TEST_GRUB		:= $(shell grub-file -u && xorriso -version 2>/dev/null && test -d /usr/lib/grub/i386-pc)
+TIMEOUT_GRUB  := 5
+TEST_GRUB     := $(shell grub-file -u && xorriso -version 2>/dev/null && test -d /usr/lib/grub/i386-pc)
 ifneq ($(.SHELLSTATUS),1)
 HAS_GRUB		:= true
 endif
@@ -86,7 +92,7 @@ $(IMG_NAME): $(NAME)
 ifdef HAS_GRUB
 	mkdir -p $(IMG_BUILD_DIR)/boot/grub
 	cp $(NAME) $(IMG_BUILD_DIR)/boot
-	echo "menuentry \"$(NAME:.bin=)\" { multiboot /boot/$(NAME) }" > $(IMG_BUILD_DIR)/boot/grub/grub.cfg
+	printf "set timeout=$(TIMEOUT_GRUB)\nmenuentry \"$(NAME:.bin=)\" { multiboot /boot/$(NAME) }" > $(IMG_BUILD_DIR)/boot/grub/grub.cfg
 	grub-mkrescue -o $(IMG_NAME) $(IMG_BUILD_DIR)
 else
 	@echo "[INFO] grub or xoriso not found, using docker"
@@ -116,6 +122,11 @@ run:
 		-m 4M \
 		-display curses \
 		-gdb tcp:localhost:$(GDB_PORT) # ncurses interface and gdb server
+
+test:
+	$(MAKE) $(NAME)
+	timeout 15 $(MAKE) run &
+	sleep 8 && (echo "x/wx $(SIGNATURE_ADDRESS)") | make gdb 2>/dev/null| grep -i $(SIGNATURE_VALUE)
 
 gdb:
 	$(MAKE) $(NAME)
