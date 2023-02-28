@@ -60,7 +60,7 @@ LINKER_FILE	= $(SRC_PATH)/linker.ld
 ROOT_DIR			:= $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 
 ## Rulez ##
-.PHONY: all use_docker run gdb clean fclean re
+.PHONY: all use_docker run gdb test clean fclean re
 .NOTPARALLEL:
 
 all:
