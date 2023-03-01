@@ -26,10 +26,10 @@ CPPFLAGS += \
  -D SIGNATURE_ADDRESS=$(SIGNATURE_ADDRESS) \
  -D SIGNATURE_VALUE=$(SIGNATURE_VALUE)
 
-# todo -g only when needed
-CFLAGS += \
+CFLAGS ?= \
  -Wextra -Wall \
- -g \
+ -g
+CFLAGS += \
  -std=c11 \
  -fno-builtin \
  -fno-exceptions \

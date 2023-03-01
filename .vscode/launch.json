@@ -20,17 +20,3 @@
     }
   ]
 }
-   // "pipeTransport": {
-  //   "pipeCwd": "${workspaceFolder}",
-  //   "pipeProgram": "docker",
-  //   "pipeArgs": [
-  //     "run",
-  //     "-it",
-  //     "--rm",
-  //     "-v",
-  //     "${workspaceFolder}:/build",
-  //     "sh",
-  //     "-c"
-  //   ],
-  //   "debuggerPath": "/usr/bin/gdb"
-  // }
