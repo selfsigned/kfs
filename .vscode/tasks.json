@@ -15,13 +15,26 @@
       }
     },
     {
-      "label": "Run in qemu",
+      "label": "Run QEMU",
       "type": "shell",
-      "command": "make",
-      "args": [
-        "run",
-      ],
-      "problemMatcher": [],
+      "command": "make use_docker && echo Starting QEMU& make run",
+      "options": {
+        "env": {
+          "INTERACTIVE": "1"
+        }
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^(Starting QEMU)",
+          "line": 1,
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^(Starting QEMU)",
+          "endsPattern": "^(Starting QEMU)"
+        }
+      },
       "group": {
         "kind": "none",
         "isDefault": false

@@ -26,9 +26,13 @@ CPPFLAGS += \
  -D SIGNATURE_ADDRESS=$(SIGNATURE_ADDRESS) \
  -D SIGNATURE_VALUE=$(SIGNATURE_VALUE)
 
+ DBGFLAGS := \
+ -g \
+ -fdebug-prefix-map=/build=.
+ 
 CFLAGS ?= \
  -Wextra -Wall \
- -g
+ $(DBGFLAGS)
 CFLAGS += \
  -std=c11 \
  -fno-builtin \
