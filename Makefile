@@ -108,7 +108,7 @@ else
 	$(ERROR_CC)
 endif
 
--include $(DEP)
+## virtual  ##
 
 use_docker:
 ifdef INSIDE_DOCKER
@@ -124,8 +124,6 @@ else ifdef HAS_DOCKER
 else
 	@$(error "[ERROR] Couldn't use docker")
 endif
-
-## virtual rules ##
 
 run: $(IMG_NAME)
 	@echo "[INFO] Qemu is running a gdb server at $(GDB_PORT)"
@@ -154,3 +152,6 @@ fclean: clean
 re:
 	$(MAKE) fclean
 	$(MAKE) all
+
+## dependencies ##
+-include $(DEP)
