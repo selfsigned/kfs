@@ -1,0 +1,31 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build kfs.iso",
+      "type": "shell",
+      "command": "make",
+      "args": [
+        "use_docker",
+      ],
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Run in qemu",
+      "type": "shell",
+      "command": "make",
+      "args": [
+        "run",
+      ],
+      "problemMatcher": [],
+      "group": {
+        "kind": "none",
+        "isDefault": false
+      }
+    }
+  ]
+}

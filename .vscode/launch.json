@@ -1,0 +1,36 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug `make run` (localhost:4666)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/kfs.bin",
+      "miDebuggerServerAddress": "localhost:4666",
+      "cwd": ".",
+      "linux": {
+          "MIMode": "gdb"
+      },
+      "osx": {
+          "MIMode": "lldb"
+      },
+      "windows": {
+          "MIMode": "gdb"
+      }
+    }
+  ]
+}
+   // "pipeTransport": {
+  //   "pipeCwd": "${workspaceFolder}",
+  //   "pipeProgram": "docker",
+  //   "pipeArgs": [
+  //     "run",
+  //     "-it",
+  //     "--rm",
+  //     "-v",
+  //     "${workspaceFolder}:/build",
+  //     "sh",
+  //     "-c"
+  //   ],
+  //   "debuggerPath": "/usr/bin/gdb"
+  // }
