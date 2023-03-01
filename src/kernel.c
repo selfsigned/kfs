@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 #include "kernel.h"
+#include "klibc/libc.h"
 
 /// @brief Wait indefinitely
 void __attribute__((noinline)) kernel_wait(void) {
