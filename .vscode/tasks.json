@@ -1,0 +1,44 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build kfs.iso",
+      "type": "shell",
+      "command": "make",
+      "args": [
+        "use_docker",
+      ],
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Run QEMU",
+      "type": "shell",
+      "command": "make use_docker && echo Starting QEMU& make run",
+      "options": {
+        "env": {
+          "INTERACTIVE": "1"
+        }
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^(Starting QEMU)",
+          "line": 1,
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^(Starting QEMU)",
+          "endsPattern": "^(Starting QEMU)"
+        }
+      },
+      "group": {
+        "kind": "none",
+        "isDefault": false
+      }
+    }
+  ]
+}

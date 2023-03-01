@@ -1,0 +1,23 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug `make run` (localhost:4666)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/kfs.bin",
+      "miDebuggerServerAddress": "localhost:4666",
+      "cwd": "${workspaceRoot}",
+      "linux": {
+          "MIMode": "gdb"
+      },
+      "osx": {
+          "MIMode": "lldb"
+      },
+      "windows": {
+          "MIMode": "gdb"
+      },
+      "preLaunchTask": "Run QEMU"
+    }
+  ]
+}
