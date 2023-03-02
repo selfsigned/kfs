@@ -48,3 +48,29 @@ int atoi(const char *str) {
 }
 
 // non-standard
+
+void strrev(char *s) {
+  char c;
+
+  for (int i = 0, j = strlen(s) - 1; i < j; ++i, --j) {
+    c = s[i];
+    s[i] = s[j];
+    s[j] = c;
+  }
+}
+
+char *utoa(char *str, unsigned int value, unsigned char base) {
+  const char base_digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+  unsigned int i = 0;
+
+  str[0] = '\0';
+  if (base < 2 || base > 36)
+    return NULL;
+  while (value != 0) {
+    str[i++] = base_digits[value % base];
+    value /= base;
+  }
+  str[i] = '\0';
+  strrev(str);
+  return str;
+}

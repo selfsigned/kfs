@@ -85,12 +85,24 @@ char *strchr(const char *s, int c);
 
 //// strings nonstandard //
 
+/// @brief reverse a string
+/// @param s string to reverse
+void strrev(char *s);
+
 /// @brief Convert integer to string
 /// @param s destination, should be long enough to contain any value in the
-/// selected base (65)
+/// selected base (32 in binary)
 /// @param value integer to convert
-/// @param base base to convert to
+/// @param base base to convert to, lowercase above 9
 /// @return pointer to str on success, NULL with a non-valid base argument
 char *itoa(char *str, int value, unsigned char base);
+
+/// @brief Convert unsigned integer to string
+/// @param s destination, should be long enough to contain any value in the
+/// selected base (32 in binary)
+/// @param value integer to convert
+/// @param base base to convert to, lowercase above 9
+/// @return pointer to str on success, NULL with a non-valid base argument
+char *utoa(char *str, unsigned int value, unsigned char base);
 
 #endif
