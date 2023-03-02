@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+// for vscode
 #define __null 0
 
 // memory
@@ -72,5 +73,22 @@ char *utoa(char *str, unsigned int value, unsigned char base) {
   }
   str[i] = '\0';
   strrev(str);
+  return str;
+}
+
+char *itoa(char *str, int value, unsigned char base) {
+  unsigned int i = 0;
+  unsigned int uval;
+
+  str[0] = '\0';
+  if (base < 2 || base > 36)
+    return NULL;
+  if (base == 10 && value < 0) {
+    str[i++] = '-';
+    uval = (unsigned)-value;
+  } else {
+    uval = (unsigned)value;
+  }
+  utoa(str + i, uval, base);
   return str;
 }

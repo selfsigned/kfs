@@ -89,11 +89,12 @@ char *strchr(const char *s, int c);
 /// @param s string to reverse
 void strrev(char *s);
 
-/// @brief Convert integer to string
+/// @brief Convert integer to string, negative only if base 10
 /// @param s destination, should be long enough to contain any value in the
 /// selected base (32 in binary)
 /// @param value integer to convert
-/// @param base base to convert to, lowercase above 9
+/// @param base base to convert to, lowercase above 9, negative numbers only
+/// supported for decimal
 /// @return pointer to str on success, NULL with a non-valid base argument
 char *itoa(char *str, int value, unsigned char base);
 
