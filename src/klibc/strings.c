@@ -1,11 +1,22 @@
 #include "libc.h"
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 
 // for vscode
 #define __null 0
 
 // memory
+
+inline void *memcpy(void *dest, const void *src, size_t n) {
+  const char *s = src;
+  char *d = dest;
+
+  // slow!
+  for (; n > 0; --n, ++s, ++d)
+    *d = *s;
+  return dest;
+}
 
 inline void *memset(void *s, int c, size_t n) {
   for (size_t i = 0; i < n; ++i)

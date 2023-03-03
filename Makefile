@@ -43,7 +43,7 @@ CFLAGS += \
  -ffreestanding
 
 # grub
-TIMEOUT_GRUB  := 5
+TIMEOUT_GRUB  := 1
 ifneq (,$(wildcard /usr/lib/grub/i386-pc))
 HAS_GRUB := $(shell grub-file -u 2>/dev/null && xorriso -version 2>/dev/null)
 endif

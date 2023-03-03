@@ -62,6 +62,13 @@ int atoi(const char *nptr);
 /// @param n numbers of bytes to zero
 void bzero(void *s, size_t n);
 
+/// @brief copy memory area
+/// @param dest destionation memory area (can't overlap with src)
+/// @param src  src memory area
+/// @param n number of bytes to copy
+/// @return
+void *memcpy(void *dest, const void *src, size_t n);
+
 /// @brief fill memory with a constant byte
 /// @param s memory area to fill
 /// @param c character to fill
