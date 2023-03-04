@@ -43,9 +43,9 @@ CFLAGS += \
  -ffreestanding
 
 # grub
-TIMEOUT_GRUB  := 5
+TIMEOUT_GRUB  := 1
 ifneq (,$(wildcard /usr/lib/grub/i386-pc))
-HAS_GRUB := $(shell grub-file -u 2>/dev/null && xorriso -version 2>/dev/null)
+HAS_GRUB := $(shell grub-file -u 1>/dev/null 2>/dev/null && xorriso -version 2>/dev/null)
 endif
 
 # docker
@@ -134,13 +134,15 @@ run: $(IMG_NAME)
 	qemu-system-i386 -boot d -cdrom $(IMG_NAME) \
 		-m 4M \
 		-display curses \
-		-gdb tcp:localhost:$(GDB_PORT) # ncurses interface and gdb server
+		-gdb tcp:0.0.0.0:$(GDB_PORT) # ncurses interface and gdb server
 
 test: $(IMG_NAME)
+	@echo "[INFO] Starting up $(IMG_NAME) and checking if signature is set in memory]"
 	timeout 15 qemu-system-i386 \
     -boot d -cdrom $(IMG_NAME) \
 		-m 4M -nographic -gdb tcp:localhost:$(GDB_PORT) &
-	sleep 10 && (echo "x/wx $(SIGNATURE_ADDRESS)") | make gdb 2>/dev/null| grep -i $(SIGNATURE_VALUE)
+	sleep 10 && (echo "x/wx $(SIGNATURE_ADDRESS)") | make gdb 2>/dev/null | grep -i $(SIGNATURE_VALUE)
+	@echo "[INFO] Signature matched, test passed!"
 
 gdb: $(NAME)
 	gdb -ex "target remote localhost:$(GDB_PORT)" -ex "symbol-file $(NAME)"
