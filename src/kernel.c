@@ -15,21 +15,13 @@ void __attribute__((noinline)) kernel_wait(void) {
 /// @brief The entrypoint of our kernel
 void kernel_main(void) {
   int *memory_signature = (void *)SIGNATURE_ADDRESS;
-  uint16_t *vga_text_buffer = (uint16_t *)0xB8000;
 
-  // print dumb flag
-  memcpy(&(vga_text_buffer[1000]),
-         &((vga_char){.c = '4',
-                      .fg_color = VGA_COLOR_WHITE,
-                      .bg_color = VGA_COLOR_BLUE}),
-         sizeof(vga_char));
-  memcpy(&(vga_text_buffer[1001]),
-         &((vga_char){.c = ' ', .bg_color = VGA_COLOR_LIGHT_GREY}),
-         sizeof(vga_char));
-  memcpy(&(vga_text_buffer[1002]),
-         &((vga_char){
-             .c = '2', .fg_color = VGA_COLOR_WHITE, .bg_color = VGA_COLOR_RED}),
-         sizeof(vga_char));
+  vga_printf((vga_info){.row = 0, .column = 0, .noprint = true}, "X");
+  vga_printf((vga_info){.row = 9, .column = 39, .noprint = true}, "42");
+  vga_printf(
+      (vga_info){.row = 10, .column = 73, .noprint = true, .wrapchar = '|'},
+      "wrapping is implemented");
+  vga_printf((vga_info){.row = 24, .column = 79}, "X");
 
   // Set the kernel signature
   *memory_signature = SIGNATURE_VALUE;

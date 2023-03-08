@@ -9,7 +9,7 @@
 /// set this to change the address of the buffers in memory
 extern uint16_t *vga_set_buffer_addr;
 // default HW address for vga_set_buffer_addr;
-#define VGA_HW_BUFFER_ADDR 0x000FFFFF
+#define VGA_HW_BUFFER_ADDR 0x001FFFFF
 
 /// max number of screens
 #define VGA_SCREEN_MAX 9
@@ -47,12 +47,13 @@ typedef struct __attribute__((packed)) vga_char {
 /// print at row, col
 typedef struct vga_info {
   uint8_t screen; /// active screen buffer, negative value to use the last
-  uint8_t row;    /// max 25
-  uint8_t column; /// max 80
+  uint8_t row;    /// max 24 (starts at 0)
+  uint8_t column; /// max 79 (stats at 0)
   bool noprint;   /// don't flush the screen buffer to VGA
   bool nocursor;  // TODO define
-  bool nowrap;    /// wrap around line if output is too big
   bool scroll;    // TODO define
+  bool nowrap;    /// wrap around line if output is too big
+  char wrapchar;  /// the character to put when wrapping
 } vga_info;
 
 /// @brief output formatted string to a vga screen buffer (not posix)

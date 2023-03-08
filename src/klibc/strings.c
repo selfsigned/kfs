@@ -3,9 +3,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-// for vscode
-#define __null 0
-
 // memory
 
 inline void *memcpy(void *dest, const void *src, size_t n) {
