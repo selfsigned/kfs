@@ -1,7 +1,7 @@
 #include "gdt.h"
 #define GDTBASE 0x00000800
 
-#define GDT_NB_ENTRIES 5
+#define GDT_NB_ENTRIES 7
 
 struct segment_desc gdt[GDT_NB_ENTRIES];
 struct gdt_ptr gdt_ptr;
@@ -24,11 +24,15 @@ void create_segment_desc(struct segment_desc *segment_desc, uint32_t base,
 
 /// @brief fill gdt with all segments descriptors
 void fill_gdt_entry() {
-  create_segment_desc(&gdt[0], 0, 0, 0, 0);
-  create_segment_desc(&gdt[1], 0, 0, 0, 0);
-  create_segment_desc(&gdt[2], 0, 0, 0, 0);
-  create_segment_desc(&gdt[3], 0, 0, 0, 0);
-  create_segment_desc(&gdt[4], 0, 0, 0, 0);
+  create_segment_desc(&gdt[0], 0, 0, 0, 0); // null descriptor
+  // kernel segments
+  create_segment_desc(&gdt[1], 0, 0xFFFFFFFF, 0, 0); // code
+  create_segment_desc(&gdt[2], 0, 0xFFFFFFFF, 0, 0); // data
+  create_segment_desc(&gdt[3], 0, 0xFFFFFFFF, 0, 0); // stack
+  // user segments
+  create_segment_desc(&gdt[4], 0, 0xFFFFFFFF, 0, 0); // code
+  create_segment_desc(&gdt[5], 0, 0xFFFFFFFF, 0, 0); // data
+  create_segment_desc(&gdt[6], 0, 0xFFFFFFFF, 0, 0); // stack
 }
 
 /// @brief init gdt_pointer and fill gdt with all segments descriptors
