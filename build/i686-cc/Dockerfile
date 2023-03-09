@@ -65,5 +65,3 @@ RUN apk add --no-cache \
 
 VOLUME ["/build"]
 WORKDIR /build
-
-ENTRYPOINT ["/bin/bash"]
