@@ -15,11 +15,6 @@
       "label": "Run QEMU",
       "type": "shell",
       "command": "make use_docker && echo Starting QEMU& docker run -it --platform linux/amd64 --rm -p 4666:4666 -v ${workspaceFolder}:/build ghcr.io/l-aurelie/i686-cc:latest make run",
-      "options": {
-        "env": {
-          "INTERACTIVE": "1"
-        }
-      },
       "isBackground": true,
       "problemMatcher": {
         "pattern": {
