@@ -34,13 +34,16 @@ enum vga_color {
   VGA_COLOR_WHITE = 15,
 };
 
+typedef struct __attribute__((packed)) vga_attributes {
+  enum vga_color fg : 4; /// character color
+  enum vga_color bg : 3; /// background color (goes only up to 8)
+  bool blink : 1;        /// blink (INOP?)
+} vga_attributes;
+
 /// @brief VGA text character
 typedef struct __attribute__((packed)) vga_char {
-  unsigned char c : 8; /// the character we want to print, goes beyon ASCII
-                       /// (TODO find exact charset)
-  enum vga_color fg_color : 4; /// character color
-  enum vga_color bg_color : 3; /// background color (goes only up to 8)
-  bool blink : 1;              /// blink (INOP?)
+  unsigned char c : 8;         /// CP437 character to print
+  struct vga_attributes color; /// character color attributes
 } vga_char;
 
 /// @brief control for vga print functions, modes are exclusive, default is
@@ -49,11 +52,11 @@ typedef struct vga_info {
   uint8_t screen; /// active screen buffer, negative value to use the last
   uint8_t row;    /// max 24 (starts at 0)
   uint8_t column; /// max 79 (stats at 0)
-  bool noprint;   /// don't flush the screen buffer to VGA
+  bool print;     /// flush the screen buffer to VGA
   bool nocursor;  // TODO define
   bool scroll;    // TODO define
   bool nowrap;    /// wrap around line if output is too big
-  char wrapchar;  /// the character to put when wrapping
+  unsigned char wrapchar; /// the character to put when wrapping
 } vga_info;
 
 /// @brief output formatted string to a vga screen buffer (not posix)
@@ -62,5 +65,14 @@ typedef struct vga_info {
 /// @param ... arguments for printf format strings
 /// @return negative if error, number of chars written otherwise
 int vga_printf(vga_info info, const char *format, ...);
+
+/// @brief flush the selected screen buffer to vga, print as well
+/// @param screen_nbr screen to print
+/// @return positive if success, negative if failed
+int vga_showscreen(uint8_t screen_nbr);
+
+/// @brief clear the screen (and reset cursor info TODO!)
+/// @param screen_nbr screen to clear
+void vga_clearscreen(uint8_t screen_nbr);
 
 #endif
