@@ -2,12 +2,9 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Build kfs.iso",
+      "label": "Rebuild kfs.iso",
       "type": "shell",
-      "command": "make",
-      "args": [
-        "use_docker",
-      ],
+      "command": "docker run -it --platform linux/amd64 --rm -v ${workspaceFolder}:/build ghcr.io/l-aurelie/i686-cc:latest make re",
       "problemMatcher": [],
       "group": {
         "kind": "build",
@@ -17,7 +14,7 @@
     {
       "label": "Run QEMU",
       "type": "shell",
-      "command": "make use_docker && echo Starting QEMU& make run",
+      "command": "make use_docker && echo Starting QEMU& docker run -it --platform linux/amd64 --rm -p 4666:4666 -v ${workspaceFolder}:/build ghcr.io/l-aurelie/i686-cc:latest make run",
       "options": {
         "env": {
           "INTERACTIVE": "1"

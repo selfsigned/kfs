@@ -5,7 +5,7 @@
       "name": "Debug `make run` (localhost:4666)",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceRoot}/kfs.bin",
+      "program": "${workspaceFolder}/kfs.bin",
       "miDebuggerServerAddress": "localhost:4666",
       "cwd": "${workspaceRoot}",
       "linux": {

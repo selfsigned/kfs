@@ -5,4 +5,5 @@
         },
         "editor.insertSpaces": true,
         "editor.tabSize": 2,
+        "terminal.integrated.macOptionIsMeta": true
 }

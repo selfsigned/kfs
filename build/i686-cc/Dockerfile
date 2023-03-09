@@ -60,7 +60,10 @@ RUN apk add --no-cache \
     mpfr-dev \
     grub grub-bios xorriso \
     qemu-system-i386  qemu-ui-curses \
-    gdb
+    gdb \
+    bash
 
 VOLUME ["/build"]
 WORKDIR /build
+
+ENTRYPOINT ["/bin/bash"]
