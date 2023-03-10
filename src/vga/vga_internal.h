@@ -23,7 +23,10 @@
 
 /// @brief per screen vga state
 typedef struct vga_screen_info {
-  vga_info last_info;        /// store last info
+  struct {
+    uint8_t column;          /// store last column
+    uint8_t row;             /// store last row
+  } cursor;                  /// store last position
   vga_attributes attributes; /// used to store current color attributes
   vga_char *buffer;          /// buffer address in VRAM
 } vga_screen_info;
@@ -40,6 +43,13 @@ typedef struct vga_global_info {
 #define VGA_WRAP_DEFAULT_CHAR '>'
 
 // BUFFER //
+
+/// @brief load the cursor position depending on the info parameters, optinally
+/// return to line
+/// @param info the parameters to edit the cursor with
+/// @param insert_newline add a newline for the cursor
+/// @return the initalized screen
+vga_screen_info *vga_set_cursor(vga_info *info, bool insert_newline);
 
 /// @brief write char to a buffer
 /// @param info buffer write control struct

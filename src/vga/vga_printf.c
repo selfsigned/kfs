@@ -21,6 +21,7 @@ int vga_printf_readarg(vga_info *info, const char *format, va_list *ap,
         vga_buffer_writechar(info, (unsigned char)va_arg(*ap, unsigned int));
     break;
   case 's':
+    // TODO handle '\n' there too
     result += vga_buffer_write(info, (unsigned char *)va_arg(*ap, char *));
     break;
   case 'S':
@@ -46,8 +47,7 @@ int vga_vdprintf(vga_info info, const char *format, va_list ap) {
       result += vga_printf_readarg(&info, format, &ap, &i);
       break;
     case '\n':
-      info.column = 0;
-      info.row++;
+      vga_set_cursor(&info, true);
       break;
     default:
       result += vga_buffer_writechar(&info, format[i]);
@@ -55,7 +55,7 @@ int vga_vdprintf(vga_info info, const char *format, va_list ap) {
   }
 
   if (info.print)
-    vga_showscreen(info.screen);
+    vga_screen_show(info.screen);
 
   return result;
 }

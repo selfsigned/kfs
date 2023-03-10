@@ -46,17 +46,23 @@ typedef struct __attribute__((packed)) vga_char {
   struct vga_attributes color; /// character color attributes
 } vga_char;
 
-/// @brief control for vga print functions, modes are exclusive, default is
-/// print at row, col
+/// @brief print control for vga print function.
+/// Just partially initialize with what you actually need
 typedef struct vga_info {
-  uint8_t screen; /// active screen buffer, negative value to use the last
-  uint8_t row;    /// max 24 (starts at 0)
-  uint8_t column; /// max 79 (stats at 0)
-  bool print;     /// flush the screen buffer to VGA
-  bool nocursor;  // TODO define
-  bool scroll;    // TODO define
-  bool nowrap;    /// wrap around line if output is too big
+  uint8_t screen;         /// screen buffer to print to
+  uint8_t column;         /// start at, max 79 (stats at 0)
+  uint8_t row;            /// start at, max 24 (starts at 0)
+  bool setcursor;         /// sets the cursor to column and row
+                          /// neededed if row == 0 || col == 0
+  bool nocursor;          /// append without loading or change the cursor state
+  bool nowrap;            /// stop printing if the column overflows
+  bool noscroll;          /// stop printing if the row overflows
+  bool noattributes;      /// don't load color info from the screen state
+  bool print;             /// flush the screen buffer to VGA
   unsigned char wrapchar; /// the character to put when wrapping
+  struct {
+    bool cursor_loaded; /// !INTERNAL! is the screen cursor loaded?
+  } internal; /// DO NOT TOUCH, sad sad sad lack of separation of concern
 } vga_info;
 
 /// @brief output formatted string to a vga screen buffer (not posix)
@@ -66,13 +72,20 @@ typedef struct vga_info {
 /// @return negative if error, number of chars written otherwise
 int vga_printf(vga_info info, const char *format, ...);
 
+/// @brief set color attributes for a given screen
+/// @param screen_nbr
+/// @param attributes
+/// @return negative if screen doesn't exist
+int vga_screen_setattributes(uint8_t screen_nbr, vga_attributes attributes);
+
 /// @brief flush the selected screen buffer to vga, print as well
 /// @param screen_nbr screen to print
-/// @return positive if success, negative if failed
-int vga_showscreen(uint8_t screen_nbr);
+/// @return negative if screen doesn't exist
+int vga_screen_show(uint8_t screen_nbr);
 
-/// @brief clear the screen (and reset cursor info TODO!)
+/// @brief clear the screen and reset cursor info
 /// @param screen_nbr screen to clear
-void vga_clearscreen(uint8_t screen_nbr);
+/// @return negative if screen doesn't exist
+int vga_screen_clear(uint8_t screen_nbr);
 
 #endif
