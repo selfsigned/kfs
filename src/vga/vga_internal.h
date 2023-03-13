@@ -28,14 +28,24 @@ typedef struct vga_screen_info {
     uint8_t row;             /// store last row
   } cursor;                  /// store last position
   vga_attributes attributes; /// used to store current color attributes
-  vga_char *buffer;          /// buffer address in VRAM
+  struct {
+    vga_char *head; /// start of buffer in RAM
+    vga_char *pos;  /// current position in buffer
+    vga_char *tail; /// end of buffer
+  } buffer;
+  // vga_char *buffer; /// buffer address in RAM
 } vga_screen_info;
 
 /// @brief global vga state
 typedef struct vga_global_info {
-  vga_screen_info screen[VGA_SCREEN_MAX]; // info per screen
-  uint16_t *hw_vga_addr;                  // addr of the vga bios interface
-  uint16_t *hw_buffer_addr;               // addr of the buffer ram
+  vga_screen_info screen[VGA_SCREEN_MAX]; /// info per screen
+  uint16_t *vga_addr;                     /// addr of the vga bios interface
+  struct {
+    uint16_t *addr;   /// addr of the buffer ram
+    uint16_t screens; /// amount of screens worth of history in buffer
+    uint32_t size;    /// nbr of words (vga_char) in buffer !! multiply by
+                      /// sizeof(vga_char) to cast to byte !!
+  } buffer;           /// topology of a buffer
 } vga_global_info;
 
 // DRIVER //

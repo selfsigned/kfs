@@ -6,13 +6,20 @@
 
 // VGA text driver
 
-/// set this to change the address of the buffers in memory
+/// @brief set this to change the address of the buffers in memory
 extern uint16_t *vga_set_buffer_addr;
-// default HW address for vga_set_buffer_addr;
+/// default HW address for vga_set_buffer_addr;
 #define VGA_HW_BUFFER_ADDR 0x001FFFFF
 
+/// @brief set this to change the amount of screens in history, N * 80x25 *
+/// sizeof(vga_char). needs to be above 0
+extern uint16_t vga_set_buffer_history_size;
+/// amount of screens worth of history, N * 80*25 * sizeof(vga_char).
+/// needs to be above 0
+#define VGA_BUFFER_HISTORY_SIZE 16
+
 /// max number of screens
-#define VGA_SCREEN_MAX 9
+#define VGA_SCREEN_MAX 10
 
 /// @brief VGA colors, goes only up to 8 for the background
 enum vga_color {
@@ -56,6 +63,7 @@ typedef struct vga_info {
                           /// neededed if row == 0 || col == 0
   bool nocursor;          /// append without loading or change the cursor state
   bool nowrap;            /// stop printing if the column overflows
+  bool nowrapchar;        /// avoid printing a wrap character
   bool noscroll;          /// stop printing if the row overflows
   bool noattributes;      /// don't load color info from the screen state
   bool print;             /// flush the screen buffer to VGA
@@ -78,10 +86,18 @@ int vga_printf(vga_info info, const char *format, ...);
 /// @return negative if screen doesn't exist
 int vga_screen_setattributes(uint8_t screen_nbr, vga_attributes attributes);
 
-/// @brief flush the selected screen buffer to vga, print as well
+/// @brief display the selected screen buffer
 /// @param screen_nbr screen to print
 /// @return negative if screen doesn't exist
 int vga_screen_show(uint8_t screen_nbr);
+
+/// @brief display the selected screen buffer, scrolled
+/// @param screen_nbr screen to print
+/// @param rows number of rows to scroll up by
+/// @param scroll_overlay display position in buffer
+/// @return negative if screen doesn't exist
+int vga_screen_show_scrolled(uint8_t screen_nbr, uint32_t rows,
+                             bool scroll_overlay);
 
 /// @brief clear the screen and reset cursor info
 /// @param screen_nbr screen to clear
