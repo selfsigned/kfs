@@ -28,8 +28,9 @@ void kernel_main(void) {
              "implemented\nbut\not\nnewlines in arguments");
   vga_printf((vga_info){.screen = 0, .row = 24, .column = 78}, "%CY",
              CP437_YEN_SIGN);
-  vga_printf((vga_info){.screen = 0, .row = 12, .column = 39, .nocursor = true},
-             "42");
+  vga_printf((vga_info){.screen = 0, .row = 12, .column = 10, .nocursor = true},
+             "int: %i hex: %x unsigned:%u octal: %o binary: %b", 42, 42, 42, 42,
+             42);
   // vga_screen_clear(0);
   vga_screen_show_scrolled(0, 0, true);
 
