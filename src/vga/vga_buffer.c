@@ -1,47 +1,8 @@
 #include "vga_internal.h"
 
-uint16_t *vga_set_buffer_addr = (uint16_t *)VGA_HW_BUFFER_ADDR;
-uint16_t vga_set_buffer_history_size = (uint16_t)VGA_BUFFER_HISTORY_SIZE;
 vga_global_info g_vga_state = {};
 
 // private
-
-/// @brief initialize the vga driver
-int vga_buffer_init() {
-  static bool init = false;
-
-  if (vga_set_buffer_history_size == 0)
-    return -1;
-
-  // initalizing screens in RAM
-  if (!init || (g_vga_state.buffer.addr != vga_set_buffer_addr) ||
-      (g_vga_state.buffer.screens != vga_set_buffer_history_size)) {
-    // set the global state
-    g_vga_state.vga_addr = (uint16_t *)VGA_HW_ADDR;
-    g_vga_state.buffer.addr = vga_set_buffer_addr;
-    g_vga_state.buffer.screens = vga_set_buffer_history_size;
-    g_vga_state.buffer.size = (VGA_SCREEN_SIZE * g_vga_state.buffer.screens);
-
-    // populate addresses and clean them
-    for (unsigned int i = 0; i < VGA_SCREEN_MAX; ++i) {
-      vga_char *head = (vga_char *)(g_vga_state.buffer.addr +
-                                    (i * g_vga_state.buffer.size) + i);
-
-      g_vga_state.screen[i] = (vga_screen_info){
-          .buffer.head = head,
-          .buffer.tail = head + g_vga_state.buffer.size,
-      };
-      // set the screen viewpoint to head and clean the screen
-      g_vga_state.screen[i].buffer.pos = g_vga_state.screen[i].buffer.head;
-      bzero(g_vga_state.screen[i].buffer.head,
-            g_vga_state.buffer.size * sizeof(vga_char));
-      // DEBUG memory areas
-      // memset(g_vga_state.screen[i].buffer.head, ('a' + i),
-      //        g_vga_state.buffer.size * sizeof(vga_char));
-    }
-    init = true;
-  }
-}
 
 vga_screen_info *vga_set_cursor(vga_info *info, bool insert_newline) {
   vga_screen_info *screen = &g_vga_state.screen[info->screen];
@@ -66,6 +27,7 @@ vga_screen_info *vga_set_cursor(vga_info *info, bool insert_newline) {
     }
   }
 
+  // scroll
   if (info->row >= VGA_ROW) {
     if (info->noscroll)
       return 0;
@@ -83,6 +45,12 @@ vga_screen_info *vga_set_cursor(vga_info *info, bool insert_newline) {
       screen->buffer.pos += VGA_COL;
     }
 
+    // carry over color attributes
+    if (info->scrollattributes)
+      for (uint8_t i = 0; i < VGA_COL; ++i)
+        screen->buffer.pos[VGA_SCREEN_SIZE - VGA_COL + i].color =
+            screen->attributes;
+
     info->row = 24;
   }
 
@@ -96,9 +64,6 @@ int vga_buffer_writechar(vga_info *info, const unsigned char c) {
   vga_char vgac;           // character to write to screen
   uint16_t position;       // position on screen
   vga_screen_info *screen; // chosen screen
-
-  if (vga_buffer_init() < 0)
-    return 0;
 
   // load attributes and cursor state
   screen = vga_set_cursor(info, false);
@@ -150,6 +115,45 @@ int vga_buffer_write(vga_info *info, const unsigned char *s, bool is_ascii) {
 
 // public
 
+int vga_init(size_t history_size, uint16_t *buffer_addr) {
+  static bool init = false;
+
+  if (history_size == 0)
+    return -1;
+
+  // initalizing screens in RAM
+  if (!init || (g_vga_state.buffer.addr != buffer_addr) ||
+      (g_vga_state.buffer.history_size != history_size)) {
+    // set the global state
+    g_vga_state.vga_addr = (uint16_t *)VGA_HW_ADDR;
+    g_vga_state.buffer.addr = buffer_addr;
+    g_vga_state.buffer.history_size = history_size;
+    g_vga_state.buffer.size =
+        (VGA_SCREEN_SIZE * g_vga_state.buffer.history_size);
+
+    // populate addresses and clean them
+    for (unsigned int i = 0; i < VGA_SCREEN_MAX; ++i) {
+      vga_char *head = (vga_char *)(g_vga_state.buffer.addr +
+                                    (i * g_vga_state.buffer.size) + i);
+
+      g_vga_state.screen[i] = (vga_screen_info){
+          .buffer.head = head,
+          .buffer.tail = head + g_vga_state.buffer.size,
+          .attributes = (vga_attributes){.fg = VGA_COLOR_LIGHT_GREY}};
+      // set the screen viewpoint to head and clean the screen
+      g_vga_state.screen[i].buffer.pos = g_vga_state.screen[i].buffer.head;
+      bzero(g_vga_state.screen[i].buffer.head,
+            g_vga_state.buffer.size * sizeof(vga_char));
+      // DEBUG memory areas
+      // memset(g_vga_state.screen[i].buffer.head, ('a' + i),
+      //        g_vga_state.buffer.size * sizeof(vga_char));
+    }
+    init = true;
+  }
+
+  return 1;
+}
+
 int vga_screen_setattributes(uint8_t screen_nbr, vga_attributes attributes) {
   vga_screen_info *screen;
 
@@ -159,6 +163,33 @@ int vga_screen_setattributes(uint8_t screen_nbr, vga_attributes attributes) {
   screen = &g_vga_state.screen[screen_nbr];
   screen->attributes = attributes;
 
+  return 1;
+}
+
+int vga_screen_fillattributes(uint8_t screen_nbr, vga_attributes attributes) {
+  vga_screen_info *screen;
+
+  if (screen_nbr >= VGA_SCREEN_MAX)
+    return -42;
+
+  screen = &g_vga_state.screen[screen_nbr];
+  screen->attributes = attributes;
+  for (size_t i = 0; i < VGA_SCREEN_SIZE; ++i)
+    screen->buffer.pos[i].color = attributes;
+  return 1;
+}
+
+int vga_screen_fillbackground(uint8_t screen_nbr,
+                              enum vga_color background_color) {
+  vga_screen_info *screen;
+
+  if (screen_nbr >= VGA_SCREEN_MAX)
+    return -42;
+
+  screen = &g_vga_state.screen[screen_nbr];
+  screen->attributes.bg = background_color;
+  for (size_t i = 0; i < VGA_SCREEN_SIZE; ++i)
+    screen->buffer.pos[i].color.bg = background_color;
   return 1;
 }
 

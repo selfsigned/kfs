@@ -6,7 +6,7 @@
 int vga_printf_readarg(vga_info *info, const char *format, va_list *ap,
                        size_t *i) {
   int result = 0;
-  char tmp[64] = {0};
+  unsigned char tmp[64] = {0};
 
   // target: %[flags][width][.precision][length]type
   switch (format[*i]) {
@@ -32,28 +32,33 @@ int vga_printf_readarg(vga_info *info, const char *format, va_list *ap,
         info, (unsigned char *)va_arg(*ap, unsigned char *), false);
     break;
   case 'u':
-    utoa(tmp, (unsigned int)va_arg(*ap, unsigned int), 10);
+    utoa((char *)tmp, (unsigned int)va_arg(*ap, unsigned int), 10);
     vga_buffer_write(info, tmp, false);
     // base 10: unsigned
     break;
   case 'i':
-    itoa(tmp, (unsigned int)va_arg(*ap, unsigned int), 10);
+    itoa((char *)tmp, (unsigned int)va_arg(*ap, unsigned int), 10);
     vga_buffer_write(info, tmp, false);
     break;
   case 'x':
-    utoa(tmp, (unsigned int)va_arg(*ap, unsigned int), 16);
+    utoa((char *)tmp, (unsigned int)va_arg(*ap, unsigned int), 16);
     vga_buffer_write(info, tmp, false);
     // base 10: integer
     break;
   case 'o':
-    utoa(tmp, (unsigned int)va_arg(*ap, unsigned int), 8);
+    utoa((char *)tmp, (unsigned int)va_arg(*ap, unsigned int), 8);
     vga_buffer_write(info, tmp, false);
     // base 8: octal
     break;
   case 'b':
     // base 2: binary, extension
-    utoa(tmp, (unsigned int)va_arg(*ap, unsigned int), 2);
+    utoa((char *)tmp, (unsigned int)va_arg(*ap, unsigned int), 2);
     vga_buffer_write(info, tmp, false);
+    break;
+  case 'a':
+    // vga attributes, extension
+    vga_screen_setattributes(info->screen,
+                             (vga_attributes)va_arg(*ap, vga_attributes));
     break;
   default:
     // Not implemented yet

@@ -41,11 +41,11 @@ typedef struct vga_global_info {
   vga_screen_info screen[VGA_SCREEN_MAX]; /// info per screen
   uint16_t *vga_addr;                     /// addr of the vga bios interface
   struct {
-    uint16_t *addr;   /// addr of the buffer ram
-    uint16_t screens; /// amount of screens worth of history in buffer
-    uint32_t size;    /// nbr of words (vga_char) in buffer !! multiply by
-                      /// sizeof(vga_char) to cast to byte !!
-  } buffer;           /// topology of a buffer
+    uint16_t *addr;      /// addr of the buffer ram
+    size_t history_size; /// amount of screens worth of history in buffer
+    uint32_t size;       /// nbr of words (vga_char) in buffer !! multiply by
+                         /// sizeof(vga_char) to cast to byte !!
+  } buffer;              /// topology of a buffer
 } vga_global_info;
 
 // BUFFER //

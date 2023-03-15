@@ -2,21 +2,10 @@
 #define VGA_H
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 // VGA text driver
-
-/// @brief set this to change the address of the buffers in memory
-extern uint16_t *vga_set_buffer_addr;
-/// default HW address for vga_set_buffer_addr;
-#define VGA_HW_BUFFER_ADDR 0x001FFFFF
-
-/// @brief set this to change the amount of screens in history, N * 80x25 *
-/// sizeof(vga_char). needs to be above 0
-extern uint16_t vga_set_buffer_history_size;
-/// amount of screens worth of history, N * 80*25 * sizeof(vga_char).
-/// needs to be above 0
-#define VGA_BUFFER_HISTORY_SIZE 16
 
 /// max number of screens
 #define VGA_SCREEN_MAX 10
@@ -68,6 +57,7 @@ typedef struct vga_info {
   bool nowrap;            /// stop printing if the column overflows
   bool nowrapchar;        /// avoid printing a wrap character
   bool noscroll;          /// stop printing if the row overflows
+  bool scrollattributes;  /// carry attributes over when scrolling
   bool noattributes;      /// don't load color info from the screen state
   bool print;             /// flush the screen buffer to VGA
   unsigned char wrapchar; /// the character to put when wrapping
@@ -76,6 +66,15 @@ typedef struct vga_info {
   } internal; /// DO NOT TOUCH, sad sad sad lack of separation of concern
 } vga_info;
 
+// functions
+
+/// @brief initializes the vga driver, call before any other vga function
+/// @param history_size needs to be at least 1, amount of screens worth of
+/// history, N * 80*25 * sizeof(vga_char).
+/// @param buffer_addr address of the screen buffers in memory
+/// @return positive if initialize succeeded, negative if it failed
+int vga_init(size_t history_size, uint16_t *buffer_addr);
+
 /// @brief output formatted string to a vga screen buffer (not posix)
 /// @param info set the control info, pass a vga_info struct
 /// @param format printf-like format string TODO document supported ops
@@ -83,11 +82,24 @@ typedef struct vga_info {
 /// @return negative if error, number of chars written otherwise
 int vga_printf(vga_info info, const char *format, ...);
 
-/// @brief set color attributes for a given screen
-/// @param screen_nbr
-/// @param attributes
+/// @brief set color attributes for next characters on a given screen
+/// @param screen_nbr nbr of the screen to change attrs on
+/// @param attributes color attributes to set
 /// @return negative if screen doesn't exist
 int vga_screen_setattributes(uint8_t screen_nbr, vga_attributes attributes);
+
+/// @brief replace character color attributes for a given screen and set them
+/// @param screen_nbr nbr of the screen to edit
+/// @param attributes color attributes to override existing values with
+/// @return negative if screen doesn't exist
+int vga_screen_fillattributes(uint8_t screen_nbr, vga_attributes attributes);
+
+/// @brief replace background color for a given screen and set it
+/// @param screen_nbr nbr of the screen to edit
+/// @param background_color background color to fill the screen with
+/// @return negative if screen doesn't exist
+int vga_screen_fillbackground(uint8_t screen_nbr,
+                              enum vga_color background_color);
 
 /// @brief display the selected screen buffer
 /// @param screen_nbr screen to print
