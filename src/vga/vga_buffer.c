@@ -83,8 +83,7 @@ vga_screen_info *vga_set_cursor(vga_info *info, bool insert_newline) {
       screen->buffer.pos += VGA_COL;
     }
 
-    info->row--;
-    info->column = 0;
+    info->row = 24;
   }
 
   return screen;
@@ -135,12 +134,15 @@ int vga_buffer_writechar(vga_info *info, const unsigned char c) {
   return ++result;
 }
 
-int vga_buffer_write(vga_info *info, const unsigned char *s) {
+int vga_buffer_write(vga_info *info, const unsigned char *s, bool is_ascii) {
   const unsigned char *str = s;
   size_t result = 0;
 
   while (*str) {
-    result += vga_buffer_writechar(info, *str);
+    if (is_ascii && *str == '\n')
+      vga_set_cursor(info, true);
+    else
+      result += vga_buffer_writechar(info, *str);
     str++;
   }
   return result;

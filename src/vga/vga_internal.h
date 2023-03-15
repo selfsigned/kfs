@@ -48,10 +48,6 @@ typedef struct vga_global_info {
   } buffer;           /// topology of a buffer
 } vga_global_info;
 
-// DRIVER //
-
-#define VGA_WRAP_DEFAULT_CHAR '>'
-
 // BUFFER //
 
 /// @brief load the cursor position depending on the info parameters, optinally
@@ -70,7 +66,8 @@ int vga_buffer_writechar(vga_info *info, const unsigned char c);
 /// @brief write string to buffer
 /// @param info buffer write control struct
 /// @param s string to write to buffer
+/// @param is_ascii is the string ascii or CP437, used for special chars
 /// @return numbers of char written or negative if error
-int vga_buffer_write(vga_info *info, const unsigned char *s);
+int vga_buffer_write(vga_info *info, const unsigned char *s, bool is_ascii);
 
 #endif

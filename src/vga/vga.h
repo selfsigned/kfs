@@ -21,6 +21,9 @@ extern uint16_t vga_set_buffer_history_size;
 /// max number of screens
 #define VGA_SCREEN_MAX 10
 
+/// default character used when wrapping
+#define VGA_WRAP_DEFAULT_CHAR '>'
+
 /// @brief VGA colors, goes only up to 8 for the background
 enum vga_color {
   VGA_COLOR_BLACK = 0,
@@ -57,7 +60,7 @@ typedef struct __attribute__((packed)) vga_char {
 /// Just partially initialize with what you actually need
 typedef struct vga_info {
   uint8_t screen;         /// screen buffer to print to
-  uint8_t column;         /// start at, max 79 (stats at 0)
+  uint8_t column;         /// start at, max 79 (starts at 0)
   uint8_t row;            /// start at, max 24 (starts at 0)
   bool setcursor;         /// sets the cursor to column and row
                           /// neededed if row == 0 || col == 0

@@ -25,12 +25,12 @@ void kernel_main(void) {
              "X%c%C%c", '4', CP437_HEART, '2');
   vga_printf((vga_info){.screen = 0, .row = 3, .column = 70, .nowrap = false},
              "wrapping and %%s are: %s",
-             "implemented\nbut\not\nnewlines in arguments");
+             "and so is \\n \n in parameter strings");
   vga_printf((vga_info){.screen = 0, .row = 24, .column = 78}, "%CY",
              CP437_YEN_SIGN);
   vga_printf((vga_info){.screen = 0, .row = 12, .column = 10, .nocursor = true},
-             "int: %i hex: %x unsigned:%u octal: %o binary: %b", 42, 42, 42, 42,
-             42);
+             "int: %i hex: %x unsigned:%u octal: %o binary: %b", -42, 42, 42,
+             42, 42);
   // vga_screen_clear(0);
   vga_screen_show_scrolled(0, 0, true);
 

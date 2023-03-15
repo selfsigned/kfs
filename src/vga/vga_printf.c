@@ -1,8 +1,8 @@
 #include "vga.h"
 #include "vga_internal.h"
 
-/// @brief
-/// @return
+/// @brief implement printf argument reading
+/// @return numbers of character written, negative if error
 int vga_printf_readarg(vga_info *info, const char *format, va_list *ap,
                        size_t *i) {
   int result = 0;
@@ -22,40 +22,42 @@ int vga_printf_readarg(vga_info *info, const char *format, va_list *ap,
         vga_buffer_writechar(info, (unsigned char)va_arg(*ap, unsigned int));
     break;
   case 's':
-    // TODO handle '\n' there too
-    result += vga_buffer_write(info, (unsigned char *)va_arg(*ap, char *));
+    // ascii string, includes '\n'
+    result +=
+        vga_buffer_write(info, (unsigned char *)va_arg(*ap, char *), true);
     break;
   case 'S':
     // CP437
-    result +=
-        vga_buffer_write(info, (unsigned char *)va_arg(*ap, unsigned char *));
+    result += vga_buffer_write(
+        info, (unsigned char *)va_arg(*ap, unsigned char *), false);
     break;
   case 'u':
     utoa(tmp, (unsigned int)va_arg(*ap, unsigned int), 10);
-    vga_buffer_write(info, tmp);
+    vga_buffer_write(info, tmp, false);
     // base 10: unsigned
     break;
   case 'i':
     itoa(tmp, (unsigned int)va_arg(*ap, unsigned int), 10);
-    vga_buffer_write(info, tmp);
+    vga_buffer_write(info, tmp, false);
     break;
   case 'x':
     utoa(tmp, (unsigned int)va_arg(*ap, unsigned int), 16);
-    vga_buffer_write(info, tmp);
+    vga_buffer_write(info, tmp, false);
     // base 10: integer
     break;
   case 'o':
     utoa(tmp, (unsigned int)va_arg(*ap, unsigned int), 8);
-    vga_buffer_write(info, tmp);
+    vga_buffer_write(info, tmp, false);
     // base 8: octal
     break;
   case 'b':
     // base 2: binary, extension
     utoa(tmp, (unsigned int)va_arg(*ap, unsigned int), 2);
-    vga_buffer_write(info, tmp);
+    vga_buffer_write(info, tmp, false);
     break;
   default:
     // Not implemented yet
+    return -1;
     break;
   }
   return result;
@@ -63,13 +65,16 @@ int vga_printf_readarg(vga_info *info, const char *format, va_list *ap,
 
 int vga_vdprintf(vga_info info, const char *format, va_list ap) {
   int result = 0;
+  int ret = 0;
 
   // Parse the format string
   for (size_t i = 0; format[i]; ++i) {
     switch (format[i]) {
     case '%':
       ++i;
-      result += vga_printf_readarg(&info, format, &ap, &i);
+      if ((ret = vga_printf_readarg(&info, format, &ap, &i) < 0))
+        return -1;
+      result += ret;
       break;
     case '\n':
       vga_set_cursor(&info, true);
