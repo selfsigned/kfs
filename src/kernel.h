@@ -12,4 +12,7 @@
 #define SIGNATURE_VALUE 0x00DEAD42
 #endif
 
+/// can get big quickly depending on the history size
+#define SCREEN_BUFFER_ADDR 0x001FFFFF
+
 #endif
