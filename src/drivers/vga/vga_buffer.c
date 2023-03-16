@@ -57,7 +57,6 @@ vga_screen_info *vga_set_cursor(vga_info *info, bool insert_newline) {
   return screen;
 }
 
-// TODO scrolling cursor and history
 int vga_buffer_writechar(vga_info *info, const unsigned char c) {
   int result = 0;
   unsigned char wrap_char = VGA_WRAP_DEFAULT_CHAR;
@@ -202,9 +201,10 @@ int vga_screen_show(uint8_t screen_nbr) {
   return 1;
 }
 
-int vga_screen_show_scrolled(uint8_t screen_nbr, uint32_t rows) {
+int vga_screen_show_scrolled(uint8_t screen_nbr, int rows) {
   vga_screen_info *screen;
   vga_char *target;
+  bool isnotup = true;
 
   if (screen_nbr >= VGA_SCREEN_MAX)
     return -42;
@@ -212,12 +212,14 @@ int vga_screen_show_scrolled(uint8_t screen_nbr, uint32_t rows) {
   // Overlay not implemented yet
   screen = &g_vga_state.screen[screen_nbr];
   target = screen->buffer.pos - (rows * VGA_COL);
-  if (target < screen->buffer.head)
+  if (rows < 0 || target < screen->buffer.head) {
     target = screen->buffer.head;
+    isnotup = false;
+  }
 
   memcpy(g_vga_state.vga_addr, target, VGA_SCREEN_SIZE * sizeof(vga_char));
 
-  return 1;
+  return isnotup;
 }
 
 int vga_screen_clear(uint8_t screen_nbr) {

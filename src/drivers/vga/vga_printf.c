@@ -63,7 +63,6 @@ int vga_printf_readarg(vga_info *info, const char *format, va_list *ap,
   default:
     // Not implemented yet
     return -1;
-    break;
   }
   return result;
 }

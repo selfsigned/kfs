@@ -108,10 +108,10 @@ int vga_screen_show(uint8_t screen_nbr);
 
 /// @brief display the selected screen buffer, scrolled
 /// @param screen_nbr screen to print
-/// @param rows number of rows to scroll up by
+/// @param rows number of rows to scroll up by, -1 to go at the top
 /// TODO @param scroll_overlay display position in buffer
-/// @return negative if screen doesn't exist
-int vga_screen_show_scrolled(uint8_t screen_nbr, uint32_t rows);
+/// @return negative if screen doesn't exist, 0 if at buffer head
+int vga_screen_show_scrolled(uint8_t screen_nbr, int rows);
 
 /// @brief clear the screen and reset cursor info
 /// @param screen_nbr screen to clear
