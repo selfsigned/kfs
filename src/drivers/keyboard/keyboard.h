@@ -43,7 +43,6 @@ typedef enum scancode {
   KBD_DELETE,
 } scancode;
 
-
 // http://www.osdever.net/bkerndev/Docs/keyboard.htm
 extern unsigned char us_scancode_1[128];
 
