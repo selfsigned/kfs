@@ -1,7 +1,7 @@
 #ifndef VGA_INTERNAL_H
 #define VGA_INTERNAL_H
 
-#include "../klibc/libc.h"
+#include "../../klibc/libc.h"
 #include "vga.h"
 
 #include <stdarg.h>

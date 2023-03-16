@@ -202,8 +202,7 @@ int vga_screen_show(uint8_t screen_nbr) {
   return 1;
 }
 
-int vga_screen_show_scrolled(uint8_t screen_nbr, uint32_t rows,
-                             bool scroll_overlay) {
+int vga_screen_show_scrolled(uint8_t screen_nbr, uint32_t rows) {
   vga_screen_info *screen;
   vga_char *target;
 
