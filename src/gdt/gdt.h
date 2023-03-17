@@ -9,7 +9,7 @@ struct segment_desc
   uint8_t base_middle;
   uint8_t access;
   uint8_t limit_high:4;
-  uint8_t flags:4;
+  uint8_t granularity:4;
   uint8_t base_high;
 
 } __attribute__ ((packed));
