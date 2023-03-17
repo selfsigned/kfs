@@ -2,7 +2,7 @@
 #include "../drivers/vga/vga.h"
 #include "test.h"
 
-void test_vga(uint8_t screen_nbr, bool scroll, bool print) {
+void test_printf(uint8_t screen_nbr) {
 
   // test background
   vga_screen_fillbackground(screen_nbr, VGA_COLOR_BLUE);
@@ -35,8 +35,13 @@ void test_vga(uint8_t screen_nbr, bool scroll, bool print) {
       "int: %i hex: %x unsigned:%u octal: %o binary: %b", -42, 42, 42, 42, 42);
   vga_printf((vga_info){.screen = screen_nbr, .row = 24, .column = 78}, "%CY",
              CP437_YEN_SIGN);
+}
 
-  // print
-  if (print)
-    vga_screen_show_scrolled(screen_nbr, (scroll) ? 2 : 0);
+void test_vga_cp437(uint8_t screen_nbr) {
+  uint8_t cp437[255] = {0};
+
+  for (uint8_t c = 1; c < 255; ++c)
+    cp437[c] = c;
+  vga_printf((vga_info){.screen = screen_nbr, .nowrapchar = true}, "%C%S", 0,
+             cp437 + 1);
 }

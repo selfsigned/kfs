@@ -1,4 +1,5 @@
 #include "keyboard.h"
+#include "../../klibc/libc.h"
 #include "keyboard_internal.h"
 
 // http://www.osdever.net/bkerndev/Docs/keyboard.htm
