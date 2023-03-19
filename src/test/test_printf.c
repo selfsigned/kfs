@@ -8,8 +8,9 @@ void test_printf(uint8_t screen_nbr) {
   vga_screen_fillbackground(screen_nbr, VGA_COLOR_BLUE);
 
   // test scroll
-  vga_printf((vga_info){.screen = screen_nbr}, "This should be invisible2\n");
-  vga_printf((vga_info){.screen = screen_nbr}, "This should be invisible\n");
+  vga_printf((vga_info){.screen = screen_nbr}, "This shouldn't be in view\n");
+  vga_printf((vga_info){.screen = screen_nbr},
+             "This REALLY shouldn't be in view\n");
   vga_printf(
       (vga_info){.screen = screen_nbr, .row = 24, .scrollattributes = true},
       "\n\n"); // put stuff above in history

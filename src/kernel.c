@@ -7,6 +7,7 @@
 #include "kernel.h"
 #include "klibc/libc.h"
 
+#include "cp437.h"
 #include "screens/screens.h"
 #include "test/test.h"
 
@@ -20,26 +21,39 @@ enum screen_numbers {
   VGA_DEMO_SCREEN,
 };
 
-void home_screen(uint8_t screen_nbr) {
+void screen_init(uint8_t screen_nbr) {
   struct panel {
     char title[40];
+    void (*screen_init_func)(uint8_t);
   };
-  struct panel screen_description[12] = {
+  struct panel screen[12] = {
       [HOME_SCREEN] = {"Home screen (current)"},
       [NOTE_SCREEN] = {"Note screen"},
-      [IPSUM_SCREEN] = {"Lorem ipsum dolor sit amet"},
-      [PRINTF_DEMO_SCREEN] = {"vga_printf() demo"},
-      [VGA_DEMO_SCREEN] = {"CP437 and Colors demo"}};
+      [IPSUM_SCREEN] = {"Lorem ipsum dolor sit amet", &screen_lorem_ipsum},
+      [PRINTF_DEMO_SCREEN] = {"vga_printf() demo", &test_printf},
+      [VGA_DEMO_SCREEN] = {"CP437 and Colors demo", &test_vga_cp437}};
 
   // logo
   vga_printf((vga_info){.screen = screen_nbr, .row = 2}, "%a%s%a\n",
              (vga_attributes){.fg = VGA_COLOR_RED}, KFS_LOGO,
              (vga_attributes){.fg = VGA_COLOR_LIGHT_GREY});
-  // Function keys
+
+  // Print function keys and init screens
   for (uint8_t i = 0; i < SCREEN_TOTAL; ++i)
-    if (screen_description[i].title[0])
-      vga_printf((vga_info){.screen = screen_nbr}, "     F%u: %s\n", i + 1,
-                 screen_description[i].title);
+    if (screen[i].title[0]) {
+      if (screen[i].screen_init_func)
+        screen[i].screen_init_func(i);
+
+      vga_printf((vga_info){.screen = screen_nbr, .column = 5}, "F%u: %s\n",
+                 i + 1, screen[i].title);
+    }
+
+  vga_printf((vga_info){.screen = screen_nbr, .column = 5},
+             "%C %C: Scroll up and down\n", CP437_UP_ARROW, CP437_DOWN_ARROW);
+  vga_printf((vga_info){.screen = screen_nbr, .column = 5},
+             "HOME: Scroll to the top of the screen\n");
+  vga_printf((vga_info){.screen = screen_nbr, .column = 5},
+             "END: Scroll to the bottom of the screen\n");
 
   vga_screen_show(screen_nbr);
 }
@@ -50,10 +64,7 @@ void kernel_main(void) {
 
   // initialized the vga driver and set screens
   vga_init(16, (uint16_t *)SCREEN_BUFFER_ADDR);
-  home_screen(HOME_SCREEN);
-  screen_lorem_ipsum(IPSUM_SCREEN, 1);
-  test_vga_cp437(VGA_DEMO_SCREEN);
-  test_printf(PRINTF_DEMO_SCREEN);
+  screen_init(HOME_SCREEN);
 
   // Set the kernel signature
   *memory_signature = SIGNATURE_VALUE;

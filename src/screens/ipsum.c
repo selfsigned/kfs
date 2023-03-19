@@ -32,12 +32,10 @@
   "fermentum augue, et ultricies lacus lorem varius purus. Curabitur eu "      \
   "amet.\n%    "
 
-void screen_lorem_ipsum(uint8_t screen_nbr, uint8_t ipsum_nbr) {
+void screen_lorem_ipsum(uint8_t screen_nbr) {
   vga_screen_fillattributes(
       screen_nbr,
       (vga_attributes){.bg = VGA_COLOR_LIGHT_GREY, .fg = VGA_COLOR_BLACK});
-  for (; ipsum_nbr; --ipsum_nbr) {
-    vga_printf((vga_info){.screen = screen_nbr, .nowrapchar = true},
-               LOREM_IPSUM "_______________" LOREM_IPSUM);
-  }
+  vga_printf((vga_info){.screen = screen_nbr, .nowrapchar = true},
+             LOREM_IPSUM "\nagain:\n" LOREM_IPSUM "\nAnd again:\n" LOREM_IPSUM);
 }
