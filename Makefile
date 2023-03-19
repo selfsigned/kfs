@@ -27,8 +27,8 @@ GIT_VERSION := "$(shell git describe --abbrev=4 --dirty --always --tags)"
 CPPFLAGS += \
  -MMD \
  -D SIGNATURE_ADDRESS=$(SIGNATURE_ADDRESS) \
- -D SIGNATURE_VALUE=$(SIGNATURE_VALUE)
- -D VERSION=$(GIT_VERSION)
+ -D SIGNATURE_VALUE=$(SIGNATURE_VALUE) \
+ -D VERSION=\"$(GIT_VERSION)\"
 
  DBGFLAGS := \
  -g \
