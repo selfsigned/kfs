@@ -33,10 +33,19 @@ void screen_init(uint8_t screen_nbr) {
       [PRINTF_DEMO_SCREEN] = {"vga_printf() demo", &test_printf},
       [VGA_DEMO_SCREEN] = {"CP437 and Colors demo", &test_vga_cp437}};
 
+  vga_screen_setattributes(screen_nbr, (vga_attributes){.fg = VGA_COLOR_RED});
+
   // logo
-  vga_printf((vga_info){.screen = screen_nbr, .row = 2}, "%a%s%a\n",
-             (vga_attributes){.fg = VGA_COLOR_RED}, KFS_LOGO,
-             (vga_attributes){.fg = VGA_COLOR_LIGHT_GREY});
+  vga_printf((vga_info){.screen = screen_nbr, .row = 2}, "%s\n", KFS_LOGO);
+
+  // version
+  vga_printf((vga_info){.screen = screen_nbr, .nowrap = true, .column = 35},
+             "vers: %s\n", VERSION);
+
+  // silly box
+  // screen_create_box_light(screen_nbr, VGA_COL - 1, VGA_ROW - 1);
+
+  vga_screen_setattributes(screen_nbr, (vga_attributes){.fg = VGA_COLOR_WHITE});
 
   // Print function keys and init screens
   for (uint8_t i = 0; i < SCREEN_TOTAL; ++i)

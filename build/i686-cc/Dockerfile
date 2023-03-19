@@ -58,7 +58,7 @@ RUN apk add --no-cache \
     gmp-dev \
     mpc1-dev \
     mpfr-dev \
-    grub grub-bios xorriso \
+    grub grub-bios xorriso git\
     qemu-system-i386  qemu-ui-curses \
     gdb \
     bash

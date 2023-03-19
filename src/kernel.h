@@ -3,6 +3,11 @@
 
 #include <stdint.h>
 
+// git commit/tag version
+#ifndef VERSION
+#define VERSION "UNKNOWN"
+#endif
+
 //  MEMORY
 
 #ifndef SIGNATURE_ADDRESS

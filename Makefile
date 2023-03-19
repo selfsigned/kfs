@@ -21,10 +21,14 @@ HAS_CC	:= $(shell $(CC) --version 2>/dev/null)
 SIGNATURE_ADDRESS=0x0030DEAD
 SIGNATURE_VALUE=0x00DEAD42 # !! NEEDS TO BE A WORD FOR THE TEST TO WORK !!
 
+# git version
+GIT_VERSION := "$(shell git describe --abbrev=4 --dirty --always --tags)"
+
 CPPFLAGS += \
  -MMD \
  -D SIGNATURE_ADDRESS=$(SIGNATURE_ADDRESS) \
  -D SIGNATURE_VALUE=$(SIGNATURE_VALUE)
+ -D VERSION=$(GIT_VERSION)
 
  DBGFLAGS := \
  -g \
@@ -82,7 +86,7 @@ ERROR_CC		= @$(error "[ERROR] $(CC) not found, either run `make use_docker $(MAK
 ERROR_GRUB	= @$(error "[ERROR] grub, xorriso or grub*-bios missing, either run `make use_docker $(MAKECMDGOALS)` or run: $(DOCKER_CMD)")
 
 ## Rulez ##
-.PHONY: all use_docker run gdb test clean fclean re
+.PHONY: all use_docker run run-curses gdb test clean fclean re
 
 all: $(NAME) $(IMG_NAME)
 
