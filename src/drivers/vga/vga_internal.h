@@ -9,16 +9,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-// HW //
-
-/// HW address of the VGA buffer
-#define VGA_HW_ADDR 0xB8000
-
-#define VGA_ROW 25
-#define VGA_COL 80
-/// VGA_ROW * VGA_COL
-#define VGA_SCREEN_SIZE 2000
-
 // STATE //
 
 /// @brief per screen vga state
@@ -26,6 +16,7 @@ typedef struct vga_screen_info {
   struct {
     uint8_t column;          /// store last column
     uint8_t row;             /// store last row
+    bool vga;                /// show the vga cursor
   } cursor;                  /// store last position
   vga_attributes attributes; /// used to store current color attributes
   struct {

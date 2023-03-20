@@ -21,10 +21,14 @@ HAS_CC	:= $(shell $(CC) --version 2>/dev/null)
 SIGNATURE_ADDRESS=0x0030DEAD
 SIGNATURE_VALUE=0x00DEAD42 # !! NEEDS TO BE A WORD FOR THE TEST TO WORK !!
 
+# git version
+GIT_VERSION := "$(shell git describe --abbrev=4 --dirty --always --tags)"
+
 CPPFLAGS += \
  -MMD \
  -D SIGNATURE_ADDRESS=$(SIGNATURE_ADDRESS) \
- -D SIGNATURE_VALUE=$(SIGNATURE_VALUE)
+ -D SIGNATURE_VALUE=$(SIGNATURE_VALUE) \
+ -D VERSION=\"$(GIT_VERSION)\"
 
  DBGFLAGS := \
  -g \
@@ -61,8 +65,10 @@ ifneq (,$(wildcard /.dockerenv))
 INSIDE_DOCKER := true
 endif
 
-# gbb
-GDB_PORT	:= 4666
+#qemu
+VNC_DISPLAY  := 99
+GDB_PORT     := 4666
+QEMU_RAM     := 4M
 
 # sources
 SRC_PATH		:= src
@@ -80,7 +86,7 @@ ERROR_CC		= @$(error "[ERROR] $(CC) not found, either run `make use_docker $(MAK
 ERROR_GRUB	= @$(error "[ERROR] grub, xorriso or grub*-bios missing, either run `make use_docker $(MAKECMDGOALS)` or run: $(DOCKER_CMD)")
 
 ## Rulez ##
-.PHONY: all use_docker run gdb test clean fclean re
+.PHONY: all use_docker run run-curses gdb test clean fclean re
 
 all: $(NAME) $(IMG_NAME)
 
@@ -130,17 +136,22 @@ else
 endif
 
 run: $(IMG_NAME)
-	@echo "[INFO] Qemu is running a gdb server at $(GDB_PORT)"
-	qemu-system-i386 -boot d -cdrom $(IMG_NAME) \
-		-m 4M \
-		-display curses \
+	@echo "[INFO] QEMU is running a vnc server at localhost:`echo 5900+$(VNC_DISPLAY) | bc` gdb server at $(GDB_PORT)"
+	qemu-system-i386 -name $(NAME) -boot d -cdrom $(IMG_NAME) \
+		-m $(QEMU_RAM) \
+    -display vnc=:$(VNC_DISPLAY) \
 		-gdb tcp:0.0.0.0:$(GDB_PORT) # ncurses interface and gdb server
+
+run-curses: $(IMG_NAME)
+	qemu-system-i386 -name $(NAME) -boot d -cdrom $(IMG_NAME) \
+		-m $(QEMU_RAM) \
+    -display curses
 
 test: $(IMG_NAME)
 	@echo "[INFO] Starting up $(IMG_NAME) and checking if signature is set in memory]"
 	timeout 15 qemu-system-i386 \
     -boot d -cdrom $(IMG_NAME) \
-		-m 4M -nographic -gdb tcp:localhost:$(GDB_PORT) &
+		-m $(QEMU_RAM) -nographic -gdb tcp:localhost:$(GDB_PORT) &
 	sleep 10 && (echo "x/wx $(SIGNATURE_ADDRESS)") | make gdb 2>/dev/null | grep -i $(SIGNATURE_VALUE)
 	@echo "[INFO] Signature matched, test passed!"
 

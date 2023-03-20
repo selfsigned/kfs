@@ -2,6 +2,7 @@
 #define LIBC_H
 
 #include <stddef.h>
+#include <stdint.h>
 
 //// ctype.h ////
 
@@ -112,5 +113,17 @@ char *itoa(char *str, int value, unsigned char base);
 /// @param base base to convert to, lowercase above 9
 /// @return pointer to str on success, NULL with a non-valid base argument
 char *utoa(char *str, unsigned int value, unsigned char base);
+
+/// x86 programming nonstandard ///
+
+/// @brief returns a byte read from an I/O port
+/// @param port address to read from
+/// @return byte-sized content of the port
+uint8_t inb(uint16_t port);
+
+/// @brief write a byte to an I/O port
+/// @param port address to write in
+/// @param data value to write in port
+void outb(uint16_t port, uint8_t data);
 
 #endif

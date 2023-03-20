@@ -3,6 +3,11 @@
                 "editor.defaultFormatter": "ms-vscode.cpptools",
                 "editor.formatOnSave": true
         },
+        "remote.extensionKind": {
+          "king2021.vnc-extension": [
+            "ui"
+          ]
+        },
         "editor.insertSpaces": true,
         "editor.tabSize": 2,
         "terminal.integrated.macOptionIsMeta": true
