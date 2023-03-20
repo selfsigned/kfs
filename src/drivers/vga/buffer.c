@@ -4,10 +4,27 @@ vga_global_info g_vga_state = {};
 
 // private //
 
+static bool vga_set_crtc_cursor(uint8_t screen_nbr) {
+  vga_screen_info screen;
+  if (screen_nbr >= VGA_SCREEN_MAX)
+    return false;
+
+  screen = g_vga_state.screen[screen_nbr];
+  if (screen.cursor.column >= VGA_COL && screen.cursor.row >= VGA_ROW)
+    return false;
+  screen.buffer.pos[screen.cursor.row * VGA_COL + screen.cursor.column + 1] =
+      (vga_char){.color = screen.attributes};
+  // TODO param for cursor size?
+  vga_crtc_enable_cursor(VGA_CURSOR_HEIGHT);
+  vga_crtc_set_cursor(screen.cursor.column, screen.cursor.row);
+
+  return true;
+}
+
 vga_screen_info *vga_set_cursor(vga_info *info, bool insert_newline) {
   vga_screen_info *screen = &g_vga_state.screen[info->screen];
 
-  screen->cursor.novga = info->nocursor;
+  screen->cursor.vga = info->nocursor;
   // load cursor info from the screen state once
   if ((!info->nocursor || info->setcursor) && !info->internal.cursor_loaded) {
     // if you want to set that to 0 you'll need nocursor, that's an obvious flaw
@@ -33,15 +50,19 @@ vga_screen_info *vga_set_cursor(vga_info *info, bool insert_newline) {
     if (info->noscroll)
       return 0;
 
-    // cycle buffer at end of scroll
+    // TODO cycle buffer at end of scroll
     if ((screen->buffer.pos + VGA_SCREEN_SIZE) >= screen->buffer.tail) {
-      vga_char tmp[VGA_SCREEN_SIZE] = {0};
+      // vga_char tmp[VGA_SCREEN_SIZE] = {0};
 
-      memcpy(tmp, screen->buffer.pos, (VGA_SCREEN_SIZE) * sizeof(vga_char));
-      bzero(screen->buffer.head, (VGA_SCREEN_SIZE) * sizeof(vga_char));
+      // memcpy(tmp, screen->buffer.pos, (VGA_SCREEN_SIZE) * sizeof(vga_char));
+      // bzero(screen->buffer.head, (VGA_SCREEN_SIZE) * sizeof(vga_char));
+      // screen->buffer.pos = screen->buffer.head;
+      // memcpy(screen->buffer.head, tmp + VGA_COL,
+      //        (VGA_SCREEN_SIZE - VGA_COL) * sizeof(vga_char));
+      bzero(screen->buffer.head, g_vga_state.buffer.size * sizeof(vga_char));
+      vga_screen_clear(0);
+      vga_screen_setcursorpos(info->screen, 0, 0);
       screen->buffer.pos = screen->buffer.head;
-      memcpy(screen->buffer.head, tmp + VGA_COL,
-             (VGA_SCREEN_SIZE - VGA_COL) * sizeof(vga_char));
     } else {
       screen->buffer.pos += VGA_COL;
     }
@@ -192,6 +213,18 @@ bool vga_screen_setattributes(uint8_t screen_nbr, vga_attributes attributes) {
   return true;
 }
 
+bool vga_screen_setvgacursor(uint8_t screen_nbr, bool enable_cursor) {
+  vga_screen_info *screen;
+
+  if (screen_nbr >= VGA_SCREEN_MAX)
+    return false;
+
+  screen = &g_vga_state.screen[screen_nbr];
+  screen->cursor.vga = enable_cursor;
+
+  return true;
+}
+
 bool vga_screen_fillattributes(uint8_t screen_nbr, vga_attributes attributes) {
   vga_screen_info *screen;
 
@@ -227,15 +260,13 @@ bool vga_screen_show(uint8_t screen_nbr) {
     return false;
 
   screen = g_vga_state.screen[screen_nbr];
-  memcpy(g_vga_state.vga_addr, screen.buffer.pos,
-         VGA_SCREEN_SIZE * sizeof(vga_char));
-
-  if (!screen.cursor.novga) {
-    // TODO param for cursor size? and set attrs to current instead of -1
-    vga_crtc_enable_cursor(VGA_CURSOR_HEIGHT);
-    vga_crtc_set_cursor(screen.cursor.column - 1, screen.cursor.row);
+  if (screen.cursor.vga) {
+    vga_set_crtc_cursor(screen_nbr);
   } else
     vga_crtc_disable_cursor();
+
+  memcpy(g_vga_state.vga_addr, screen.buffer.pos,
+         VGA_SCREEN_SIZE * sizeof(vga_char));
   return true;
 }
 
@@ -255,17 +286,24 @@ int vga_screen_show_scrolled(uint8_t screen_nbr, int rows) {
     isnotup = false;
   }
 
-  memcpy(g_vga_state.vga_addr, target, VGA_SCREEN_SIZE * sizeof(vga_char));
-
   // disabled cursor if scrolled up
-  if (!screen->cursor.novga && !rows) {
+  if (screen->cursor.vga && !rows) {
     // TODO param for cursor size? and set attrs to current instead of -1
-    vga_crtc_enable_cursor(VGA_CURSOR_HEIGHT);
-    vga_crtc_set_cursor(screen->cursor.column - 1, screen->cursor.row);
+    vga_set_crtc_cursor(screen_nbr);
   } else
     vga_crtc_disable_cursor();
 
+  memcpy(g_vga_state.vga_addr, target, VGA_SCREEN_SIZE * sizeof(vga_char));
   return isnotup;
+}
+
+int vga_screen_getscrolloffset(uint8_t screen_nbr) {
+  vga_screen_info screen;
+
+  if (screen_nbr >= VGA_SCREEN_MAX)
+    return -42;
+  screen = g_vga_state.screen[screen_nbr];
+  return (screen.buffer.pos - screen.buffer.head) / 80;
 }
 
 // Clear

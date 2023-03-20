@@ -21,11 +21,18 @@ enum screen_numbers {
   VGA_DEMO_SCREEN,
 };
 
-void notepad_greet(uint8_t screen_nbr) {
-  vga_printf((vga_info){.screen = screen_nbr, .row = 1, .column = 35},
-             "%aNotepad%a\n\n>",
-             (vga_attributes){.bg = VGA_COLOR_WHITE, .fg = VGA_COLOR_BLACK},
-             (vga_attributes){.fg = VGA_COLOR_WHITE});
+static void notepad_greet(uint8_t screen_nbr) {
+  vga_printf(
+      (vga_info){.screen = screen_nbr, .row = 1, .column = 35},
+      "%aNotepad%a\n\n>",
+      (vga_attributes){.bg = VGA_COLOR_LIGHT_GREY, .fg = VGA_COLOR_BLACK},
+      (vga_attributes){.fg = VGA_COLOR_WHITE});
+}
+
+static void vga_demo(uint8_t screen_nbr) {
+  test_vga_cp437(screen_nbr);
+  vga_printf((vga_info){.screen = screen_nbr}, "\n");
+  test_vga_color(screen_nbr, CP437_SMILEY);
 }
 
 void screen_init(uint8_t screen_nbr) {
@@ -38,7 +45,7 @@ void screen_init(uint8_t screen_nbr) {
       [NOTE_SCREEN] = {"Notepad", &notepad_greet},
       [IPSUM_SCREEN] = {"Lorem ipsum dolor sit amet", &screen_lorem_ipsum},
       [PRINTF_DEMO_SCREEN] = {"vga_printf() demo", &test_printf},
-      [VGA_DEMO_SCREEN] = {"CP437 and Colors demo", &test_vga_cp437}};
+      [VGA_DEMO_SCREEN] = {"CP437 and Colors demo", &vga_demo}};
   uint8_t last_row, last_col;
 
   vga_screen_setattributes(screen_nbr, (vga_attributes){.fg = VGA_COLOR_RED});

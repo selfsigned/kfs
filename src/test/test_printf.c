@@ -46,3 +46,13 @@ void test_vga_cp437(uint8_t screen_nbr) {
   vga_printf((vga_info){.screen = screen_nbr, .nowrapchar = true}, "%C%S", 0,
              cp437 + 1);
 }
+
+void test_vga_color(uint8_t screen_nbr, uint8_t test_char) {
+  for (uint8_t bg = 0; bg < 8; ++bg) {
+    for (uint8_t fg = 0; fg < 16; ++fg) {
+      vga_printf((vga_info){.screen = screen_nbr, .nowrap = true}, "%a%C",
+                 (vga_attributes){.bg = bg, .fg = fg}, test_char);
+    }
+    vga_printf((vga_info){.screen = screen_nbr}, "\n");
+  }
+}

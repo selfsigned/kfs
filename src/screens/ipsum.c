@@ -30,12 +30,12 @@
   "suscipit nulla in justo. Suspendisse cursus rutrum augue. Nulla tincidunt " \
   "tincidunt mi. Curabitur iaculis, lorem vel rhoncus faucibus, felis magna "  \
   "fermentum augue, et ultricies lacus lorem varius purus. Curabitur eu "      \
-  "amet.\n%    "
+  "amet.\n"
 
 void screen_lorem_ipsum(uint8_t screen_nbr) {
   vga_screen_fillattributes(
       screen_nbr,
       (vga_attributes){.bg = VGA_COLOR_LIGHT_GREY, .fg = VGA_COLOR_BLACK});
   vga_printf((vga_info){.screen = screen_nbr, .nowrapchar = true},
-             LOREM_IPSUM "\nagain:\n" LOREM_IPSUM "\nAnd again:\n" LOREM_IPSUM);
+             LOREM_IPSUM "\nagain:\n" LOREM_IPSUM "\nAnd again:\n");
 }

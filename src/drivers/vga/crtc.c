@@ -14,11 +14,11 @@ void vga_crtc_enable_cursor(uint8_t scanline_start, uint8_t scanline_end) {
   // protect from overflow
   if (scanline_start > 15 || scanline_end > 15) {
     scanline_start = 0;
-    scanline_end = 0;
+    scanline_end = 15;
   }
 
   outb(VGA_CRTC_INDEX, VGA_CRTC_REG_CURSOR_START); // select the start register
-  outb(VGA_CRTC_DATA, scanline_start);             // set CD
+  outb(VGA_CRTC_DATA, scanline_start); // disable CD and set cusor start
 
   outb(VGA_CRTC_INDEX, VGA_CRTC_REG_CURSOR_END);
   outb(VGA_CRTC_DATA, scanline_end);

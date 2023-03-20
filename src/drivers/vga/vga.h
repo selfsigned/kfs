@@ -18,7 +18,7 @@
 /// default character used when wrapping
 #define VGA_WRAP_DEFAULT_CHAR '>'
 
-#define VGA_CURSOR_HEIGHT 0, 10
+#define VGA_CURSOR_HEIGHT 13, 15
 
 /// HW address of the VGA buffer
 #define VGA_HW_ADDR 0xB8000
@@ -124,6 +124,12 @@ bool vga_screen_getcursorpos(uint8_t screen_nbr, uint8_t *column, uint8_t *row);
 /// @return negative if screen doesn't exist or values overflow
 bool vga_screen_setcursorpos(uint8_t screen_nbr, uint8_t column, uint8_t row);
 
+/// @brief enable or disable the vga cursor attribute on a screen
+/// @param screen_nbr screen to enable the cursor on
+/// @param enable_cursor enable or disable cursor
+/// @return negative if screen doesn't exist
+bool vga_screen_setvgacursor(uint8_t screen_nbr, bool enable_cursor);
+
 /// @brief set color attributes for next characters on a given screen
 /// @param screen_nbr nbr of the screen to change attrs on
 /// @param attributes color attributes to set
@@ -142,6 +148,11 @@ bool vga_screen_fillattributes(uint8_t screen_nbr, vga_attributes attributes);
 /// @return false if screen doesn't exist
 bool vga_screen_fillbackground(uint8_t screen_nbr,
                                enum vga_color background_color);
+
+/// @brief Get position in history buffer in screen
+/// @param screen_nbr nbr of the screen to get history pos of
+/// @return negative if screen doesn't exist, nbr or rows scrolled up in buffer
+int vga_screen_getscrolloffset(uint8_t screen_nbr);
 
 // display
 
