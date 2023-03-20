@@ -7,6 +7,7 @@ vga_global_info g_vga_state = {};
 vga_screen_info *vga_set_cursor(vga_info *info, bool insert_newline) {
   vga_screen_info *screen = &g_vga_state.screen[info->screen];
 
+  screen->cursor.novga = info->nocursor;
   // load cursor info from the screen state once
   if ((!info->nocursor || info->setcursor) && !info->internal.cursor_loaded) {
     // if you want to set that to 0 you'll need nocursor, that's an obvious flaw
@@ -103,6 +104,7 @@ int vga_buffer_write(vga_info *info, const unsigned char *s, bool is_ascii) {
   size_t result = 0;
 
   while (*str) {
+    // TODO: \t
     if (is_ascii && *str == '\n')
       vga_set_cursor(info, true);
     else
@@ -220,11 +222,20 @@ bool vga_screen_fillbackground(uint8_t screen_nbr,
 // Show
 
 bool vga_screen_show(uint8_t screen_nbr) {
+  vga_screen_info screen;
   if (screen_nbr >= VGA_SCREEN_MAX)
     return false;
 
-  memcpy(g_vga_state.vga_addr, g_vga_state.screen[screen_nbr].buffer.pos,
+  screen = g_vga_state.screen[screen_nbr];
+  memcpy(g_vga_state.vga_addr, screen.buffer.pos,
          VGA_SCREEN_SIZE * sizeof(vga_char));
+
+  if (!screen.cursor.novga) {
+    // TODO param for cursor size? and set attrs to current instead of -1
+    vga_crtc_enable_cursor(VGA_CURSOR_HEIGHT);
+    vga_crtc_set_cursor(screen.cursor.column - 1, screen.cursor.row);
+  } else
+    vga_crtc_disable_cursor();
   return true;
 }
 
@@ -245,6 +256,14 @@ int vga_screen_show_scrolled(uint8_t screen_nbr, int rows) {
   }
 
   memcpy(g_vga_state.vga_addr, target, VGA_SCREEN_SIZE * sizeof(vga_char));
+
+  // disabled cursor if scrolled up
+  if (!screen->cursor.novga && !rows) {
+    // TODO param for cursor size? and set attrs to current instead of -1
+    vga_crtc_enable_cursor(VGA_CURSOR_HEIGHT);
+    vga_crtc_set_cursor(screen->cursor.column - 1, screen->cursor.row);
+  } else
+    vga_crtc_disable_cursor();
 
   return isnotup;
 }

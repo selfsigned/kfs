@@ -9,8 +9,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-// HW //
-
 // STATE //
 
 /// @brief per screen vga state
@@ -18,6 +16,7 @@ typedef struct vga_screen_info {
   struct {
     uint8_t column;          /// store last column
     uint8_t row;             /// store last row
+    bool novga;              /// don't show the vga cursor
   } cursor;                  /// store last position
   vga_attributes attributes; /// used to store current color attributes
   struct {

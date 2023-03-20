@@ -1,5 +1,6 @@
 #include "vga.h"
 #include "vga_internal.h"
+#include <stdarg.h>
 
 /// @brief implement printf argument reading
 /// @return numbers of character written, negative if error
@@ -83,6 +84,7 @@ int vga_vdprintf(vga_info info, const char *format, va_list ap) {
     case '\n':
       vga_set_cursor(&info, true);
       break;
+    // TODO \r, maybe \b
     default:
       result += vga_buffer_writechar(&info, format[i]);
     }

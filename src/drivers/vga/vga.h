@@ -7,19 +7,35 @@
 
 // VGA text driver //
 
+#define VGA_ROW 25
+#define VGA_COL 80
+/// VGA_ROW * VGA_COL
+#define VGA_SCREEN_SIZE 2000
+
 /// max number of screens
 #define VGA_SCREEN_MAX 12
 
 /// default character used when wrapping
 #define VGA_WRAP_DEFAULT_CHAR '>'
 
+#define VGA_CURSOR_HEIGHT 0, 10
+
 /// HW address of the VGA buffer
 #define VGA_HW_ADDR 0xB8000
 
-#define VGA_ROW 25
-#define VGA_COL 80
-/// VGA_ROW * VGA_COL
-#define VGA_SCREEN_SIZE 2000
+/// CRTC I/O index addr, used to select reg
+#define VGA_CRTC_INDEX 0x3D4
+/// CRTC I/O data addr
+#define VGA_CRTC_DATA 0x3D5
+
+///  7 | CD, set == cursor disabled 5 | Cursor scan line start 4 3 2 1 0 |
+#define VGA_CRTC_REG_CURSOR_START 0x0A
+///  7 | CSK 6 5 | Cursor scan line end 4 3 2 1 0 |
+#define VGA_CRTC_REG_CURSOR_END 0x0B
+/// HIGH (<< 8) bytes of the VGA cursor location
+#define VGA_CRTC_REG_CURSOR_LOCATION_HIGH 0x0E
+/// LOW bytes of the VGA cursor location
+#define VGA_CRTC_REG_CURSOR_LOCATION_LOW 0x0F
 
 /// @brief VGA colors, goes only up to 8 for the background
 enum vga_color {
@@ -147,5 +163,20 @@ int vga_screen_show_scrolled(uint8_t screen_nbr, int rows);
 /// @param screen_nbr screen to clear
 /// @return false if screen doesn't exist
 bool vga_screen_clear(uint8_t screen_nbr);
+
+// CRTC
+
+/// @brief set the CD bit in the crtc
+void vga_crtc_disable_cursor();
+
+/// @brief enable the cursor and set it's scanlines (shape)
+/// @param scanline_start needs to be < 15
+/// @param scanline_end needs to be < 15
+void vga_crtc_enable_cursor(uint8_t scanline_start, uint8_t scanline_end);
+
+/// @brief enable the VGA cursor and set its position
+/// @param column cursor column, starts at 0 must be < 80
+/// @param row cursor row starts at 0 must be < 25
+void vga_crtc_set_cursor(uint8_t column, uint8_t row);
 
 #endif

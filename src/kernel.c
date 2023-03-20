@@ -22,7 +22,8 @@ enum screen_numbers {
 };
 
 void notepad_greet(uint8_t screen_nbr) {
-  vga_printf((vga_info){.screen = screen_nbr, .column = 35}, "%aNotepad%a\n\n>",
+  vga_printf((vga_info){.screen = screen_nbr, .row = 1, .column = 35},
+             "%aNotepad%a\n\n>",
              (vga_attributes){.bg = VGA_COLOR_WHITE, .fg = VGA_COLOR_BLACK},
              (vga_attributes){.fg = VGA_COLOR_WHITE});
 }

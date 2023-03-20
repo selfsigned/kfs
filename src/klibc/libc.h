@@ -121,4 +121,9 @@ char *utoa(char *str, unsigned int value, unsigned char base);
 /// @return byte-sized content of the port
 uint8_t inb(uint16_t port);
 
+/// @brief write a byte to an I/O port
+/// @param port address to write in
+/// @param data value to write in port
+void outb(uint16_t port, uint8_t data);
+
 #endif
