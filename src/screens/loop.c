@@ -58,16 +58,12 @@ void screen_loop(uint8_t home_screen, uint8_t note_screen) {
               set_scroll(current_screen, code, scroll_state, isnotup);
           break;
         // control chars
-        case KBD_DELETE:
-          if (current_screen == note_screen)
-            vga_screen_clear(note_screen);
-          break;
         case KBD_ENTER:
           if (current_screen == note_screen)
             vga_printf((vga_info){.screen = note_screen}, "\n");
           break;
         case KBD_TAB:
-          if (!current_screen)
+          if (current_screen == note_screen)
             vga_printf((vga_info){.screen = note_screen}, "    ");
           break;
         default:
