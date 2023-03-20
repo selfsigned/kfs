@@ -37,5 +37,5 @@ void screen_lorem_ipsum(uint8_t screen_nbr) {
       screen_nbr,
       (vga_attributes){.bg = VGA_COLOR_LIGHT_GREY, .fg = VGA_COLOR_BLACK});
   vga_printf((vga_info){.screen = screen_nbr, .nowrapchar = true},
-             LOREM_IPSUM "\nagain:\n" LOREM_IPSUM "\nAnd again:\n");
+             LOREM_IPSUM "\nagain:\n" LOREM_IPSUM);
 }
