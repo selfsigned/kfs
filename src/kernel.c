@@ -21,6 +21,12 @@ enum screen_numbers {
   VGA_DEMO_SCREEN,
 };
 
+void notepad_greet(uint8_t screen_nbr) {
+  vga_printf((vga_info){.screen = screen_nbr, .column = 35}, "%aNotepad%a\n\n>",
+             (vga_attributes){.bg = VGA_COLOR_WHITE, .fg = VGA_COLOR_BLACK},
+             (vga_attributes){.fg = VGA_COLOR_WHITE});
+}
+
 void screen_init(uint8_t screen_nbr) {
   struct panel {
     char title[40];
@@ -28,26 +34,30 @@ void screen_init(uint8_t screen_nbr) {
   };
   struct panel screen[12] = {
       [HOME_SCREEN] = {"Home screen (current)"},
-      [NOTE_SCREEN] = {"Note screen"},
+      [NOTE_SCREEN] = {"Notepad", &notepad_greet},
       [IPSUM_SCREEN] = {"Lorem ipsum dolor sit amet", &screen_lorem_ipsum},
       [PRINTF_DEMO_SCREEN] = {"vga_printf() demo", &test_printf},
       [VGA_DEMO_SCREEN] = {"CP437 and Colors demo", &test_vga_cp437}};
+  uint8_t last_row, last_col;
 
   vga_screen_setattributes(screen_nbr, (vga_attributes){.fg = VGA_COLOR_RED});
 
   // logo
-  vga_printf((vga_info){.screen = screen_nbr, .row = 2}, "%s\n", KFS_LOGO);
+  vga_printf((vga_info){.screen = screen_nbr, .setcursor = true, .row = 2},
+             "%s\n", KFS_LOGO);
 
   // version
   vga_printf((vga_info){.screen = screen_nbr, .nowrap = true, .column = 35},
              "vers: %s\n", VERSION);
 
   // silly box
-  // screen_create_box_light(screen_nbr, VGA_COL - 1, VGA_ROW - 1);
-
-  vga_screen_setattributes(screen_nbr, (vga_attributes){.fg = VGA_COLOR_WHITE});
+  vga_screen_getcursorpos(screen_nbr, &last_col, &last_row);
+  vga_screen_setcursorpos(screen_nbr, 0, 0);
+  screen_create_box_light(screen_nbr, VGA_COL - 1, VGA_ROW - 1);
+  vga_screen_setcursorpos(screen_nbr, last_col, last_row);
 
   // Print function keys and init screens
+  vga_screen_setattributes(screen_nbr, (vga_attributes){.fg = VGA_COLOR_WHITE});
   for (uint8_t i = 0; i < SCREEN_TOTAL; ++i)
     if (screen[i].title[0]) {
       if (screen[i].screen_init_func)

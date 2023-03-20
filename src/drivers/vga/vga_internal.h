@@ -11,14 +11,6 @@
 
 // HW //
 
-/// HW address of the VGA buffer
-#define VGA_HW_ADDR 0xB8000
-
-#define VGA_ROW 25
-#define VGA_COL 80
-/// VGA_ROW * VGA_COL
-#define VGA_SCREEN_SIZE 2000
-
 // STATE //
 
 /// @brief per screen vga state

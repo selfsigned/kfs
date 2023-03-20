@@ -2,7 +2,7 @@
 
 vga_global_info g_vga_state = {};
 
-// private
+// private //
 
 vga_screen_info *vga_set_cursor(vga_info *info, bool insert_newline) {
   vga_screen_info *screen = &g_vga_state.screen[info->screen];
@@ -112,17 +112,15 @@ int vga_buffer_write(vga_info *info, const unsigned char *s, bool is_ascii) {
   return result;
 }
 
-// public
+// public //
 
-int vga_init(size_t history_size, uint16_t *buffer_addr) {
+bool vga_init(size_t history_size, uint16_t *buffer_addr) {
   static bool init = false;
 
-  if (history_size == 0)
-    return -1;
-
   // initalizing screens in RAM
-  if (!init || (g_vga_state.buffer.addr != buffer_addr) ||
-      (g_vga_state.buffer.history_size != history_size)) {
+  if (history_size != 0 &&
+      (!init || (g_vga_state.buffer.addr != buffer_addr) ||
+       (g_vga_state.buffer.history_size != history_size))) {
     // set the global state
     g_vga_state.vga_addr = (uint16_t *)VGA_HW_ADDR;
     g_vga_state.buffer.addr = buffer_addr;
@@ -150,55 +148,84 @@ int vga_init(size_t history_size, uint16_t *buffer_addr) {
     init = true;
   }
 
-  return 1;
+  return init;
 }
 
-int vga_screen_setattributes(uint8_t screen_nbr, vga_attributes attributes) {
+// Getters / Setters
+
+bool vga_screen_getcursorpos(uint8_t screen_nbr, uint8_t *column,
+                             uint8_t *row) {
   vga_screen_info *screen;
 
   if (screen_nbr >= VGA_SCREEN_MAX)
-    return -42;
+    return false;
+
+  screen = &g_vga_state.screen[screen_nbr];
+  *column = screen->cursor.column;
+  *row = screen->cursor.row;
+  return true;
+}
+
+bool vga_screen_setcursorpos(uint8_t screen_nbr, uint8_t column, uint8_t row) {
+  vga_screen_info *screen;
+
+  if (screen_nbr >= VGA_SCREEN_MAX || column >= VGA_COL || row >= VGA_ROW)
+    return false;
+
+  screen = &g_vga_state.screen[screen_nbr];
+  screen->cursor.column = column;
+  screen->cursor.row = row;
+  return true;
+}
+
+bool vga_screen_setattributes(uint8_t screen_nbr, vga_attributes attributes) {
+  vga_screen_info *screen;
+
+  if (screen_nbr >= VGA_SCREEN_MAX)
+    return false;
 
   screen = &g_vga_state.screen[screen_nbr];
   screen->attributes = attributes;
 
-  return 1;
+  return true;
 }
 
-int vga_screen_fillattributes(uint8_t screen_nbr, vga_attributes attributes) {
+bool vga_screen_fillattributes(uint8_t screen_nbr, vga_attributes attributes) {
   vga_screen_info *screen;
 
   if (screen_nbr >= VGA_SCREEN_MAX)
-    return -42;
+    return false;
 
   screen = &g_vga_state.screen[screen_nbr];
   screen->attributes = attributes;
   for (size_t i = 0; i < VGA_SCREEN_SIZE; ++i)
     screen->buffer.pos[i].color = attributes;
-  return 1;
+  return true;
 }
 
-int vga_screen_fillbackground(uint8_t screen_nbr,
-                              enum vga_color background_color) {
+bool vga_screen_fillbackground(uint8_t screen_nbr,
+                               enum vga_color background_color) {
   vga_screen_info *screen;
 
   if (screen_nbr >= VGA_SCREEN_MAX)
-    return -42;
+    return false;
 
   screen = &g_vga_state.screen[screen_nbr];
   screen->attributes.bg = background_color;
   for (size_t i = 0; i < VGA_SCREEN_SIZE; ++i)
     screen->buffer.pos[i].color.bg = background_color;
-  return 1;
+  return true;
 }
 
-int vga_screen_show(uint8_t screen_nbr) {
+// Show
+
+bool vga_screen_show(uint8_t screen_nbr) {
   if (screen_nbr >= VGA_SCREEN_MAX)
-    return -42;
+    return false;
 
   memcpy(g_vga_state.vga_addr, g_vga_state.screen[screen_nbr].buffer.pos,
          VGA_SCREEN_SIZE * sizeof(vga_char));
-  return 1;
+  return true;
 }
 
 int vga_screen_show_scrolled(uint8_t screen_nbr, int rows) {
@@ -222,11 +249,13 @@ int vga_screen_show_scrolled(uint8_t screen_nbr, int rows) {
   return isnotup;
 }
 
-int vga_screen_clear(uint8_t screen_nbr) {
+// Clear
+
+bool vga_screen_clear(uint8_t screen_nbr) {
   vga_screen_info *screen;
 
   if (screen_nbr >= VGA_SCREEN_MAX)
-    return -42;
+    return false;
 
   screen = &g_vga_state.screen[screen_nbr];
   // reset the cursor
@@ -236,5 +265,5 @@ int vga_screen_clear(uint8_t screen_nbr) {
   // clear the screen
   bzero(screen->buffer.pos, VGA_SCREEN_SIZE * sizeof(vga_char));
 
-  return 1;
+  return true;
 }
