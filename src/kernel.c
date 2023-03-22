@@ -4,12 +4,9 @@
 
 #include "drivers/keyboard/keyboard.h"
 #include "drivers/vga/vga.h"
-#include "kernel.h"
-<<<<<<< HEAD
 #include "gdt/gdt.h"
-=======
+#include "kernel.h"
 #include "klibc/libc.h"
->>>>>>> main
 
 #include "cp437.h"
 #include "screens/screens.h"
