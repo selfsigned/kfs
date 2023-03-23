@@ -1,8 +1,6 @@
 #include "gdt.h"
-#define GDTBASE 0x00000800
 
 #define GDT_NB_ENTRIES 7
-
 struct segment_desc gdt[GDT_NB_ENTRIES];
 struct gdt_ptr gdt_ptr;
 
@@ -26,6 +24,7 @@ void create_segment_desc(struct segment_desc *segment_desc, uint32_t base,
   segment_desc->access = access;
 }
 
+
 /// @brief fill gdt with all segments descriptors
 /// flat memory model 0 to 0xFFFFFFFF : see https://forum.osdev.org/viewtopic.php?f=1&t=31835  |  https://forum.osdev.org/viewtopic.php?f=1&t=10691  |  
 
@@ -46,6 +45,9 @@ void create_segment_desc(struct segment_desc *segment_desc, uint32_t base,
 ///               |7 |6 |5 |4 |3 2 1 0 |
 /// G = granularity size for scalling limit value : 1 = 4 kB blocks
 /// DB = set to 1 for 32-bit 
+#define SEG_BASE 0
+#define SEG_LIMIT 0x000FFFFF
+#define GRANULARITY 0x0C     // 1 1 0 0 
 void fill_gdt_entry() {
                                // P  DP  T   E  DC RW A
   int kernel_code_acc = 0x9A;  // 1  00  1   1  0  1  0
@@ -56,17 +58,15 @@ void fill_gdt_entry() {
   int user_data_acc = 0xF2;    // 1  11  1   0  0  1  0
   int user_stack_acc = 0xF6;   // 1  11  1   0  1  1  0
 
-  int granularity = 0x0C;      // 1 1 0 0 
-
   create_segment_desc(&gdt[0], 0, 0, 0, 0); // null descriptor
   // kernel segments
-  create_segment_desc(&gdt[1], 0, 0xFFFFFFFF, kernel_code_acc, granularity); // code
-  create_segment_desc(&gdt[2], 0, 0xFFFFFFFF, kernel_data_acc, granularity); // data
-  create_segment_desc(&gdt[3], 0, 0xFFFFFFFF, kernel_stack_acc, granularity); // stack
+  create_segment_desc(&gdt[1], SEG_BASE, SEG_LIMIT, kernel_code_acc, GRANULARITY); // code
+  create_segment_desc(&gdt[2], SEG_BASE, SEG_LIMIT, kernel_data_acc, GRANULARITY); // data
+  create_segment_desc(&gdt[3], SEG_BASE, SEG_LIMIT, kernel_stack_acc, GRANULARITY); // stack
   // user segments
-  create_segment_desc(&gdt[4], 0, 0xFFFFFFFF, user_code_acc, granularity); // code
-  create_segment_desc(&gdt[5], 0, 0xFFFFFFFF, user_data_acc, granularity); // data
-  create_segment_desc(&gdt[6], 0, 0xFFFFFFFF, user_stack_acc, granularity); // stack
+  create_segment_desc(&gdt[4], SEG_BASE, SEG_LIMIT, user_code_acc, GRANULARITY); // code
+  create_segment_desc(&gdt[5], SEG_BASE, SEG_LIMIT, user_data_acc, GRANULARITY); // data
+  create_segment_desc(&gdt[6], SEG_BASE, SEG_LIMIT, user_stack_acc, GRANULARITY); // stack
 }
 
 /// @brief init gdt_pointer and fill gdt with all segments descriptors
@@ -75,5 +75,5 @@ void init_gdt() {
   gdt_ptr.base = (uint32_t)&gdt;
   fill_gdt_entry();
 
-  struct segment_desc *ggdt = &gdt;
+  //struct segment_desc *ggdt = &gdt;
 }
