@@ -3,7 +3,7 @@ extern _gdt_ptr       ; Means gdt_ptr symbol is defined elsewhere
 
 _gdt_flush:
     lgdt [_gdt_ptr]   ; Load gdt_ptr in the gdt register
-    
+
     mov ax, 0x10      ; 0x10 is segment selector for data segment 
     mov ds, ax        ; Place data segment selector in apporpriate segment registers ( ds : data segment, ss : stack segment ... )
     mov es, ax
