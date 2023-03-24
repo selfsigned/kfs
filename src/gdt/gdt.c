@@ -25,6 +25,7 @@ void create_segment_desc(struct segment_desc *segment_desc, uint32_t base,
 }
 
 
+
 /// @brief fill gdt with all segments descriptors
 /// flat memory model 0 to 0xFFFFFFFF : see https://forum.osdev.org/viewtopic.php?f=1&t=31835  |  https://forum.osdev.org/viewtopic.php?f=1&t=10691  |  
 
@@ -47,27 +48,29 @@ void create_segment_desc(struct segment_desc *segment_desc, uint32_t base,
 /// DB = set to 1 for 32-bit 
 #define SEG_BASE 0
 #define SEG_LIMIT 0x000FFFFF
-#define GRANULARITY 0x0C     // 1 1 0 0 
-void fill_gdt_entry() {
-                               // P  DP  T   E  DC RW A
-  int kernel_code_acc = 0x9A;  // 1  00  1   1  0  1  0
-  int kernel_data_acc = 0x92;  // 1  00  1   0  0  1  0
-  int kernel_stack_acc = 0x96; // 1  00  1   0  1  1  0
-  
-  int user_code_acc = 0xFA;    // 1  11  1   1  0  1  0
-  int user_data_acc = 0xF2;    // 1  11  1   0  0  1  0
-  int user_stack_acc = 0xF6;   // 1  11  1   0  1  1  0
+#define GRANULARITY 0x0C     // 1 1 0 0
+enum access_byte{ACCESS = 0, READ_WRITE, DIRECTION_CONFORMING, EXECUTABLE, TYPE, PRIVILEGE_LVL = 5, PRESENT = 7};
+#define KERNEL_CODE_ACC 1 << PRESENT | 0 << PRIVILEGE_LVL | 1 << TYPE | 1 << EXECUTABLE | 1 << READ_WRITE
+#define KERNEL_DATA_ACC 1 << PRESENT | 0 << PRIVILEGE_LVL | 1 << TYPE | 1 << READ_WRITE
+#define KERNEL_STACK_ACC 1 << PRESENT | 0 << PRIVILEGE_LVL | 1 << TYPE | 1 << DIRECTION_CONFORMING | 1 << READ_WRITE
 
+#define USER_CODE_ACC 1 << PRESENT | 3 << PRIVILEGE_LVL | 1 << TYPE | 1 << EXECUTABLE | 1 << READ_WRITE
+#define USER_DATA_ACC 1 << PRESENT | 3 << PRIVILEGE_LVL | 1 << TYPE | 1 << READ_WRITE
+#define USER_STACK_ACC 1 << PRESENT | 3 << PRIVILEGE_LVL | 1 << TYPE | 1 << DIRECTION_CONFORMING| 1 << READ_WRITE
+
+void fill_gdt_entry() {
   create_segment_desc(&gdt[0], 0, 0, 0, 0); // null descriptor
   // kernel segments
-  create_segment_desc(&gdt[1], SEG_BASE, SEG_LIMIT, kernel_code_acc, GRANULARITY); // code
-  create_segment_desc(&gdt[2], SEG_BASE, SEG_LIMIT, kernel_data_acc, GRANULARITY); // data
-  create_segment_desc(&gdt[3], SEG_BASE, SEG_LIMIT, kernel_stack_acc, GRANULARITY); // stack
+  create_segment_desc(&gdt[1], SEG_BASE, SEG_LIMIT, KERNEL_CODE_ACC, GRANULARITY); // code
+  create_segment_desc(&gdt[2], SEG_BASE, SEG_LIMIT, KERNEL_DATA_ACC, GRANULARITY); // data
+  create_segment_desc(&gdt[3], SEG_BASE, SEG_LIMIT, KERNEL_STACK_ACC, GRANULARITY); // stack
   // user segments
-  create_segment_desc(&gdt[4], SEG_BASE, SEG_LIMIT, user_code_acc, GRANULARITY); // code
-  create_segment_desc(&gdt[5], SEG_BASE, SEG_LIMIT, user_data_acc, GRANULARITY); // data
-  create_segment_desc(&gdt[6], SEG_BASE, SEG_LIMIT, user_stack_acc, GRANULARITY); // stack
+  create_segment_desc(&gdt[4], SEG_BASE, SEG_LIMIT, USER_CODE_ACC, GRANULARITY); // code
+  create_segment_desc(&gdt[5], SEG_BASE, SEG_LIMIT, USER_DATA_ACC, GRANULARITY); // data
+  create_segment_desc(&gdt[6], SEG_BASE, SEG_LIMIT, USER_STACK_ACC, GRANULARITY); // stack
 }
+
+
 
 /// @brief init gdt_pointer and fill gdt with all segments descriptors
 void init_gdt() {
