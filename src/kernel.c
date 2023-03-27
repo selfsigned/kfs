@@ -90,7 +90,7 @@ void screen_init(uint8_t screen_nbr) {
 void kernel_main(void) {
   volatile int *memory_signature = (void *)SIGNATURE_ADDRESS;
 
-  init_gdt();
+  gdt_init();
 
   // initialized the vga driver and set screens
   vga_init(16, (uint16_t *)SCREEN_BUFFER_ADDR);
