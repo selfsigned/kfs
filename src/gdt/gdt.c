@@ -1,7 +1,7 @@
 #include "gdt.h"
 #include "gdt_internal.h"
 
-struct gdt_segment_desc gdt[GDT_NB_ENTRIES];
+struct gdt_segment_desc *gdt;
 struct gdt_ptr gdt_ptr;
 
 /// @brief fill the segment descriptor passed as 1st parameter
@@ -45,8 +45,9 @@ static void fill_gdt_entry() {
 }
 
 void gdt_init() {
+  gdt = (uint32_t *)GDT_ADDRESS;
   gdt_ptr.limit = (sizeof(struct gdt_segment_desc) * GDT_NB_ENTRIES) - 1;
-  gdt_ptr.base = (uint32_t)&gdt;
+  gdt_ptr.base = (uint32_t)gdt;
   fill_gdt_entry();
   _gdt_flush();
 }
