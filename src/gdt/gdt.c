@@ -49,7 +49,7 @@ void create_segment_desc(struct segment_desc *segment_desc, uint32_t base,
 #define SEG_BASE 0
 #define SEG_LIMIT 0x000FFFFF
 #define GRANULARITY 0x0C     // 1 1 0 0
-enum access_byte{ACCESS = 0, READ_WRITE, DIRECTION_CONFORMING, EXECUTABLE, TYPE, PRIVILEGE_LVL = 5, PRESENT = 7};
+enum access_byte{ACCESS, READ_WRITE, DIRECTION_CONFORMING, EXECUTABLE, TYPE, PRIVILEGE_LVL = 5, PRESENT = 7};
 #define KERNEL_CODE_ACC 1 << PRESENT | 0 << PRIVILEGE_LVL | 1 << TYPE | 1 << EXECUTABLE | 1 << READ_WRITE
 #define KERNEL_DATA_ACC 1 << PRESENT | 0 << PRIVILEGE_LVL | 1 << TYPE | 1 << READ_WRITE
 #define KERNEL_STACK_ACC 1 << PRESENT | 0 << PRIVILEGE_LVL | 1 << TYPE | 1 << DIRECTION_CONFORMING | 1 << READ_WRITE
@@ -77,6 +77,7 @@ void init_gdt() {
   gdt_ptr.limit = (sizeof(struct segment_desc) * GDT_NB_ENTRIES) - 1;
   gdt_ptr.base = (uint32_t)&gdt;
   fill_gdt_entry();
+  _gdt_flush();
 
   //struct segment_desc *ggdt = &gdt;
 }

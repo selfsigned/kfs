@@ -89,12 +89,12 @@ void screen_init(uint8_t screen_nbr) {
 /// @brief The entrypoint of our kernel
 void kernel_main(void) {
   volatile int *memory_signature = (void *)SIGNATURE_ADDRESS;
-
+  init_gdt();
   // initialized the vga driver and set screens
   vga_init(16, (uint16_t *)SCREEN_BUFFER_ADDR);
   screen_init(HOME_SCREEN);
 
-  init_gdt();
+
   // Set the kernel signature
   *memory_signature = SIGNATURE_VALUE;
 
