@@ -10,5 +10,6 @@
         },
         "editor.insertSpaces": true,
         "editor.tabSize": 2,
+        "files.autoSave": "onFocusChange",
         "terminal.integrated.macOptionIsMeta": true
 }
