@@ -5,7 +5,7 @@
 
 #define IDT_NB_ENTRIES 256
 
-struct idt_interrupt_desc {
+struct interrupt_desc {
    uint16_t base_low; /// address of the ISR (interrupt service routine) to jump to when this interrupt is called
    uint16_t segment_selector;  /// valid gdt segment               
    uint8_t  reserved; /// set to 0 
@@ -18,6 +18,7 @@ struct idt_ptr {
    uint32_t base; /// address
 } __attribute__((packed));
 
+/// @brief init idt_ptr, fill idt_entry, load idt in idt register
 void init_idt();
 
 #endif
