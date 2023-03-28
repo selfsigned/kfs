@@ -122,11 +122,11 @@ int vga_buffer_writechar(vga_info *info, const unsigned char c) {
 
 void vga_buffer_write(vga_info *info, size_t *result, unsigned char *s) {
   const unsigned char *str = s;
-  bool is_ascii = info->internal.cp437_print;
+  bool not_ascii = info->internal.cp437_print;
 
   while (*str) {
     // TODO: \t \b maybe \v
-    if (is_ascii && *str == '\n')
+    if (!not_ascii && *str == '\n')
       vga_set_cursor(info, true);
     else
       vga_buffer_writechar(info, *str);

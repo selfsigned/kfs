@@ -9,24 +9,6 @@
 // TODO provide mechanism to abstract printf out of vga driver, pointer on
 // function for screen printing could work
 
-//   case 'c':
-//     result += vga_buffer_writechar(info, (unsigned char)va_arg(*ap, int));
-//     break;
-//   case 'C':
-//     // not unicode but CP437 instead, extension
-//     result +=
-//         vga_buffer_writechar(info, (unsigned char)va_arg(*ap, unsigned int));
-//     break;
-//   case 's':
-//     // ascii string, includes '\n'
-//     result +=
-//         vga_buffer_write(info, (unsigned char *)va_arg(*ap, char *), true);
-//     break;
-//   case 'S':
-//     // CP437
-//     result += vga_buffer_write(
-//         info, (unsigned char *)va_arg(*ap, unsigned char *), false);
-//     break;
 //   // number types
 //   case 'i':
 //     // base 10: integer
@@ -48,17 +30,11 @@
 //     utoa((char *)tmp, (unsigned int)va_arg(*ap, unsigned int), 8);
 //     vga_buffer_write(info, tmp, false);
 //     break;
-
 //   // custom types
 //   case 'b':
 //     // base 2: binary, extension
 //     utoa((char *)tmp, (unsigned int)va_arg(*ap, unsigned int), 2);
 //     vga_buffer_write(info, tmp, false);
-//     break;
-//   case 'a':
-//     // vga attributes, extension
-//     vga_screen_setattributes(info->screen,
-//                              (vga_attributes)va_arg(*ap, vga_attributes));
 //     break;
 
 int vga_vdprintf(vga_info info,
@@ -72,6 +48,7 @@ int vga_vdprintf(vga_info info,
   while (*format) {
     unsigned char tmp[64] = {0};
     struct printf_parameters params = {};
+    info.internal.cp437_print = false; // reset str state
 
     // print non-specifiers
     if (*format != '%') {
@@ -130,7 +107,33 @@ int vga_vdprintf(vga_info info,
 
     // type
     switch (*format) {
-    case '%':
+    case 'a':
+      // vga attributes, extension
+      vga_screen_setattributes(info.screen,
+                               (vga_attributes)va_arg(ap, vga_attributes));
+      format++;
+      break;
+
+    // TODO precision width
+
+    // strings
+    case 'S':
+      info.internal.cp437_print = true; // fall through
+    case 's':
+      print_func(&info, &result, (unsigned char *)va_arg(ap, unsigned char *));
+      format++;
+      break;
+
+    // char
+    case 'C':
+      info.internal.cp437_print = true; // fall through
+    case 'c':
+      tmp[0] = (unsigned char)va_arg(ap, int);
+      print_func(&info, &result, tmp);
+      format++;
+      break;
+
+    case '%': // fall through
     default:
       tmp[0] = *format;
       print_func(&info, &result, tmp);
