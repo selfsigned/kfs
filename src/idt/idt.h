@@ -3,9 +3,11 @@
 
 #include <stdint.h>
 
+#define IDT_NB_ENTRIES 256
+
 struct idt_interrupt_desc {
    uint16_t base_low; /// address of the ISR (interrupt service routine) to jump to when this interrupt is called
-   uint16_t segment_selector;  ///valid gdt segment               
+   uint16_t segment_selector;  /// valid gdt segment               
    uint8_t  reserved; /// set to 0 
    uint8_t  access;               
    uint16_t base_high; /// address is divided in two parts
