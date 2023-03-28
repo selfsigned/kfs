@@ -1,97 +1,142 @@
+#include "printf_internal.h"
 #include "vga.h"
 #include "vga_internal.h"
 #include <stdarg.h>
 
-/// @brief implement printf argument reading
-/// @return numbers of character written, negative if error
-int vga_printf_readarg(vga_info *info, const char *format, va_list *ap,
-                       size_t *i) {
-  int result = 0;
-  unsigned char tmp[64] = {0};
+//  Flags and string impl:
+// https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap05.html
 
-  // target: %[flags][width][.precision][length]type
-  switch (format[*i]) {
-  case '%':
-    result += vga_buffer_writechar(info, '%');
-    break;
-  case 'c':
-    result += vga_buffer_writechar(info, (unsigned char)va_arg(*ap, int));
-    break;
-  case 'C':
-    // not unicode but CP437 instead, extension
-    result +=
-        vga_buffer_writechar(info, (unsigned char)va_arg(*ap, unsigned int));
-    break;
-  case 's':
-    // ascii string, includes '\n'
-    result +=
-        vga_buffer_write(info, (unsigned char *)va_arg(*ap, char *), true);
-    break;
-  case 'S':
-    // CP437
-    result += vga_buffer_write(
-        info, (unsigned char *)va_arg(*ap, unsigned char *), false);
-    break;
-  case 'u':
-    utoa((char *)tmp, (unsigned int)va_arg(*ap, unsigned int), 10);
-    vga_buffer_write(info, tmp, false);
-    // base 10: unsigned
-    break;
-  case 'i':
-    itoa((char *)tmp, (unsigned int)va_arg(*ap, unsigned int), 10);
-    vga_buffer_write(info, tmp, false);
-    break;
-  case 'x':
-    utoa((char *)tmp, (unsigned int)va_arg(*ap, unsigned int), 16);
-    vga_buffer_write(info, tmp, false);
-    // base 10: integer
-    break;
-  case 'o':
-    utoa((char *)tmp, (unsigned int)va_arg(*ap, unsigned int), 8);
-    vga_buffer_write(info, tmp, false);
-    // base 8: octal
-    break;
-  case 'b':
-    // base 2: binary, extension
-    utoa((char *)tmp, (unsigned int)va_arg(*ap, unsigned int), 2);
-    vga_buffer_write(info, tmp, false);
-    break;
-  case 'a':
-    // vga attributes, extension
-    vga_screen_setattributes(info->screen,
-                             (vga_attributes)va_arg(*ap, vga_attributes));
-    break;
-  default:
-    // Not implemented yet
-    return -1;
-  }
-  return result;
-}
+// TODO provide mechanism to abstract printf out of vga driver, pointer on
+// function for screen printing could work
 
-int vga_vdprintf(vga_info info, const char *format, va_list ap) {
-  int result = 0;
+//   case 'c':
+//     result += vga_buffer_writechar(info, (unsigned char)va_arg(*ap, int));
+//     break;
+//   case 'C':
+//     // not unicode but CP437 instead, extension
+//     result +=
+//         vga_buffer_writechar(info, (unsigned char)va_arg(*ap, unsigned int));
+//     break;
+//   case 's':
+//     // ascii string, includes '\n'
+//     result +=
+//         vga_buffer_write(info, (unsigned char *)va_arg(*ap, char *), true);
+//     break;
+//   case 'S':
+//     // CP437
+//     result += vga_buffer_write(
+//         info, (unsigned char *)va_arg(*ap, unsigned char *), false);
+//     break;
+//   // number types
+//   case 'i':
+//     // base 10: integer
+//     itoa((char *)tmp, (unsigned int)va_arg(*ap, unsigned int), 10);
+//     vga_buffer_write(info, tmp, false);
+//     break;
+//   case 'u':
+//     // base 10: unsigned
+//     utoa((char *)tmp, (unsigned int)va_arg(*ap, unsigned int), 10);
+//     vga_buffer_write(info, tmp, false);
+//     break;
+//   case 'x':
+//     // base 16: unsigned hexa
+//     utoa((char *)tmp, (unsigned int)va_arg(*ap, unsigned int), 16);
+//     vga_buffer_write(info, tmp, false);
+//     break;
+//   case 'o':
+//     // base 8: octal
+//     utoa((char *)tmp, (unsigned int)va_arg(*ap, unsigned int), 8);
+//     vga_buffer_write(info, tmp, false);
+//     break;
+
+//   // custom types
+//   case 'b':
+//     // base 2: binary, extension
+//     utoa((char *)tmp, (unsigned int)va_arg(*ap, unsigned int), 2);
+//     vga_buffer_write(info, tmp, false);
+//     break;
+//   case 'a':
+//     // vga attributes, extension
+//     vga_screen_setattributes(info->screen,
+//                              (vga_attributes)va_arg(*ap, vga_attributes));
+//     break;
+
+int vga_vdprintf(vga_info info,
+                 void (*print_func)(vga_info *, size_t *, unsigned char *),
+                 const char *format, va_list ap) {
   int ret = 0;
+  size_t result = 0;
 
-  // Parse the format string
-  for (size_t i = 0; format[i]; ++i) {
-    switch (format[i]) {
-    case '%':
-      ++i;
-      if ((ret = vga_printf_readarg(&info, format, &ap, &i) < 0))
-        return -1;
-      result += ret;
+  // fmt string: %[flags][width][.precision]type
+  // missing: [length]
+  while (*format) {
+    unsigned char tmp[64] = {0};
+    struct printf_parameters params = {};
+
+    // print non-specifiers
+    if (*format != '%') {
+      tmp[0] = *format;
+      print_func(&info, &result, tmp);
+      format++;
+      continue;
+    }
+    format++;
+
+    // flags
+    switch (*format) {
+    // left-justify
+    case '-':
+      params.flags.left_justify = true;
+      format++;
       break;
-    case '\n':
-      vga_set_cursor(&info, true);
+    // always add a sign
+    case '+':
+      params.flags.add_plus = true;
+      format++;
       break;
-    // TODO \r, maybe \b
+    // begin with space if no sign
+    case ' ':
+      params.flags.add_space = true;
+      format++;
+      break;
+    // 0 pad [width]
+    case '0':
+      params.flags.zero_pad = true;
+      format++;
+      break;
+    // enable alternative form
+    case '#':
+      params.flags.alt_form = true;
+      format++;
+      break;
+    // INOP integer exponent thousand separator, I so can't be bothered
+    case '\'':
     default:
-      result += vga_buffer_writechar(&info, format[i]);
+      break;
+    }
+
+    // width
+    if (isalnum(*format)) {
+      params.width = atoi(format);
+    }
+
+    // precision
+    if (*format == '.') {
+      params.flags.precision = true;
+      format++;
+
+      params.precision = atoi(format);
+    }
+
+    // type
+    switch (*format) {
+    case '%':
+    default:
+      tmp[0] = *format;
+      print_func(&info, &result, tmp);
+      format++;
     }
   }
-
-  if (info.print)
-    vga_screen_show(info.screen);
 
   return result;
 }
@@ -101,7 +146,11 @@ int vga_printf(vga_info info, const char *format, ...) {
   va_list ap;
 
   va_start(ap, format);
-  result = vga_vdprintf(info, format, ap);
+  result = vga_vdprintf(info, vga_buffer_write, format, ap);
   va_end(ap);
+
+  if (info.print)
+    vga_screen_show(info.screen);
+
   return result;
 }

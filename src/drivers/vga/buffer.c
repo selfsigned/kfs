@@ -120,19 +120,19 @@ int vga_buffer_writechar(vga_info *info, const unsigned char c) {
   return ++result;
 }
 
-int vga_buffer_write(vga_info *info, const unsigned char *s, bool is_ascii) {
+void vga_buffer_write(vga_info *info, size_t *result, unsigned char *s) {
   const unsigned char *str = s;
-  size_t result = 0;
+  bool is_ascii = info->internal.cp437_print;
 
   while (*str) {
-    // TODO: \t
+    // TODO: \t \b maybe \v
     if (is_ascii && *str == '\n')
       vga_set_cursor(info, true);
     else
-      result += vga_buffer_writechar(info, *str);
+      vga_buffer_writechar(info, *str);
+    result++;
     str++;
   }
-  return result;
 }
 
 // public //

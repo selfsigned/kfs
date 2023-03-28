@@ -86,6 +86,7 @@ typedef struct vga_info {
   bool print;             /// flush the screen buffer to VGA
   unsigned char wrapchar; /// the character to put when wrapping
   struct {
+    bool cp437_print;   /// !INTERNAL! instead of using control chars print them
     bool cursor_loaded; /// !INTERNAL! is the screen cursor loaded?
   } internal; /// DO NOT TOUCH, sad sad sad lack of separation of concern
 } vga_info;
