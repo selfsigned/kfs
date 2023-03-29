@@ -6,34 +6,6 @@
 //  Flags and string impl:
 // https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap05.html
 
-//   // number types
-//   case 'i':
-//     // base 10: integer
-//     itoa((char *)tmp, (unsigned int)va_arg(*ap, unsigned int), 10);
-//     vga_buffer_write(info, tmp, false);
-//     break;
-//   case 'u':
-//     // base 10: unsigned
-//     utoa((char *)tmp, (unsigned int)va_arg(*ap, unsigned int), 10);
-//     vga_buffer_write(info, tmp, false);
-//     break;
-//   case 'x':
-//     // base 16: unsigned hexa
-//     utoa((char *)tmp, (unsigned int)va_arg(*ap, unsigned int), 16);
-//     vga_buffer_write(info, tmp, false);
-//     break;
-//   case 'o':
-//     // base 8: octal
-//     utoa((char *)tmp, (unsigned int)va_arg(*ap, unsigned int), 8);
-//     vga_buffer_write(info, tmp, false);
-//     break;
-//   // custom types
-//   case 'b':
-//     // base 2: binary, extension
-//     utoa((char *)tmp, (unsigned int)va_arg(*ap, unsigned int), 2);
-//     vga_buffer_write(info, tmp, false);
-//     break;
-
 int vga_vdprintf(vga_info info,
                  void (*print_func)(vga_info *, size_t *, unsigned char *),
                  const char *format, va_list ap) {
@@ -181,13 +153,17 @@ int vga_vdprintf(vga_info info,
     }
 
     // numbers
+    case 'b': // fall through, extension
     case 'd': // fall through
     case 'i': // fall through
     case 'o': // fall through
     case 'u': // fall through
     case 'x': // fall through
     case 'X': {
-      if (*format == 'X' || *format == 'x') {
+      unsigned char pad_char = (params.flags.zero_pad) ? '0' : ' ';
+
+      // base
+      if (*format == 'x' || *format == 'X') {
         params.base = 16;
       } else if (*format == 'o') {
         params.base = 8;
@@ -197,8 +173,53 @@ int vga_vdprintf(vga_info info,
         params.base = 10;
       }
 
-      // tmp[0] = (unsigned char)va_arg(ap, int);
-      // print_func(&info, &result, utoa(tmp));
+      // number string
+      size_t offset = 0;
+      if (*format == 'd' || *format == 'i') {
+        int nbr = (int)va_arg(ap, int);
+        // '+': result of a signed conversion shall always begin with a sign
+        // ' ': prepend ' ', if ' ' and '+' both appear, ' ' shall be ignored
+        if (nbr >= 0 && (params.flags.add_plus || params.flags.add_space)) {
+          tmp[0] = (params.flags.add_plus) ? '+' : ' ';
+          offset = 1;
+        }
+        itoa(tmp + offset, nbr, params.base);
+      } else {
+        unsigned int nbr = (unsigned int)va_arg(ap, unsigned int);
+        if (params.flags.alt_form) {
+          switch (params.base) {
+          case 16:
+            // For x or X a non-zero result has 0x or 0X prefixed to it
+            if (nbr) {
+              tmp[0] = '0';
+              tmp[1] = 'x';
+              offset = 2;
+            }
+            break;
+          case 8:
+            // For o it shall increase the precision to force the first digit of
+            // the result to be a zero
+            utoa(tmp, nbr, params.base);
+            if (tmp[0] != '0') {
+              tmp[0] = '0';
+              offset = 1;
+            }
+            break;
+          }
+        }
+        utoa(tmp + offset, nbr, params.base);
+      }
+
+      // use upper characters
+      if (*format == 'X') {
+        for (unsigned char *c = tmp; *c; c++) {
+          *c = toupper(*c);
+        }
+      }
+
+      if (!(params.flags.precision && !params.precision))
+        print_func(&info, &result, tmp);
+
       format++;
       break;
     }

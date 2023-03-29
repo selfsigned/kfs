@@ -51,6 +51,16 @@ int isascii(int c);
 /// @return non-zero if c is the thing, 0 if it isn't
 int isblank(int c);
 
+/// @brief convert uppercase
+/// @param c char to convert
+/// @return c converted to uppercase
+int toupper(int c);
+
+/// @brief convert lowercase
+/// @param c char to convert
+/// @return c converted to lowercase
+int tolower(int c);
+
 //// strings.h ////
 
 /// @brief convert a string to an int

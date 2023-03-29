@@ -33,7 +33,8 @@ void test_printf(uint8_t screen_nbr) {
   vga_printf(
       (vga_info){
           .screen = screen_nbr, .row = 12, .column = 10, .nocursor = true},
-      "int: %i hex: %x unsigned:%u octal: %o binary: %b", -42, 42, 42, 42, 42);
+      "int: %i hex: %x hexUP: %X unsigned:%u octal: %o binary: %b", -42, 42, 42,
+      42, 42, 42);
   vga_printf((vga_info){.screen = screen_nbr, .row = 24, .column = 78}, "%CY",
              CP437_YEN_SIGN);
 }
