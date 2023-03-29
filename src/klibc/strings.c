@@ -33,6 +33,14 @@ inline size_t strlen(const char *s) {
   return t - s;
 }
 
+size_t strnlen(const char *s, size_t maxlen) {
+  const char *t;
+
+  for (t = s; maxlen > 0 && *t; ++t, maxlen--)
+    ;
+  return t - s;
+}
+
 char *strchr(const char *s, int c) {
   while (*s) {
     if (*s == c)

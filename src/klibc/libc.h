@@ -82,6 +82,12 @@ void *memset(void *s, int c, size_t n);
 /// @return size of the string
 size_t strlen(const char *s);
 
+/// @brief returns the length of a string up to maxlen
+/// @param s string to get the size of
+/// @param maxlen max num of character to read
+/// @return strlen(s) if string is shorter than maxlen, otherwise maxlen
+size_t strnlen(const char *s, size_t maxlen);
+
 /// @brief find character in string
 /// @param s string to find the character c in
 /// @param c character to find

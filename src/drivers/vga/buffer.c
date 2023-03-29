@@ -128,9 +128,10 @@ void vga_buffer_write(vga_info *info, size_t *result, unsigned char *s) {
     // TODO: \t \b maybe \v
     if (!not_ascii && *str == '\n')
       vga_set_cursor(info, true);
-    else
+    else {
       vga_buffer_writechar(info, *str);
-    result++;
+      result++;
+    }
     str++;
   }
 }

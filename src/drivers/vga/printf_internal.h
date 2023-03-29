@@ -2,6 +2,8 @@
 #define PRINTF_INTERNAL_H
 
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 
 struct printf_flags {
   bool left_justify; // '-'
@@ -13,8 +15,9 @@ struct printf_flags {
 };
 
 struct printf_parameters {
-  int width;
-  int precision;
+  size_t width;
+  size_t precision;
+  uint8_t base;
   struct printf_flags flags;
 };
 

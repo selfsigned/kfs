@@ -6,9 +6,6 @@
 //  Flags and string impl:
 // https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap05.html
 
-// TODO provide mechanism to abstract printf out of vga driver, pointer on
-// function for screen printing could work
-
 //   // number types
 //   case 'i':
 //     // base 10: integer
@@ -40,7 +37,6 @@
 int vga_vdprintf(vga_info info,
                  void (*print_func)(vga_info *, size_t *, unsigned char *),
                  const char *format, va_list ap) {
-  int ret = 0;
   size_t result = 0;
 
   // fmt string: %[flags][width][.precision]type
@@ -95,6 +91,8 @@ int vga_vdprintf(vga_info info,
     // width
     if (isalnum(*format)) {
       params.width = atoi(format);
+      while (isdigit(*format))
+        format++;
     }
 
     // precision
@@ -103,35 +101,107 @@ int vga_vdprintf(vga_info info,
       format++;
 
       params.precision = atoi(format);
+      while (isdigit(*format))
+        format++;
     }
 
     // type
     switch (*format) {
-    case 'a':
-      // vga attributes, extension
+
+    // vga attributes, extension
+    case 'a': {
       vga_screen_setattributes(info.screen,
                                (vga_attributes)va_arg(ap, vga_attributes));
       format++;
       break;
-
-    // TODO precision width
+    }
 
     // strings
     case 'S':
       info.internal.cp437_print = true; // fall through
-    case 's':
-      print_func(&info, &result, (unsigned char *)va_arg(ap, unsigned char *));
+    case 's': {
+      unsigned char *str = (unsigned char *)va_arg(ap, unsigned char *);
+      if (!*str) {
+        str = (unsigned char *)"(null)";
+      }
+
+      // max value if no precision for strnlen
+      size_t len =
+          strnlen(str, params.flags.precision ? params.precision : (size_t)-1);
+
+      // left justify
+      if (!params.flags.left_justify) {
+        while (len++ < params.width)
+          print_func(&info, &result, (unsigned char *)" ");
+      }
+
+      // print str
+      if (params.flags.precision && params.precision <= len) {
+        // prematurely end str and then restore it
+        tmp[0] = str[params.precision];
+        str[params.precision] = '\0';
+        print_func(&info, &result, str);
+        str[params.precision] = tmp[0];
+      } else
+        print_func(&info, &result, str);
+
+      // right justify
+      if (params.flags.left_justify) {
+        while (len++ < params.width)
+          print_func(&info, &result, (unsigned char *)" ");
+      }
+
       format++;
       break;
+    }
 
     // char
     case 'C':
       info.internal.cp437_print = true; // fall through
-    case 'c':
+    case 'c': {
       tmp[0] = (unsigned char)va_arg(ap, int);
+      size_t len = 1;
+
+      // left justify
+      if (!params.flags.left_justify) {
+        while (len++ < params.width)
+          print_func(&info, &result, (unsigned char *)" ");
+      }
+
       print_func(&info, &result, tmp);
+
+      // right justify
+      if (params.flags.left_justify) {
+        while (len++ < params.width)
+          print_func(&info, &result, (unsigned char *)" ");
+      }
+
       format++;
       break;
+    }
+
+    // numbers
+    case 'd': // fall through
+    case 'i': // fall through
+    case 'o': // fall through
+    case 'u': // fall through
+    case 'x': // fall through
+    case 'X': {
+      if (*format == 'X' || *format == 'x') {
+        params.base = 16;
+      } else if (*format == 'o') {
+        params.base = 8;
+      } else if (*format == 'b') {
+        params.base = 2;
+      } else {
+        params.base = 10;
+      }
+
+      // tmp[0] = (unsigned char)va_arg(ap, int);
+      // print_func(&info, &result, utoa(tmp));
+      format++;
+      break;
+    }
 
     case '%': // fall through
     default:
