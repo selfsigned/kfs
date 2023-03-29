@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #define GDT_NB_ENTRIES 7
+#define GDT_ADDRESS 0x800
 
 struct gdt_segment_desc {
   uint16_t limit_low;
@@ -21,7 +22,7 @@ struct gdt_ptr {
 } __attribute__((packed));
 
 /// @brief  Our gdt
-extern struct gdt_segment_desc gdt[GDT_NB_ENTRIES];
+extern struct gdt_segment_desc *gdt;
 /// @brief  pointer to our gdt
 extern struct gdt_ptr gdt_ptr;
 
