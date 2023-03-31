@@ -3,6 +3,22 @@
 struct interrupt_desc idt[IDT_NB_ENTRIES];
 struct idt_ptr idt_ptr;
 
+/// @brief fill the interrupt descriptor passed as 1st parameter
+/// @param interrupt_descriptor interrupt descriptor to set
+/// @param base address of the ISR to call to handle this interrupt
+/// @param segment_selector valid segment selector (ex code segm selector)
+/// @param access interrupt type and permissions
+void create_interrupt_desc(struct interrupt_desc *interrupt_desc,
+                                uint32_t base, uint16_t segment_selector, uint8_t access) 
+{
+	interrupt_desc->base_low = (base & 0xFFFF);
+	interrupt_desc->base_high = (base >> 16) & 0xFFFF;
+
+	interrupt_desc->segment_selector = segment_selector;
+	interrupt_desc->reserved = 0;
+  interrupt_desc->access = access;
+}
+
 /* -- EXCEPTIONS
 0 - Division error 
 1 - Debug 	
@@ -55,6 +71,7 @@ FPU Error Interrupt 	IRQ 13 */
 
 void fill_idt_entries(){
   memset(&idt, 0, sizeof(struct interrupt_desc) * 256);
+  create_interrupt_desc(&idt[0], 0, 0, 0);
 
 }
 
