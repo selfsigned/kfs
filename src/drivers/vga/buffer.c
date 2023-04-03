@@ -126,11 +126,20 @@ void vga_buffer_write(vga_info *info, size_t *result, unsigned char *s) {
 
   while (*str) {
     // TODO: \t \b maybe \v
-    if (!not_ascii && *str == '\n')
-      vga_set_cursor(info, true);
-    else {
+    if (!not_ascii) {
+      switch (*str) {
+      case '\n':
+        vga_set_cursor(info, true);
+        break;
+      case '\t':
+        // TODO
+        break;
+      default:
+        break;
+      }
+    } else {
       vga_buffer_writechar(info, *str);
-      result++;
+      *result += 1;
     }
     str++;
   }

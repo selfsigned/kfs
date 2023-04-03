@@ -87,7 +87,12 @@ char *utoa(char *str, unsigned int value, unsigned char base) {
     str[i++] = base_digits[value % base];
     value /= base;
   }
-  str[i] = '\0';
+  if (str[0]) {
+    str[i] = '\0';
+  } else {
+    str[0] = '0';
+    str[1] = '\0';
+  }
   strrev(str);
   return str;
 }

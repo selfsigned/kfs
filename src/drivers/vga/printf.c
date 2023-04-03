@@ -101,7 +101,7 @@ int vga_vdprintf(vga_info info,
       size_t len =
           strnlen(str, params.flags.precision ? params.precision : (size_t)-1);
 
-      // left justify
+      // right justify
       if (!params.flags.left_justify) {
         while (len++ < params.width)
           print_func(&info, &result, (unsigned char *)" ");
@@ -134,7 +134,7 @@ int vga_vdprintf(vga_info info,
       tmp[0] = (unsigned char)va_arg(ap, int);
       size_t len = 1;
 
-      // left justify
+      // right justify
       if (!params.flags.left_justify) {
         while (len++ < params.width)
           print_func(&info, &result, (unsigned char *)" ");
@@ -142,7 +142,7 @@ int vga_vdprintf(vga_info info,
 
       print_func(&info, &result, tmp);
 
-      // right justify
+      // left justify
       if (params.flags.left_justify) {
         while (len++ < params.width)
           print_func(&info, &result, (unsigned char *)" ");
@@ -153,37 +153,47 @@ int vga_vdprintf(vga_info info,
     }
 
     // numbers
+    case 'p': // fall through, extension
     case 'b': // fall through, extension
+    case 'B': // fall through, extension
     case 'd': // fall through
     case 'i': // fall through
     case 'o': // fall through
     case 'u': // fall through
     case 'x': // fall through
     case 'X': {
-      unsigned char pad_char = (params.flags.zero_pad) ? '0' : ' ';
+      unsigned char pad_char[2] = {0};
+      unsigned char prefix[5] = {0};
+
+      pad_char[0] =
+          (!params.flags.precision && params.flags.zero_pad) ? '0' : ' ';
 
       // base
-      if (*format == 'x' || *format == 'X') {
+      if (*format == 'p' || *format == 'x' || *format == 'X') {
         params.base = 16;
       } else if (*format == 'o') {
         params.base = 8;
-      } else if (*format == 'b') {
+      } else if (*format == 'b' || *format == 'B') {
         params.base = 2;
       } else {
         params.base = 10;
       }
 
       // number string
-      size_t offset = 0;
       if (*format == 'd' || *format == 'i') {
         int nbr = (int)va_arg(ap, int);
         // '+': result of a signed conversion shall always begin with a sign
-        // ' ': prepend ' ', if ' ' and '+' both appear, ' ' shall be ignored
+        // ' ': prepend ' ', if ' ' and '+' both appear, ' ' shall be
+        // ignored
         if (nbr >= 0 && (params.flags.add_plus || params.flags.add_space)) {
-          tmp[0] = (params.flags.add_plus) ? '+' : ' ';
-          offset = 1;
+          prefix[0] = (params.flags.add_plus) ? '+' : ' ';
         }
-        itoa(tmp + offset, nbr, params.base);
+        itoa(tmp, nbr, params.base);
+      } else if (*format == 'p') {
+        prefix[0] = '0';
+        prefix[1] = 'x';
+        unsigned int nbr = (uint64_t)va_arg(ap, void *);
+        utoa(tmp, nbr, params.base);
       } else {
         unsigned int nbr = (unsigned int)va_arg(ap, unsigned int);
         if (params.flags.alt_form) {
@@ -191,34 +201,59 @@ int vga_vdprintf(vga_info info,
           case 16:
             // For x or X a non-zero result has 0x or 0X prefixed to it
             if (nbr) {
-              tmp[0] = '0';
-              tmp[1] = 'x';
-              offset = 2;
+              prefix[0] = '0';
+              prefix[1] = 'x';
             }
             break;
           case 8:
-            // For o it shall increase the precision to force the first digit of
-            // the result to be a zero
+            // For o it shall increase the precision to force the first
+            // digit of the result to be a zero
             utoa(tmp, nbr, params.base);
             if (tmp[0] != '0') {
-              tmp[0] = '0';
-              offset = 1;
+              prefix[0] = '0';
             }
             break;
+          case 2:
+            // custom, binary alt form
+            if (nbr) {
+              prefix[0] = '0';
+              prefix[1] = 'b';
+            }
           }
         }
-        utoa(tmp + offset, nbr, params.base);
+        utoa(tmp, nbr, params.base);
       }
-
-      // use upper characters
-      if (*format == 'X') {
-        for (unsigned char *c = tmp; *c; c++) {
+      // convert to uppercase
+      if (*format == 'X' || *format == 'B') {
+        for (unsigned char *c = tmp; *c; c++)
           *c = toupper(*c);
-        }
       }
 
+      size_t len = strlen(tmp) + strlen(prefix);
+
+      // right justify
+      if (!params.flags.left_justify) {
+        while (len < params.width--)
+          print_func(&info, &result, pad_char);
+      }
+
+      // prefix && precision
+      print_func(&info, &result, prefix);
+      if (params.flags.precision && params.precision > len) {
+        params.precision -= len;
+        while (params.precision--)
+          print_func(&info, &result, "0");
+      }
+
+      // nbr
       if (!(params.flags.precision && !params.precision))
         print_func(&info, &result, tmp);
+
+      // left justify
+      if (params.flags.left_justify) {
+        while (len < params.width--)
+          print_func(&info, &result, pad_char);
+      }
 
       format++;
       break;
