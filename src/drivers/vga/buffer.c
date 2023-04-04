@@ -146,11 +146,10 @@ void vga_buffer_write(vga_info *info, size_t *result, unsigned char *s) {
         break;
       }
       case '\t': {
-        if (screen->cursor.column % VGA_TAB_ALIGNMENT)
-          for (size_t i = (VGA_TAB_ALIGNMENT -
-                           screen->cursor.column % VGA_TAB_ALIGNMENT);
-               i; i--)
-            vga_buffer_writechar(info, ' ');
+        for (size_t i = (VGA_TAB_ALIGNMENT -
+                         screen->cursor.column % VGA_TAB_ALIGNMENT);
+             i; i--)
+          vga_buffer_writechar(info, ' ');
         break;
       }
       default:

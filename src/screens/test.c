@@ -1,8 +1,8 @@
 #include "../cp437.h"
 #include "../drivers/vga/vga.h"
-#include "test.h"
+#include "screens.h"
 
-void test_printf(uint8_t screen_nbr) {
+void screen_test_printf(uint8_t screen_nbr) {
 
   // test background
   vga_screen_fillbackground(screen_nbr, VGA_COLOR_BLUE);
@@ -39,7 +39,7 @@ void test_printf(uint8_t screen_nbr) {
              CP437_YEN_SIGN);
 }
 
-void test_vga_cp437(uint8_t screen_nbr) {
+void screen_test_cp437(uint8_t screen_nbr) {
   uint8_t cp437[255] = {0};
 
   for (uint8_t c = 1; c < 255; ++c)
@@ -48,7 +48,7 @@ void test_vga_cp437(uint8_t screen_nbr) {
              cp437 + 1);
 }
 
-void test_vga_color(uint8_t screen_nbr, uint8_t test_char) {
+void screen_test_color(uint8_t screen_nbr, uint8_t test_char) {
   for (uint8_t bg = 0; bg < 8; ++bg) {
     for (uint8_t fg = 0; fg < 16; ++fg) {
       vga_printf((vga_info){.screen = screen_nbr, .nowrap = true}, "%a%C",

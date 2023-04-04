@@ -23,4 +23,19 @@ void screen_loop(uint8_t home_screen, uint8_t note_screen);
 /// @return false if box too big or the screen doesn't exist
 bool screen_create_box_light(uint8_t screen_nbr, uint8_t width, uint8_t height);
 
+// Misc tests
+
+/// @brief test printf features
+/// @param screen_nbr screen to write to
+void screen_test_printf(uint8_t screen_nbr);
+
+/// @brief display the whole cp437 charset
+/// @param screen_nbr screen to write to
+void screen_test_cp437(uint8_t screen_nbr);
+
+/// @brief display VGA colors
+/// @param screen_nbr screen to write to
+/// @param test_char CP437 character to fill
+void screen_test_color(uint8_t screen_nbr, uint8_t test_char);
+
 #endif
