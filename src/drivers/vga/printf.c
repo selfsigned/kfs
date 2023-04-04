@@ -61,7 +61,7 @@ int vga_vdprintf(vga_info info,
     }
 
     // width
-    if (isalnum(*format)) {
+    if (isdigit(*format)) {
       params.width = atoi(format);
       while (isdigit(*format))
         format++;
@@ -230,29 +230,43 @@ int vga_vdprintf(vga_info info,
       }
 
       size_t len = strlen(tmp) + strlen(prefix);
+      bool no_print_nbr = false;
+      if (params.flags.precision && !params.precision) {
+        no_print_nbr = true;
+        if (params.width)
+          params.width++;
+      }
 
       // right justify
       if (!params.flags.left_justify) {
-        while (len < params.width--)
-          print_func(&info, &result, pad_char);
+        if (params.precision > len) {
+          while (params.precision < params.width--)
+            print_func(&info, &result, pad_char);
+        } else {
+          while (len < params.width--)
+            print_func(&info, &result, pad_char);
+        }
       }
 
       // prefix && precision
       print_func(&info, &result, prefix);
       if (params.flags.precision && params.precision > len) {
-        params.precision -= len;
-        while (params.precision--)
+        for (size_t i = params.precision - len; i; i--)
           print_func(&info, &result, "0");
       }
 
       // nbr
-      if (!(params.flags.precision && !params.precision))
+      if (!no_print_nbr)
         print_func(&info, &result, tmp);
 
-      // left justify
       if (params.flags.left_justify) {
-        while (len < params.width--)
-          print_func(&info, &result, pad_char);
+        if (params.precision > len) {
+          while (params.precision < params.width--)
+            print_func(&info, &result, pad_char);
+        } else {
+          while (len < params.width--)
+            print_func(&info, &result, pad_char);
+        }
       }
 
       format++;

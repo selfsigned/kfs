@@ -123,23 +123,44 @@ int vga_buffer_writechar(vga_info *info, const unsigned char c) {
 void vga_buffer_write(vga_info *info, size_t *result, unsigned char *s) {
   const unsigned char *str = s;
   bool not_ascii = info->internal.cp437_print;
+  vga_screen_info *screen = &g_vga_state.screen[info->screen];
 
   while (*str) {
-    // TODO: \t \b maybe \v
     if (!not_ascii) {
       switch (*str) {
       case '\n':
         vga_set_cursor(info, true);
         break;
-      case '\t':
-        // TODO
+      case '\b': {
+        // only works in cursor mode
+        // code quality: bruh
+        if ((!info->nocursor || info->setcursor) && screen->cursor.column > 0) {
+          if (info->column > 0)
+            info->column--;
+          screen->cursor.column--;
+          info->internal.cursor_loaded = false;
+          vga_buffer_writechar(info, ' ');
+          info->column--;
+          screen->cursor.column--;
+        }
         break;
+      }
+      case '\t': {
+        if (screen->cursor.column % VGA_TAB_ALIGNMENT)
+          for (size_t i = (VGA_TAB_ALIGNMENT -
+                           screen->cursor.column % VGA_TAB_ALIGNMENT);
+               i; i--)
+            vga_buffer_writechar(info, ' ');
+        break;
+      }
       default:
+        vga_buffer_writechar(info, *str);
+        (*result)++;
         break;
       }
     } else {
       vga_buffer_writechar(info, *str);
-      *result += 1;
+      (*result)++;
     }
     str++;
   }
@@ -174,9 +195,11 @@ bool vga_init(size_t history_size, uint16_t *buffer_addr) {
       g_vga_state.screen[i].buffer.pos = g_vga_state.screen[i].buffer.head;
       bzero(g_vga_state.screen[i].buffer.head,
             g_vga_state.buffer.size * sizeof(vga_char));
+#ifdef DEBUG_VGA
       // DEBUG memory areas
-      // memset(g_vga_state.screen[i].buffer.head, ('a' + i),
-      //        g_vga_state.buffer.size * sizeof(vga_char));
+      memset(g_vga_state.screen[i].buffer.head, ('a' + i),
+             g_vga_state.buffer.size * sizeof(vga_char));
+#endif
     }
     init = true;
   }

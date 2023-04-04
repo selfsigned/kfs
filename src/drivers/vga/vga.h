@@ -18,6 +18,9 @@
 /// default character used when wrapping
 #define VGA_WRAP_DEFAULT_CHAR '>'
 
+/// default tab alignment
+#define VGA_TAB_ALIGNMENT 4
+
 #define VGA_CURSOR_HEIGHT 13, 15
 
 /// HW address of the VGA buffer
