@@ -18,8 +18,9 @@ enum screen_numbers {
   HOME_SCREEN,
   NOTE_SCREEN,
   IPSUM_SCREEN,
-  PRINTF_DEMO_SCREEN = 8,
+  PRINTF_DEMO_SCREEN,
   VGA_DEMO_SCREEN,
+  KERNEL_LOG = 8,
 };
 
 static void notepad_greet(uint8_t screen_nbr) {
@@ -46,7 +47,9 @@ void screen_init(uint8_t screen_nbr) {
       [NOTE_SCREEN] = {"Notepad", &notepad_greet},
       [IPSUM_SCREEN] = {"Lorem ipsum dolor sit amet", &screen_lorem_ipsum},
       [PRINTF_DEMO_SCREEN] = {"vga_printf() demo", &screen_test_printf},
-      [VGA_DEMO_SCREEN] = {"CP437 and Colors demo", &vga_demo}};
+      [VGA_DEMO_SCREEN] = {"CP437 and Colors demo", &vga_demo},
+      [KERNEL_LOG] = {"Kernel interrupt exceptions"},
+  };
   uint8_t last_row, last_col;
 
   vga_screen_setattributes(screen_nbr, (vga_attributes){.fg = VGA_COLOR_RED});
