@@ -1,0 +1,9 @@
+/*
+
+        device raises an interrupt on the corresponding IRQn pin
+        PIC converts the IRQ into a vector number and writes it to a port for CPU to read
+        PIC raises an interrupt on CPU INTR pin
+        PIC waits for CPU to acknowledge an interrupt before raising another interrupt
+        CPU acknowledges the interrupt then it starts handling the interrupt
+
+ */

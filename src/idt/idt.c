@@ -18,6 +18,12 @@ void create_interrupt_desc(struct interrupt_desc *interrupt_desc,
 	interrupt_desc->reserved = 0;
   interrupt_desc->access = access;
 }
+/* -- IDT GATES  
+0 - 31 : system traps and exceptions
+32 - 127  : device interrupts (IRQs?)
+128 : int80 syscall interface
+ 129 - 255 : other interrupts
+*/
 
 /* -- EXCEPTIONS
 0 - Division error 
@@ -69,12 +75,11 @@ FPU Error Interrupt 	IRQ 13 */
    15 – secondary ATA Ha Disk 
 */
 
-/* -- IDT 
-0 - 31 : system traps and exceptions
-32 - 127  : device interrupts (IRQs?)
-128 : int80 syscall interface
- 129 - 255 : other interrupts
-*/
+/* synchronous(exception) / asynchronous
+maskable / non maskable
+ */
+/* Exceptions : faults, trap, aborts, int n */
+
 
 /// Segment selector 0x08, code segment (where interrupts handler reside)
 /// address: adress of the handler fonction to use
