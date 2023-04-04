@@ -11,7 +11,6 @@
 
 #include "cp437.h"
 #include "screens/screens.h"
-#include "test/test.h"
 
 #define SCREEN_TOTAL 12
 
@@ -32,9 +31,9 @@ static void notepad_greet(uint8_t screen_nbr) {
 }
 
 static void vga_demo(uint8_t screen_nbr) {
-  test_vga_cp437(screen_nbr);
+  screen_test_cp437(screen_nbr);
   vga_printf((vga_info){.screen = screen_nbr}, "\n");
-  test_vga_color(screen_nbr, CP437_SMILEY);
+  screen_test_color(screen_nbr, CP437_SMILEY);
 }
 
 void screen_init(uint8_t screen_nbr) {
@@ -46,7 +45,7 @@ void screen_init(uint8_t screen_nbr) {
       [HOME_SCREEN] = {"Home screen (current)"},
       [NOTE_SCREEN] = {"Notepad", &notepad_greet},
       [IPSUM_SCREEN] = {"Lorem ipsum dolor sit amet", &screen_lorem_ipsum},
-      [PRINTF_DEMO_SCREEN] = {"vga_printf() demo", &test_printf},
+      [PRINTF_DEMO_SCREEN] = {"vga_printf() demo", &screen_test_printf},
       [VGA_DEMO_SCREEN] = {"CP437 and Colors demo", &vga_demo}};
   uint8_t last_row, last_col;
 
@@ -73,16 +72,16 @@ void screen_init(uint8_t screen_nbr) {
       if (screen[i].screen_init_func)
         screen[i].screen_init_func(i);
 
-      vga_printf((vga_info){.screen = screen_nbr, .column = 5}, "F%u: %s\n",
+      vga_printf((vga_info){.screen = screen_nbr, .column = 5}, "F%u:\t%s\n",
                  i + 1, screen[i].title);
     }
 
   vga_printf((vga_info){.screen = screen_nbr, .column = 5},
-             "%C %C: Scroll up and down\n", CP437_UP_ARROW, CP437_DOWN_ARROW);
+             "%C %C:\tScroll up and down\n", CP437_UP_ARROW, CP437_DOWN_ARROW);
   vga_printf((vga_info){.screen = screen_nbr, .column = 5},
-             "HOME: Scroll to the top of the screen\n");
+             "HOME:\tScroll to the top of the screen\n");
   vga_printf((vga_info){.screen = screen_nbr, .column = 5},
-             "END: Scroll to the bottom of the screen\n");
+             "END:\tScroll to the bottom of the screen\n");
 
   vga_screen_show(screen_nbr);
 }
