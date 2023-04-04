@@ -4,6 +4,7 @@
 
 #include "drivers/keyboard/keyboard.h"
 #include "drivers/vga/vga.h"
+#include "gdt/gdt.h"
 #include "idt/idt.h"
 #include "kernel.h"
 #include "klibc/libc.h"
@@ -89,6 +90,8 @@ void screen_init(uint8_t screen_nbr) {
 /// @brief The entrypoint of our kernel
 void kernel_main(void) {
   volatile int *memory_signature = (void *)SIGNATURE_ADDRESS;
+
+  gdt_init();
 
   // initialized the vga driver and set screens
   vga_init(16, (uint16_t *)SCREEN_BUFFER_ADDR);
