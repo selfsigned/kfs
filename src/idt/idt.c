@@ -1,6 +1,6 @@
 #include "idt.h"
 
-struct interrupt_desc idt[IDT_NB_ENTRIES];
+struct interrupt_desc idt[IDT_NB_ENTRIES] = {};
 struct idt_ptr idt_ptr;
 
 /// @brief fill the interrupt descriptor passed as 1st parameter
@@ -69,10 +69,24 @@ FPU Error Interrupt 	IRQ 13 */
    15 – secondary ATA Ha Disk 
 */
 
-void fill_idt_entries(){
-  memset(&idt, 0, sizeof(struct interrupt_desc) * 256);
-  create_interrupt_desc(&idt[0], 0, 0, 0);
+/* -- IDT 
+0 - 31 : system traps and exceptions
+32 - 127  : device interrupts (IRQs?)
+128 : int80 syscall interface
+ 129 - 255 : other interrupts
+*/
 
+/// Segment selector 0x08, code segment (where interrupts handler reside)
+/// address: adress of the handler fonction to use
+/// Access : 0x8E for kernel access (ring 0) 0x60 for user access (ring 3)
+void fill_idt_entries(){
+//  memset(&idt, 0, sizeof(struct interrupt_desc) * 256);
+  create_interrupt_desc(&idt[0], 0, 0x08, 0x8E);
+  //create_interrupt_desc(&idt[0], division_error, 0x08, 0x8E);
+  //create_interrupt_desc(&idt[1], debug, 0x08, 0x8E); 
+  //create_interrupt_desc(&idt[2], non_masquable_interrupt, 0x08, 0x8E); 
+  //create_interrupt_desc(&idt[3], breakpoint, 0x08, 0x8E); 
+  //create_interrupt_desc(&idt[4], overflow, 0x08, 0x8E);
 }
 
 void init_idt() {
