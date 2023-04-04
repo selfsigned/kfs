@@ -54,11 +54,10 @@ vga_screen_info *vga_set_cursor(vga_info *info, bool insert_newline);
 /// @return numbers of char written or negative value if error
 int vga_buffer_writechar(vga_info *info, const unsigned char c);
 
-/// @brief write string to buffer
-/// @param info buffer write control struct
+/// @brief write string to buffer, for use with printf impl
+/// @param info buffer write control struct, for use with printf impl/
+/// @param result pointer to printf character write count
 /// @param s string to write to buffer
-/// @param is_ascii is the string ascii or CP437, used for special chars
-/// @return numbers of char written or negative if error
-int vga_buffer_write(vga_info *info, const unsigned char *s, bool is_ascii);
+void vga_buffer_write(vga_info *info, size_t *result, unsigned char *s);
 
 #endif

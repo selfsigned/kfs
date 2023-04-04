@@ -33,6 +33,14 @@ inline size_t strlen(const char *s) {
   return t - s;
 }
 
+size_t strnlen(const char *s, size_t maxlen) {
+  const char *t;
+
+  for (t = s; maxlen > 0 && *t; ++t, maxlen--)
+    ;
+  return t - s;
+}
+
 char *strchr(const char *s, int c) {
   while (*s) {
     if (*s == c)
@@ -79,7 +87,12 @@ char *utoa(char *str, unsigned int value, unsigned char base) {
     str[i++] = base_digits[value % base];
     value /= base;
   }
-  str[i] = '\0';
+  if (str[0]) {
+    str[i] = '\0';
+  } else {
+    str[0] = '0';
+    str[1] = '\0';
+  }
   strrev(str);
   return str;
 }

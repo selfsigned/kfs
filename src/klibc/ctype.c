@@ -19,3 +19,6 @@ inline int isspace(int chr) {
   return isblank(chr) || chr == '\f' || chr == '\n' || chr == '\r' ||
          chr == '\v';
 }
+
+inline int toupper(int c) { return (islower(c) ? c - 32 : c); }
+inline int tolower(int c) { return (isupper(c) ? c + 32 : c); }

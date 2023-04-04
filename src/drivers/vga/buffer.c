@@ -120,19 +120,49 @@ int vga_buffer_writechar(vga_info *info, const unsigned char c) {
   return ++result;
 }
 
-int vga_buffer_write(vga_info *info, const unsigned char *s, bool is_ascii) {
+void vga_buffer_write(vga_info *info, size_t *result, unsigned char *s) {
   const unsigned char *str = s;
-  size_t result = 0;
+  bool not_ascii = info->internal.cp437_print;
+  vga_screen_info *screen = &g_vga_state.screen[info->screen];
 
   while (*str) {
-    // TODO: \t
-    if (is_ascii && *str == '\n')
-      vga_set_cursor(info, true);
-    else
-      result += vga_buffer_writechar(info, *str);
+    if (!not_ascii) {
+      switch (*str) {
+      case '\n':
+        vga_set_cursor(info, true);
+        break;
+      case '\b': {
+        // only works in cursor mode
+        // code quality: bruh
+        if ((!info->nocursor || info->setcursor) && screen->cursor.column > 0) {
+          if (info->column > 0)
+            info->column--;
+          screen->cursor.column--;
+          info->internal.cursor_loaded = false;
+          vga_buffer_writechar(info, ' ');
+          info->column--;
+          screen->cursor.column--;
+        }
+        break;
+      }
+      case '\t': {
+        for (size_t i = (VGA_TAB_ALIGNMENT -
+                         screen->cursor.column % VGA_TAB_ALIGNMENT);
+             i; i--)
+          vga_buffer_writechar(info, ' ');
+        break;
+      }
+      default:
+        vga_buffer_writechar(info, *str);
+        (*result)++;
+        break;
+      }
+    } else {
+      vga_buffer_writechar(info, *str);
+      (*result)++;
+    }
     str++;
   }
-  return result;
 }
 
 // public //
@@ -164,9 +194,11 @@ bool vga_init(size_t history_size, uint16_t *buffer_addr) {
       g_vga_state.screen[i].buffer.pos = g_vga_state.screen[i].buffer.head;
       bzero(g_vga_state.screen[i].buffer.head,
             g_vga_state.buffer.size * sizeof(vga_char));
+#ifdef DEBUG_VGA
       // DEBUG memory areas
-      // memset(g_vga_state.screen[i].buffer.head, ('a' + i),
-      //        g_vga_state.buffer.size * sizeof(vga_char));
+      memset(g_vga_state.screen[i].buffer.head, ('a' + i),
+             g_vga_state.buffer.size * sizeof(vga_char));
+#endif
     }
     init = true;
   }

@@ -51,6 +51,16 @@ int isascii(int c);
 /// @return non-zero if c is the thing, 0 if it isn't
 int isblank(int c);
 
+/// @brief convert uppercase
+/// @param c char to convert
+/// @return c converted to uppercase
+int toupper(int c);
+
+/// @brief convert lowercase
+/// @param c char to convert
+/// @return c converted to lowercase
+int tolower(int c);
+
 //// strings.h ////
 
 /// @brief convert a string to an int
@@ -81,6 +91,12 @@ void *memset(void *s, int c, size_t n);
 /// @param s string to get the size of
 /// @return size of the string
 size_t strlen(const char *s);
+
+/// @brief returns the length of a string up to maxlen
+/// @param s string to get the size of
+/// @param maxlen max num of character to read
+/// @return strlen(s) if string is shorter than maxlen, otherwise maxlen
+size_t strnlen(const char *s, size_t maxlen);
 
 /// @brief find character in string
 /// @param s string to find the character c in
