@@ -112,7 +112,9 @@ void init_idt() {
   struct interrupt_desc not_idt[IDT_NB_ENTRIES] = {
       [EXCEPTION_START... EXCEPTION_END] =
           {// TODO set access gate
-           IDT_ADD_FUNC((int)(&interrupt_exception_handler)), .access = 0x08E,
+           IDT_ADD_FUNC((int)(&interrupt_exception_handler)),
+           .access = TRAP_GATE_FLAGS,
+           //  IDT_ADD_FUNC((int)(&asm_except)), .access = TRAP_GATE_FLAGS,
            .segment_selector = 0x08},
   };
 
@@ -121,7 +123,7 @@ void init_idt() {
   idt_ptr.base = (uint32_t)&idt;
   uint16_t addr = fill_idt_entries;
 
-  __asm__("lidt %0" ::"m"(idt_ptr));
+  __asm__("lidt %0" ::"memory"(idt_ptr));
 
   fill_idt_entries();
 }

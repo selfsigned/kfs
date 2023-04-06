@@ -22,14 +22,19 @@ local processor.
 #include "../drivers/vga/vga.h"
 #include "idt.h"
 
-void interrupt_exception_handler(int_frame frame) {
+static size_t nbr = 0;
+
+INTERRUPT void interrupt_exception_handler(int_frame *frame) {
   vga_printf((vga_info){.screen = 9, .print = true},
-             "\n%aEXCEPTION RECEIVED\n"
+             "\n%a%.3u:\tEXCEPTION RECEIVED\n"
              "eip:%#.8x "
              "cs:%#.8x "
              "eflags:%#.8x "
              "sp:%#.8x "
              "ss:%#.8x\n",
-             (vga_attributes){.fg = VGA_COLOR_LIGHT_RED}, frame.eip, frame.cs,
-             frame.eflags, frame.sp, frame.ss);
+             (vga_attributes){.fg = VGA_COLOR_LIGHT_RED}, nbr++, frame->eip,
+             frame->cs, frame->eflags, frame->sp, frame->ss);
+
+  frame->eip++; // go to next instruction
+  return;
 }
