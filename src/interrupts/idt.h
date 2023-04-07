@@ -3,6 +3,7 @@
 
 #include "interrupts.h"
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #ifndef SCREEN_ERROR
@@ -71,10 +72,5 @@ typedef struct __attribute__((packed)) int_frame {
 
 /// @brief initialize the idt and load it
 void init_idt();
-
-// Int exception handlers
-INTERRUPT void int_exception_div0(int_frame *frame);
-INTERRUPT void int_exception(int_frame *frame);
-INTERRUPT void int_exception_code(int_frame *frame, uint32_t code);
 
 #endif
