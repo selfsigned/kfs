@@ -137,7 +137,8 @@ void init_idt() {
   idt_ptr.base = (uint32_t)&idt;
   __asm__("lidt %0" ::"memory"(idt_ptr)); // L(oad)IDT
 
-  // Disabled for now
+  // Disable interrupts for now
   // see: https://wiki.osdev.org/Exceptions#Double_Fault
-  __asm__("sti"); // S(e)TI(nterrupt)
+  // __asm__("sti"); // S(e)TI(nterrupt)
+  __asm__("cli");
 }
