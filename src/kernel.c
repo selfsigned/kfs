@@ -20,7 +20,7 @@ enum screen_numbers {
   IPSUM_SCREEN,
   PRINTF_DEMO_SCREEN,
   VGA_DEMO_SCREEN,
-  KERNEL_LOG = 8,
+  KERNEL_LOG = 9,
 };
 
 static void notepad_greet(uint8_t screen_nbr) {

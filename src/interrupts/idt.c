@@ -1,5 +1,6 @@
 #include "idt.h"
 #include "../drivers/vga/vga.h"
+#include "../kernel.h"
 #include "../klibc/libc.h"
 
 struct idt_interrupt_desc idt[IDT_NB_ENTRIES];
@@ -13,18 +14,26 @@ struct idt_ptr idt_ptr;
 /// @param code -1 if no code, otherwise code
 static void _print_exception(int_frame *frame, char *msg, bool has_code,
                              uint32_t code) {
+  vga_screen_clear(SCREEN_ERROR);
+  vga_screen_fillbackground(SCREEN_ERROR, VGA_COLOR_BLUE);
+  vga_printf((vga_info){.screen = SCREEN_ERROR, .column = 37, .row = 7},
+
+             "%a %s %a\n\n\tAn error has occurred:\n",
+             (vga_attributes){.bg = VGA_COLOR_LIGHT_GREY, .fg = VGA_COLOR_BLUE},
+             OS_NAME,
+             (vga_attributes){.bg = VGA_COLOR_BLUE, .fg = VGA_COLOR_WHITE});
   vga_printf((vga_info){.screen = SCREEN_ERROR, .print = true},
-             "\n%a%s\n"
+             "\n\t%s\n\n\t\t"
              "eip:%#.8x "
              "cs:%#.8x "
-             "eflags:%#.8x "
-             "sp:%#.8x "
+             "eflags:%#.8x"
+             "\n\t\t"
+             "sp: %#.8x "
              "ss:%#.8x",
-             (vga_attributes){.fg = VGA_COLOR_LIGHT_RED}, msg, frame->eip,
-             frame->cs, frame->eflags, frame->sp, frame->ss);
+             msg, frame->eip, frame->cs, frame->eflags, frame->sp, frame->ss);
   if (has_code)
-    vga_printf((vga_info){.screen = SCREEN_ERROR, .print = true}, " code: %u",
-               code);
+    vga_printf((vga_info){.screen = SCREEN_ERROR, .print = true},
+               "\n\t\tcode:%#.8x", code);
 }
 
 /// @brief handle div by 0 exceptions
@@ -36,50 +45,50 @@ INTERRUPT void _exception_div0(int_frame *frame) {
   return;
 }
 
-#define INT_EXCEPTION_HANDLER(name)                                            \
-  INTERRUPT void name(int_frame *frame) {                                      \
-    _print_exception(frame, "RECEIVED INT " #name ", HALTING", false, 0);      \
+#define INT_EXCEPTION_HANDLER(N, MSG)                                          \
+  INTERRUPT void _exception_##N(int_frame *frame) {                            \
+    _print_exception(frame, "EXCEPTION #" #N ": " #MSG, false, 0);             \
     __asm__("hlt");                                                            \
   }
 
-#define INT_EXCEPTION_HANDLER_CODE(name)                                       \
-  INTERRUPT void name(int_frame *frame, uint32_t code) {                       \
-    _print_exception(frame, "RECEIVED INT " #name ", HALTING", true, code);    \
+#define INT_EXCEPTION_HANDLER_CODE(N, MSG)                                     \
+  INTERRUPT void _exception_##N(int_frame *frame, uint32_t code) {             \
+    _print_exception(frame, "EXCEPTION #" #N ": " #MSG, true, code);           \
     __asm__("hlt");                                                            \
   }
 
 // generic exceptions, let's not talk about it
-INT_EXCEPTION_HANDLER(_exception_1)
-INT_EXCEPTION_HANDLER(_exception_2)
-INT_EXCEPTION_HANDLER(_exception_3)
-INT_EXCEPTION_HANDLER(_exception_4)
-INT_EXCEPTION_HANDLER(_exception_5)
-INT_EXCEPTION_HANDLER(_exception_6)
-INT_EXCEPTION_HANDLER(_exception_7)
-INT_EXCEPTION_HANDLER_CODE(_exception_8)
-INT_EXCEPTION_HANDLER(_exception_9)
-INT_EXCEPTION_HANDLER_CODE(_exception_10)
-INT_EXCEPTION_HANDLER(_exception_11)
-INT_EXCEPTION_HANDLER(_exception_12)
-INT_EXCEPTION_HANDLER(_exception_13)
-INT_EXCEPTION_HANDLER_CODE(_exception_14)
-INT_EXCEPTION_HANDLER_CODE(_exception_15)
-INT_EXCEPTION_HANDLER_CODE(_exception_16)
-INT_EXCEPTION_HANDLER_CODE(_exception_17)
-INT_EXCEPTION_HANDLER(_exception_18)
-INT_EXCEPTION_HANDLER(_exception_19)
-INT_EXCEPTION_HANDLER(_exception_20)
-INT_EXCEPTION_HANDLER_CODE(_exception_21)
-INT_EXCEPTION_HANDLER(_exception_22)
-INT_EXCEPTION_HANDLER(_exception_23)
-INT_EXCEPTION_HANDLER(_exception_24)
-INT_EXCEPTION_HANDLER(_exception_25)
-INT_EXCEPTION_HANDLER(_exception_26)
-INT_EXCEPTION_HANDLER(_exception_27)
-INT_EXCEPTION_HANDLER(_exception_28)
-INT_EXCEPTION_HANDLER(_exception_29)
-INT_EXCEPTION_HANDLER(_exception_30)
-INT_EXCEPTION_HANDLER(_exception_31)
+INT_EXCEPTION_HANDLER(1, RESERVED)
+INT_EXCEPTION_HANDLER(2, NMI Interrupt)
+INT_EXCEPTION_HANDLER(3, Breakpoint)
+INT_EXCEPTION_HANDLER(4, Overflow)
+INT_EXCEPTION_HANDLER(5, BOUND Range Exceeded)
+INT_EXCEPTION_HANDLER(6, Invalid Opcode(Undefined Opcode))
+INT_EXCEPTION_HANDLER(7, Device Not Available(No Math Coprocessor))
+INT_EXCEPTION_HANDLER_CODE(8, Double Fault)
+INT_EXCEPTION_HANDLER(9, Coprocessor Segment Overrun(Reserved))
+INT_EXCEPTION_HANDLER_CODE(10, Invalid TSS)
+INT_EXCEPTION_HANDLER(11, Segment Not Present)
+INT_EXCEPTION_HANDLER(12, Stack - Segment Fault)
+INT_EXCEPTION_HANDLER(13, General Protection)
+INT_EXCEPTION_HANDLER_CODE(14, Page Fault)
+INT_EXCEPTION_HANDLER_CODE(15, RESERVED)
+INT_EXCEPTION_HANDLER_CODE(16, x87 FPU Floating - Point Error(Math Fault))
+INT_EXCEPTION_HANDLER_CODE(17, Alignment Check)
+INT_EXCEPTION_HANDLER(18, Machine Check)
+INT_EXCEPTION_HANDLER(19, SIMD Floating - Point Exception)
+INT_EXCEPTION_HANDLER(20, RESERVED)
+INT_EXCEPTION_HANDLER_CODE(21, RESERVED)
+INT_EXCEPTION_HANDLER(22, RESERVED)
+INT_EXCEPTION_HANDLER(23, RESERVED)
+INT_EXCEPTION_HANDLER(24, RESERVED)
+INT_EXCEPTION_HANDLER(25, RESERVED)
+INT_EXCEPTION_HANDLER(26, RESERVED)
+INT_EXCEPTION_HANDLER(27, RESERVED)
+INT_EXCEPTION_HANDLER(28, RESERVED)
+INT_EXCEPTION_HANDLER(29, RESERVED)
+INT_EXCEPTION_HANDLER(30, RESERVED)
+INT_EXCEPTION_HANDLER(31, RESERVED)
 
 ////IDT////
 
