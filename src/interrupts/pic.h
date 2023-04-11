@@ -12,10 +12,14 @@
 #define PIC2 0xA0
 #define PIC2_DATA PIC1 + 1
 
+
 /// PIC ///
 
 // See the datasheet
 // https://pdos.csail.mit.edu/6.828/2017/readings/hardware/8259A.pdf
+
+/// E(nd)O(f)I(nterrupt) Signal
+#define PIC_EOI 0x20 // EOI register in OCW2
 
 /// @brief First Initialization Command Word, the PIC will then wait for 2 or 3
 /// more words depending on the value of the `icw4_needed` register
@@ -48,6 +52,19 @@ typedef union {
 /// @brief Initialize the PIC in master/slave & 8086 mode and mask their IRQs
 /// @param master_vector_offset offsets to map master IRQ word at in the IDT
 /// @param slave_vector_offset offsets to map slave IRQ word at in the IDT
-void init_pic(uint8_t master_vector_offset, uint8_t slave_vector_offset);
+void pic_init(uint8_t master_vector_offset, uint8_t slave_vector_offset);
+
+/// @brief send of EOI signal to PIC
+/// @param irq used to know which PIC to target
+void pic_send_eoi(uint8_t irq);
+
+/// @brief disable a given irq in the PIC
+/// @param irq irq to mask
+void pic_mask(uint8_t irq);
+
+/// @brief enable a given irq in the PIC
+/// @param irq irq to unmask
+void pic_unmask(uint8_t irq);
+
 
 #endif

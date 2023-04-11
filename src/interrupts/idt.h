@@ -15,44 +15,26 @@
 //// IDT ////
 
 // offset to map the PIC at
-#define IDT_PIC_OFFSET 32 // start of user defined interrupts
+#define IDT_PIC_OFFSET 32             /// start of user defined interrupts
+#define IDT_SYSCALL 0x80              /// address of the syscall handler
+#define IDT_SW_OFFSET IDT_SYSCALL + 1 /// misc interrupts
 
-/// @brief IDT gates and ranges
-enum idt_gates {
-
-  EXCEPT_DIV0 = 0,
-  EXCEPT_DOUBLE_FAULT = 8,
-  EXCEPT_INVALID_TSS = 10,
-  EXCEPT_PAGE_FAULT = 14,
-  EXCEPT_ALIGNMENT_CHECK = 17,
-  EXCEPT_CTRL_PROTECTION = 21,
-  EXCEPT_RESERVED = 31,
-
-  DEVICE_START = 32,
-  DEVICE_END = 127,
-
-  SYSCALL = 128,
-
-  OTHER = 129,
-  END = 255
-};
-
-enum idt_access {
-  TRAP_GATE_FLAGS =
-      0x8F, /// P = 1, DPL = 00, S = 0, Type = 1111 (32bit trap gate)
+typedef enum idt_access {
   INT_GATE_FLAGS =
       0x8E, // P = 1, DPL = 00, S = 0, Type = 1110 (32bit interrupt gate)
-};
+  TRAP_GATE_FLAGS =
+      0x8F, /// P = 1, DPL = 00, S = 0, Type = 1111 (32bit trap gate)
+} idt_access;
 
 /// @brief entry in the IDT
-struct idt_interrupt_desc {
+typedef struct __attribute__((packed)) idt_gate_desc {
   uint16_t base_low;          /// address of the ISR to call (LOW bytes)
   uint16_t segment_selector;  /// code segment selector : where the
                               /// interrupts handler reside
   uint8_t _reserved;          /// set to 0
   enum idt_access access : 8; /// interrupt type and permissions
   uint16_t base_high;         ///  addres of the ISR to call (HIGH bytes)
-} __attribute__((packed));
+} idt_gate_desc;
 
 /// @brief pointer to be loaded in the IDT
 struct idt_ptr {
@@ -60,20 +42,23 @@ struct idt_ptr {
   uint32_t base;  /// address
 } __attribute__((packed));
 
-//// ISR ////
-
-/// @brief pre-interrupt frame, argument to ISRs
-typedef struct __attribute__((packed)) int_frame {
-  uint32_t eip;
-  uint32_t cs;
-  uint32_t eflags;
-  uint32_t sp;
-  uint32_t ss;
-} int_frame;
-
 // API
 
 /// @brief initialize the idt and load it
-void init_idt();
+void idt_init();
+
+/// @brief add an idt entry
+/// @param entry_nbr ISR number to give to the function
+/// @param int_handler Interrupt handler
+/// @param access Access level (set RING permissions and if TRAP or INT)
+void idt_add_entry(uint8_t entry_nbr, void (*int_handler)(int_frame *frame),
+                   idt_access access);
+
+/// @brief delete an IDT entry
+/// @param entry_nbr IDT entry to remove
+void idt_del_entry(uint8_t entry_nbr);
+
+/// @brief get an idt entry
+struct idt_gate_desc idt_get_entry(uint8_t entry_nbr);
 
 #endif

@@ -99,7 +99,11 @@ void kernel_main(void) {
   vga_init(16, (uint16_t *)SCREEN_BUFFER_ADDR);
   screen_init(HOME_SCREEN);
 
-  init_interrupts();
+  // initialize interrupts
+  int_init();
+
+  // initalize the PS2 Keyboard controller
+  kbd_init();
 
   // Set the kernel signature
   *memory_signature = SIGNATURE_VALUE;

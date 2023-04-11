@@ -2,21 +2,44 @@
 #include "idt.h"
 #include "pic.h"
 
-void init_interrupts() {
-  init_pic(IDT_PIC_OFFSET, IDT_PIC_OFFSET + 7);
-  init_idt();
+//  _      _ _
+// (_)_ _ (_) |_
+// | | ' \| |  _|
+// |_|_||_|_|\__|
+
+void int_init() {
+  pic_init(IDT_PIC_OFFSET, IDT_PIC_OFFSET + 7);
+  idt_init();
 
   __asm__("sti"); // S(e)T I(nterrupts)
 }
 
-void int_add_irq(enum irq_hw, void (*interrupt_handler)()) {
-  // TODO:
-  // - unmask IRQ in PIC
-  // - add IRQ handler to IDT
+//  _                _
+// | |_  __ _ _ _ __| |_ __ ____ _ _ _ ___
+// | ' \/ _` | '_/ _` \ V  V / _` | '_/ -_)
+// |_||_\__,_|_| \__,_|\_/\_/\__,_|_| \___|
+// TODO detect spurious IRQs
+
+void int_irq_end(irq_hw_t irq) { pic_send_eoi(irq); }
+
+void int_irq_add(irq_hw_t irq,
+                 INTERRUPT void (*int_handler)(int_frame *frame)) {
+  idt_add_entry(IDT_PIC_OFFSET + irq, int_handler, INT_GATE_FLAGS);
+  pic_unmask(irq);
 }
 
-void int_del_irq(enum irq_hw) {
-  // TODO:
-  // - mask IRQ in PIC
-  // - remove IRQ from IDT
+void int_irq_del(irq_hw_t irq) {
+  pic_mask(irq);
+  idt_del_entry(IDT_PIC_OFFSET + irq);
 }
+
+//           __ _
+//  ___ ___ / _| |___ __ ____ _ _ _ ___
+// (_-</ _ \  _|  _\ V  V / _` | '_/ -_)
+// /__/\___/_|  \__|\_/\_/\__,_|_| \___|
+
+void int_add(char nbr, INTERRUPT void (*int_handler)(int_frame *frame)) {
+  idt_add_entry(IDT_SW_OFFSET + nbr, int_handler, INT_GATE_FLAGS);
+}
+
+void int_del(char nbr) { idt_del_entry(IDT_SW_OFFSET + nbr); }

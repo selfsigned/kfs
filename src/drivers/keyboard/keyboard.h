@@ -52,4 +52,7 @@ scancode kbd_get();
 
 char kbd_code_to_ascii(scancode code);
 
+/// @brief Initialize the keyboard !!INIT INTERRUPTS FIRST!!
+void kbd_init();
+
 #endif

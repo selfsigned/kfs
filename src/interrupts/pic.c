@@ -1,7 +1,8 @@
 #include "pic.h"
 #include "../klibc/libc.h"
+#include "interrupts.h"
 
-void init_pic(uint8_t master_vector_offset, uint8_t slave_vector_offset) {
+void pic_init(uint8_t master_vector_offset, uint8_t slave_vector_offset) {
   // Initialization happens in 3 to 4 Init Control Words
   icw1_t icw1 = {.data = {
                      .enable = true,
@@ -41,4 +42,30 @@ void init_pic(uint8_t master_vector_offset, uint8_t slave_vector_offset) {
   io_wait();
   outb(PIC2_DATA, 0xff);
   io_wait();
+}
+
+void pic_send_eoi(uint8_t irq) {
+  if (irq >= 8)
+    outb(PIC2, PIC_EOI);
+  outb(PIC1, PIC_EOI);
+}
+
+void pic_mask(uint8_t irq) {
+  uint16_t port = PIC1_DATA;
+
+  if (irq >= 8) {
+    irq -= 8;
+    port = PIC2_DATA;
+  }
+  outb(port, inb(port) | (1 << irq));
+}
+
+void pic_unmask(uint8_t irq) {
+  uint16_t port = PIC1_DATA;
+
+  if (irq >= 8) {
+    irq -= 8;
+    port = PIC2_DATA;
+  }
+  outb(port, inb(port) & ~(1 << irq));
 }

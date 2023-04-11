@@ -3,7 +3,7 @@
 #include "../kernel.h"
 #include "../klibc/libc.h"
 
-struct idt_interrupt_desc idt[IDT_NB_ENTRIES];
+struct idt_gate_desc idt[IDT_NB_ENTRIES];
 struct idt_ptr idt_ptr;
 
 ////Exceptions////
@@ -57,7 +57,7 @@ INTERRUPT void _exception_div0(int_frame *frame) {
     __asm__("hlt");                                                            \
   }
 
-// generic exceptions, let's not talk about it
+// generic exceptions
 INT_EXCEPTION_HANDLER(1, RESERVED)
 INT_EXCEPTION_HANDLER(2, NMI Interrupt)
 INT_EXCEPTION_HANDLER(3, Breakpoint)
@@ -99,14 +99,14 @@ INT_EXCEPTION_HANDLER(31, RESERVED)
   .base_low = (x & 0xFFFF), .base_high = ((x >> 16) & 0xFFFF)
 
 #define IDT_EXCEPTION(x)                                                       \
-  [x] = {IDT_ADD_FUNC((int)(&_exception_##x)), .access = INT_GATE_FLAGS,       \
+  [x] = {IDT_ADD_FUNC((int)(&_exception_##x)), .access = TRAP_GATE_FLAGS,      \
          .segment_selector = IDT_CODE_SEGMENT_SELECTOR}
 
-void init_idt() {
-  struct idt_interrupt_desc new_idt[IDT_NB_ENTRIES] = {
-      [EXCEPT_DIV0] = {IDT_ADD_FUNC((int)(&_exception_div0)),
-                       .access = TRAP_GATE_FLAGS,
-                       .segment_selector = IDT_CODE_SEGMENT_SELECTOR},
+void idt_init() {
+  struct idt_gate_desc new_idt[IDT_NB_ENTRIES] = {
+      [0] = {IDT_ADD_FUNC((uint32_t)(&_exception_div0)),
+             .access = TRAP_GATE_FLAGS,
+             .segment_selector = IDT_CODE_SEGMENT_SELECTOR},
       // painful
       IDT_EXCEPTION(1),
       IDT_EXCEPTION(2),
@@ -142,7 +142,23 @@ void init_idt() {
   };
   memcpy(idt, new_idt, sizeof(idt));
 
-  idt_ptr.limit = (sizeof(struct idt_interrupt_desc) * IDT_NB_ENTRIES) - 1;
+  idt_ptr.limit = (sizeof(struct idt_gate_desc) * IDT_NB_ENTRIES) - 1;
   idt_ptr.base = (uint32_t)&idt;
   __asm__("lidt %0" ::"memory"(idt_ptr)); // L(oad)IDT
+}
+
+struct idt_gate_desc idt_get_entry(uint8_t entry_nbr) { return idt[entry_nbr]; }
+
+void idt_add_entry(uint8_t entry_nbr, void (*int_handler)(int_frame *frame),
+                   idt_access access) {
+  idt_gate_desc *descriptor = &idt[entry_nbr];
+
+  descriptor->base_low = ((uint32_t)int_handler & 0xFFFF);
+  descriptor->base_high = (((uint32_t)int_handler >> 16) & 0xFFFF);
+  descriptor->access = access;
+  descriptor->segment_selector = IDT_CODE_SEGMENT_SELECTOR;
+}
+
+void idt_del_entry(uint8_t entry_nbr) {
+  bzero(&idt[entry_nbr], sizeof(idt_gate_desc));
 }

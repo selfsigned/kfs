@@ -74,6 +74,7 @@ void screen_loop(uint8_t home_screen, uint8_t note_screen) {
       if (current_screen == note_screen)
         vga_screen_setvgacursor(note_screen, true);
       isnotup = vga_screen_show_scrolled(current_screen, scroll_state);
+      __asm__("HLT"); // halt until next interrupt
     }
   }
 }
