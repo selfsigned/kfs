@@ -14,6 +14,9 @@
 
 //// IDT ////
 
+// offset to map the PIC at
+#define IDT_PIC_OFFSET 32 // start of user defined interrupts
+
 /// @brief IDT gates and ranges
 enum idt_gates {
 
