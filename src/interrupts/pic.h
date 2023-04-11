@@ -12,7 +12,6 @@
 #define PIC2 0xA0
 #define PIC2_DATA PIC1 + 1
 
-
 /// PIC ///
 
 // See the datasheet
@@ -65,6 +64,5 @@ void pic_mask(uint8_t irq);
 /// @brief enable a given irq in the PIC
 /// @param irq irq to unmask
 void pic_unmask(uint8_t irq);
-
 
 #endif

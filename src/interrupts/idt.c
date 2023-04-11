@@ -166,7 +166,10 @@ void idt_init() {
   __asm__("lidt %0" ::"memory"(idt_ptr)); // L(oad)IDT
 }
 
-struct idt_gate_desc idt_get_entry(uint8_t entry_nbr) { return idt[entry_nbr]; }
+struct idt_gate_desc idt_get_entry(uint8_t entry_nbr) {
+  // returns the idt entry (clang-format doesn't like inline returns)
+  return idt[entry_nbr];
+}
 
 void idt_add_entry(uint8_t entry_nbr, void (*int_handler)(int_frame *frame),
                    idt_access access) {
