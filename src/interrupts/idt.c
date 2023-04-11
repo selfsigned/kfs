@@ -1,4 +1,5 @@
 #include "idt.h"
+#include "../drivers/keyboard/keyboard.h"
 #include "../drivers/vga/vga.h"
 #include "../kernel.h"
 #include "../klibc/libc.h"
@@ -36,6 +37,20 @@ static void _print_exception(int_frame *frame, char *msg, bool has_code,
                "\n\t\tcode:%#.8x", code);
 }
 
+/// @brief Do what must be done after an exception has been raised
+static void _handle_exception() {
+  vga_printf((vga_info){.screen = 9, .print = true}, "\n\n\n%52s",
+             "Press any key to restart");
+  while (!kbd_get()) { // wait on keyboard
+  }
+  io_wait();
+  while (!kbd_get()) { // debounce x2
+  }
+  while (!kbd_get()) { // debounce x3
+  }
+  outb(0x64, 0xFE); // restart
+}
+
 /// @brief handle div by 0 exceptions
 /// @param frame stack frame
 INTERRUPT void _exception_div0(int_frame *frame) {
@@ -47,14 +62,18 @@ INTERRUPT void _exception_div0(int_frame *frame) {
 
 #define INT_EXCEPTION_HANDLER(N, MSG)                                          \
   INTERRUPT void _exception_##N(int_frame *frame) {                            \
+    __asm__("cli");                                                            \
     _print_exception(frame, "EXCEPTION #" #N ": " #MSG, false, 0);             \
-    __asm__("hlt");                                                            \
+    _handle_exception();                                                       \
+    __asm__("sti");                                                            \
   }
 
 #define INT_EXCEPTION_HANDLER_CODE(N, MSG)                                     \
   INTERRUPT void _exception_##N(int_frame *frame, uint32_t code) {             \
+    __asm__("cli");                                                            \
     _print_exception(frame, "EXCEPTION #" #N ": " #MSG, true, code);           \
-    __asm__("hlt");                                                            \
+    _handle_exception();                                                       \
+    __asm__("sti");                                                            \
   }
 
 // generic exceptions
