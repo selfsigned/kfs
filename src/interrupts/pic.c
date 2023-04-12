@@ -69,3 +69,9 @@ void pic_unmask(uint8_t irq) {
   }
   outb(port, inb(port) & ~(1 << irq));
 }
+
+uint16_t pic_get_irq_reg(ocw3_t ocw3) {
+  outb(PIC1, ocw3);
+  outb(PIC2, ocw3);
+  return (inb(PIC2) << 8) | inb(PIC1);
+}

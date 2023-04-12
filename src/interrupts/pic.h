@@ -46,6 +46,13 @@ typedef union {
   uint8_t byte;
 } icw4_t;
 
+typedef enum ocw3_e {
+  /// Read the IRR register (Interrupt being raised)
+  OCW3_READ_IRR = 0xA, //  <... high 4 bytes>|1|P:0|RR:1|RIS:0|
+  /// Read the ISR register (Interrupt being serviced)
+  OCW3_READ_ISR = 0xB, //  <... high 4 bytes>|1|P:0|RR:1|RIS:1|
+} ocw3_t;
+
 // Control functions
 
 /// @brief Initialize the PIC in master/slave & 8086 mode and mask their IRQs
@@ -64,5 +71,10 @@ void pic_mask(uint8_t irq);
 /// @brief enable a given irq in the PIC
 /// @param irq irq to unmask
 void pic_unmask(uint8_t irq);
+
+/// @brief get the current IRR or ISR
+/// @param ocw3 used to specify if IRR or ISR should be read
+/// @return the value of a register as a word
+uint16_t pic_get_irq_reg(ocw3_t ocw3);
 
 #endif

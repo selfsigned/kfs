@@ -46,9 +46,8 @@ static void _handle_exception() {
   io_wait();
   while (!kbd_get()) { // debounce x2
   }
-  while (!kbd_get()) { // debounce x3
-  }
-  outb(0x64, 0xFE); // restart
+  outb(0x64, 0xFE); // restart using the PS/2 controller
+  __asm__("hlt");   // rest
 }
 
 /// @brief handle div by 0 exceptions

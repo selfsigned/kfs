@@ -2,6 +2,9 @@
 #include "idt.h"
 #include "pic.h"
 
+/// @brief
+uint32_t int_irq_spuriousnbr = 0;
+
 //  _      _ _
 // (_)_ _ (_) |_
 // | | ' \| |  _|
@@ -18,7 +21,9 @@ void int_init() {
 // | |_  __ _ _ _ __| |_ __ ____ _ _ _ ___
 // | ' \/ _` | '_/ _` \ V  V / _` | '_/ -_)
 // |_||_\__,_|_| \__,_|\_/\_/\__,_|_| \___|
-// TODO detect spurious IRQs
+
+irq_hw_t int_irq_get_irr() { pic_get_irq_reg(OCW3_READ_IRR); }
+irq_hw_t int_irq_get_isr() { pic_get_irq_reg(OCW3_READ_ISR); }
 
 void int_irq_end(irq_hw_t irq) { pic_send_eoi(irq); }
 

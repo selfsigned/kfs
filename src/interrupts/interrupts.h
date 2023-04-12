@@ -1,6 +1,7 @@
 #ifndef INTERRUPTS_H
 #define INTERRUPTS_H
 
+#include "../log.h"
 #include <stdint.h>
 
 /// @brief Standard ISA IRQs
@@ -40,10 +41,25 @@ typedef struct __attribute__((packed)) int_frame {
 #define INTERRUPT                                                              \
   __attribute__((target("general-regs-only"))) __attribute__((interrupt))
 
+/// Protect against spurious IRQS
+#define INT_SPURIOUSIRQ_GUARD(isr_nbr)                                         \
+  uint16_t isr_value = 0;                                                      \
+  if ((isr_value = int_irq_get_isr()) && isr_value != 1 << isr_nbr) {          \
+    int_irq_spuriousnbr++;                                                     \
+    DEBUG_MSG("Spurious IRQ! ISR: %.8x nbr of spurious IRQs so far: %u",       \
+              isr_value, int_irq_spuriousnbr)                                  \
+    if (isr_value > 7)                                                         \
+      int_irq_end(7);                                                          \
+    return;                                                                    \
+  }
+
 /// @brief initialize the interrupt driver
 void int_init();
 
 // HW //
+
+/// @brief spurious IRQ counter
+extern uint32_t int_irq_spuriousnbr;
 
 /// @brief Signal the end of an hardware interrupt
 void int_irq_end(irq_hw_t irq);
@@ -56,6 +72,14 @@ void int_irq_del(irq_hw_t irq);
 /// @param irq IRQ to setup the interrupt at
 /// @param interrupt_handler interrupt handler, call `int_irq_end` when finished
 void int_irq_add(irq_hw_t irq, void (*interrupt_handler)());
+
+/// @brief get current ISR (Interrupt being serviced)
+/// @return ISR register
+irq_hw_t int_irq_get_isr();
+
+/// @brief get current IRR (Interrupt being raised)
+/// @return IRR register
+irq_hw_t int_irq_get_irr();
 
 // SW //
 

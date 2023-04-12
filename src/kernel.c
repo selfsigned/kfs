@@ -10,6 +10,7 @@
 #include "klibc/libc.h"
 
 #include "cp437.h"
+#include "log.h"
 #include "screens/screens.h"
 
 #define SCREEN_TOTAL 12
@@ -20,7 +21,7 @@ enum screen_numbers {
   IPSUM_SCREEN,
   PRINTF_DEMO_SCREEN,
   VGA_DEMO_SCREEN,
-  KERNEL_LOG = 9,
+  KERNEL_LOG = LOG_SCREEN,
 };
 
 static void notepad_greet(uint8_t screen_nbr) {
@@ -48,7 +49,7 @@ void screen_init(uint8_t screen_nbr) {
       [IPSUM_SCREEN] = {"Lorem ipsum dolor sit amet", &screen_lorem_ipsum},
       [PRINTF_DEMO_SCREEN] = {"vga_printf() demo", &screen_test_printf},
       [VGA_DEMO_SCREEN] = {"CP437 and Colors demo", &vga_demo},
-      [KERNEL_LOG] = {"Kernel interrupt exceptions"},
+      [KERNEL_LOG] = {"Kernel messages"},
   };
   uint8_t last_row, last_col;
 

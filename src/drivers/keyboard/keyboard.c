@@ -15,7 +15,10 @@ unsigned char us_scancode_1[128] = {
 };
 
 INTERRUPT static void kbd_handler(int_frame *frame) {
-  // Do something here
+  INT_SPURIOUSIRQ_GUARD(IRQ_PS2_KEYBOARD)
+
+  // read and empty the buffer
+  scancode c = inb(KBD_IO_DATA_PORT);
 
   int_irq_end(IRQ_PS2_KEYBOARD);
 }
