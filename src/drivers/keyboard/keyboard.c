@@ -1,4 +1,5 @@
 #include "keyboard.h"
+#include "../../hardware/interrupts/interrupts.h"
 #include "../../klibc/libc.h"
 #include "keyboard_internal.h"
 
@@ -13,6 +14,19 @@ unsigned char us_scancode_1[128] = {
     0,   0,    0,    0,   0,    0,   0,   0,   0,   0,   0,   '+', 0,
 };
 
+INTERRUPT static void kbd_handler(int_frame *frame) {
+  INT_SPURIOUSIRQ_GUARD(IRQ_PS2_KEYBOARD)
+
+  // read and empty the buffer
+  scancode c = inb(KBD_IO_DATA_PORT);
+
+  // Ignore unused parameters
+  (void)c;
+  (void)frame;
+
+  int_irq_end(IRQ_PS2_KEYBOARD);
+}
+
 scancode kbd_get() {
   return (inb(KBD_IO_STATUS_REGISTER) & 1) ? inb(KBD_IO_DATA_PORT) : 0;
 }
@@ -20,3 +34,5 @@ scancode kbd_get() {
 char kbd_code_to_ascii(scancode code) {
   return (code <= 127) ? us_scancode_1[code] : 0;
 }
+
+void kbd_init() { int_irq_add(IRQ_PS2_KEYBOARD, kbd_handler); }

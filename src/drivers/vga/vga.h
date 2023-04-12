@@ -40,8 +40,8 @@
 /// LOW bytes of the VGA cursor location
 #define VGA_CRTC_REG_CURSOR_LOCATION_LOW 0x0F
 
-/// @brief VGA colors, goes only up to 8 for the background
-enum vga_color {
+/// @brief VGA colors
+enum vga_colors {
   VGA_COLOR_BLACK = 0,
   VGA_COLOR_BLUE = 1,
   VGA_COLOR_GREEN = 2,
@@ -50,6 +50,9 @@ enum vga_color {
   VGA_COLOR_MAGENTA = 5,
   VGA_COLOR_BROWN = 6,
   VGA_COLOR_LIGHT_GREY = 7,
+};
+/// @brief Extends the VGA background colors
+enum vga_colors_fg {
   VGA_COLOR_DARK_GREY = 8,
   VGA_COLOR_LIGHT_BLUE = 9,
   VGA_COLOR_LIGHT_GREEN = 10,
@@ -61,9 +64,9 @@ enum vga_color {
 };
 
 typedef struct __attribute__((packed)) vga_attributes {
-  enum vga_color fg : 4; /// character color
-  enum vga_color bg : 3; /// background color (goes only up to 8)
-  bool blink : 1;        /// blink (INOP?)
+  enum vga_colors_fg fg : 4; /// character color
+  enum vga_colors bg : 3;    /// background color (goes only up to 8)
+  bool blink : 1;            /// blink (INOP?)
 } vga_attributes;
 
 /// @brief VGA text character
@@ -151,7 +154,7 @@ bool vga_screen_fillattributes(uint8_t screen_nbr, vga_attributes attributes);
 /// @param background_color background color to fill the screen with
 /// @return false if screen doesn't exist
 bool vga_screen_fillbackground(uint8_t screen_nbr,
-                               enum vga_color background_color);
+                               enum vga_colors background_color);
 
 /// @brief Get position in history buffer in screen
 /// @param screen_nbr nbr of the screen to get history pos of

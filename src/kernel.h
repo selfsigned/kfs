@@ -8,6 +8,8 @@
 #define VERSION "UNKNOWN"
 #endif
 
+#define OS_NAME "KFS"
+
 //  MEMORY
 
 #ifndef SIGNATURE_ADDRESS

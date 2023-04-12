@@ -4,11 +4,13 @@
 
 #include "drivers/keyboard/keyboard.h"
 #include "drivers/vga/vga.h"
-#include "gdt/gdt.h"
+#include "hardware/gdt/gdt.h"
+#include "hardware/interrupts/interrupts.h"
 #include "kernel.h"
 #include "klibc/libc.h"
 
 #include "cp437.h"
+#include "log.h"
 #include "screens/screens.h"
 
 #define SCREEN_TOTAL 12
@@ -17,8 +19,9 @@ enum screen_numbers {
   HOME_SCREEN,
   NOTE_SCREEN,
   IPSUM_SCREEN,
-  PRINTF_DEMO_SCREEN = 8,
+  PRINTF_DEMO_SCREEN,
   VGA_DEMO_SCREEN,
+  KERNEL_LOG = LOG_SCREEN,
 };
 
 static void notepad_greet(uint8_t screen_nbr) {
@@ -45,7 +48,9 @@ void screen_init(uint8_t screen_nbr) {
       [NOTE_SCREEN] = {"Notepad", &notepad_greet},
       [IPSUM_SCREEN] = {"Lorem ipsum dolor sit amet", &screen_lorem_ipsum},
       [PRINTF_DEMO_SCREEN] = {"vga_printf() demo", &screen_test_printf},
-      [VGA_DEMO_SCREEN] = {"CP437 and Colors demo", &vga_demo}};
+      [VGA_DEMO_SCREEN] = {"CP437 and Colors demo", &vga_demo},
+      [KERNEL_LOG] = {"Kernel messages"},
+  };
   uint8_t last_row, last_col;
 
   vga_screen_setattributes(screen_nbr, (vga_attributes){.fg = VGA_COLOR_RED});
@@ -94,6 +99,12 @@ void kernel_main(void) {
   // initialized the vga driver and set screens
   vga_init(16, (uint16_t *)SCREEN_BUFFER_ADDR);
   screen_init(HOME_SCREEN);
+
+  // initialize interrupts
+  int_init();
+
+  // initalize the PS2 Keyboard controller
+  kbd_init();
 
   // Set the kernel signature
   *memory_signature = SIGNATURE_VALUE;
