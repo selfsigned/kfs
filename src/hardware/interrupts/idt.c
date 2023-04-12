@@ -1,8 +1,8 @@
 #include "idt.h"
-#include "../drivers/keyboard/keyboard.h"
-#include "../drivers/vga/vga.h"
-#include "../kernel.h"
-#include "../klibc/libc.h"
+#include "../../drivers/keyboard/keyboard.h"
+#include "../../drivers/vga/vga.h"
+#include "../../kernel.h"
+#include "../../klibc/libc.h"
 
 struct idt_gate_desc idt[IDT_NB_ENTRIES];
 struct idt_ptr idt_ptr;

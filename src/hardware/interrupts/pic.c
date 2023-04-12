@@ -1,5 +1,5 @@
 #include "pic.h"
-#include "../klibc/libc.h"
+#include "../../klibc/libc.h"
 #include "interrupts.h"
 
 void pic_init(uint8_t master_vector_offset, uint8_t slave_vector_offset) {

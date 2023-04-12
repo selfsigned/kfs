@@ -271,7 +271,7 @@ bool vga_screen_fillattributes(uint8_t screen_nbr, vga_attributes attributes) {
 }
 
 bool vga_screen_fillbackground(uint8_t screen_nbr,
-                               enum vga_color background_color) {
+                               enum vga_colors background_color) {
   vga_screen_info *screen;
 
   if (screen_nbr >= VGA_SCREEN_MAX)

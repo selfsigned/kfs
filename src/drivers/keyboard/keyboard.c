@@ -1,5 +1,5 @@
 #include "keyboard.h"
-#include "../../interrupts/interrupts.h"
+#include "../../hardware/interrupts/interrupts.h"
 #include "../../klibc/libc.h"
 #include "keyboard_internal.h"
 
@@ -19,6 +19,10 @@ INTERRUPT static void kbd_handler(int_frame *frame) {
 
   // read and empty the buffer
   scancode c = inb(KBD_IO_DATA_PORT);
+
+  // Ignore unused parameters
+  (void)c;
+  (void)frame;
 
   int_irq_end(IRQ_PS2_KEYBOARD);
 }

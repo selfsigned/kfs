@@ -4,8 +4,8 @@
 
 #include "drivers/keyboard/keyboard.h"
 #include "drivers/vga/vga.h"
-#include "gdt/gdt.h"
-#include "interrupts/interrupts.h"
+#include "hardware/gdt/gdt.h"
+#include "hardware/interrupts/interrupts.h"
 #include "kernel.h"
 #include "klibc/libc.h"
 

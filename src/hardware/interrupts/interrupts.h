@@ -1,7 +1,7 @@
 #ifndef INTERRUPTS_H
 #define INTERRUPTS_H
 
-#include "../log.h"
+#include "../../log.h"
 #include <stdint.h>
 
 /// @brief Standard ISA IRQs
@@ -86,7 +86,7 @@ irq_hw_t int_irq_get_irr();
 /// @brief add an arbritary interrupt, (set in the IDT after SYSCALL (128))
 /// @param nbr number of our interrupt (up to 127)(remaped in the IDT)
 /// @param int_handler
-void int_add(char nbr, INTERRUPT void (*int_handler)(int_frame *frame));
+void int_add(char nbr, void (*int_handler)(int_frame *frame));
 
 /// @brief delete an arbitrary interrupt, (set in the IDT after SYSCALL (128))
 /// @param nbr number of our interrupt (up to 127)(remaped in the IDT)

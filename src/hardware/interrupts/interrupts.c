@@ -22,13 +22,12 @@ void int_init() {
 // | ' \/ _` | '_/ _` \ V  V / _` | '_/ -_)
 // |_||_\__,_|_| \__,_|\_/\_/\__,_|_| \___|
 
-irq_hw_t int_irq_get_irr() { pic_get_irq_reg(OCW3_READ_IRR); }
-irq_hw_t int_irq_get_isr() { pic_get_irq_reg(OCW3_READ_ISR); }
+irq_hw_t int_irq_get_irr() { return pic_get_irq_reg(OCW3_READ_IRR); }
+irq_hw_t int_irq_get_isr() { return pic_get_irq_reg(OCW3_READ_ISR); }
 
 void int_irq_end(irq_hw_t irq) { pic_send_eoi(irq); }
 
-void int_irq_add(irq_hw_t irq,
-                 INTERRUPT void (*int_handler)(int_frame *frame)) {
+void int_irq_add(irq_hw_t irq, void (*int_handler)(int_frame *frame)) {
   idt_add_entry(IDT_PIC_OFFSET + irq, int_handler, INT_GATE_FLAGS);
   pic_unmask(irq);
 }
@@ -43,7 +42,7 @@ void int_irq_del(irq_hw_t irq) {
 // (_-</ _ \  _|  _\ V  V / _` | '_/ -_)
 // /__/\___/_|  \__|\_/\_/\__,_|_| \___|
 
-void int_add(char nbr, INTERRUPT void (*int_handler)(int_frame *frame)) {
+void int_add(char nbr, void (*int_handler)(int_frame *frame)) {
   idt_add_entry(IDT_SW_OFFSET + nbr, int_handler, INT_GATE_FLAGS);
 }
 
