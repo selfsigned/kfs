@@ -108,6 +108,69 @@ INT_EXCEPTION_HANDLER(29, RESERVED)
 INT_EXCEPTION_HANDLER(30, RESERVED)
 INT_EXCEPTION_HANDLER(31, RESERVED)
 
+////Syscalls////
+
+#define NB_HANDLED_SYSCALL 2
+
+///@brief function syscall number one (need 2 to test de dispatcher)
+void syscall_1() {
+  vga_printf((vga_info){.screen = SCREEN_ERROR, .print = true},
+             "Sycall 1 called\n");
+}
+
+///@brief function syscall number two (need 2 to test de dispatcher)
+void syscall_2() {
+  vga_printf((vga_info){.screen = SCREEN_ERROR, .print = true},
+             "Sycall 2 called\n");
+}
+
+// array function pointer to pass au syscall, so the nb of the syscall place in
+// eax will match to the correspondin function
+void *syscall_table[NB_HANDLED_SYSCALL] = {&syscall_1, &syscall_2};
+
+/// @brief if handled syscall save registers before calling offset of
+/// syscall_table function contained in eax reg
+__attribute__((naked)) void syscall_dispatcher(void) {
+  __asm__ __volatile__(
+      ".intel_syntax noprefix\n"
+
+      ".equ NB_HANDLED_SYSCALL, 2\n" // Check if handled syscall
+      "cmp eax, NB_HANDLED_SYSCALL-1\n"
+      "ja non_handled_syscall\n"
+
+      "push eax\n"
+      "push gs\n"
+      "push fs\n"
+      "push es\n"
+      "push ds\n"
+      "push ebp\n"
+      "push edi\n"
+      "push esi\n"
+      "push edx\n"
+      "push ecx\n"
+      "push ebx\n"
+      "push esp\n"
+      "call [syscall_table+eax*4]\n" // call offset of our syscall table
+      "add esp, 4\n"
+      "pop ebx\n"
+      "pop ecx\n"
+      "pop edx\n"
+      "pop esi\n"
+      "pop edi\n"
+      "pop ebp\n"
+      "pop ds\n"
+      "pop es\n"
+      "pop fs\n"
+      "pop gs\n"
+      "add esp, 4\n"
+      "iretd\n"
+
+      "non_handled_syscall:\n"
+      "iretd\n"
+
+      ".att_syntax");
+}
+
 ////IDT////
 
 /// set to code segment (where interrupts handler reside)
@@ -157,7 +220,10 @@ void idt_init() {
       IDT_EXCEPTION(29),
       IDT_EXCEPTION(30),
       IDT_EXCEPTION(31),
-  };
+
+      [128] = {IDT_ADD_FUNC((uint32_t)(&syscall_dispatcher)),
+               .access = INT_GATE_FLAGS,
+               .segment_selector = IDT_CODE_SEGMENT_SELECTOR}};
   memcpy(idt, new_idt, sizeof(idt));
 
   idt_ptr.limit = (sizeof(struct idt_gate_desc) * IDT_NB_ENTRIES) - 1;
