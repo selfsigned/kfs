@@ -1,7 +1,9 @@
 #include "keyboard.h"
 #include "../../hardware/interrupts/interrupts.h"
 #include "../../klibc/libc.h"
-#include "keyboard_internal.h"
+#include "ps2.h"
+
+struct kbd_state kbd = {};
 
 // TODO use partial init with ranges
 // http://www.osdever.net/bkerndev/Docs/keyboard.htm
@@ -18,16 +20,24 @@ INTERRUPT static void kbd_handler(int_frame *frame) {
   INT_SPURIOUSIRQ_GUARD(IRQ_PS2_KEYBOARD)
 
   // read and empty the buffer
-  scancode c = inb(KBD_IO_DATA_PORT);
+  if (inb(KBD_IO_STATUS_REGISTER) & 1) {
+    kbd.key = inb(KBD_IO_DATA_PORT);
+    kbd.ascii = kbd_code_to_ascii(kbd.key);
 
-  // Ignore unused parameters
-  (void)c;
-  (void)frame;
+    switch (kbd.key) {
+    case KBD_RIGHT_SHIFT: // fall through
+    case KBD_LEFT_SHIFT: {
+      kbd.mod.shift = true;
+    }
+    default:
+      break;
+    }
+  }
 
   int_irq_end(IRQ_PS2_KEYBOARD);
 }
 
-scancode kbd_get() {
+scancode kbd_poll() {
   return (inb(KBD_IO_STATUS_REGISTER) & 1) ? inb(KBD_IO_DATA_PORT) : 0;
 }
 
@@ -35,4 +45,4 @@ char kbd_code_to_ascii(scancode code) {
   return (code <= 127) ? us_scancode_1[code] : 0;
 }
 
-void kbd_init() { int_irq_add(IRQ_PS2_KEYBOARD, kbd_handler); }
+void kbd_init() { int_irq_add(IRQ_PS2_KEYBOARD, &kbd_handler); }

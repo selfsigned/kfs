@@ -1,6 +1,7 @@
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 // scancode set 1
@@ -43,16 +44,34 @@ typedef enum scancode {
   KBD_DELETE,
 } scancode;
 
+struct kbd_modifiers {
+  bool capslock : 1;
+  bool numlock : 1;
+  bool shift : 1;
+  bool ctrl : 1;
+  bool alt : 1;
+  bool super : 1;
+};
+
+struct kbd_state {
+  scancode key;             /// current key
+  char ascii;               /// current key converted to ascii
+  struct kbd_modifiers mod; /// active modifiers
+};
+
 // http://www.osdever.net/bkerndev/Docs/keyboard.htm
 extern unsigned char us_scancode_1[128];
 
-/// @brief returns a keyboard scancode
-/// @return keyboard scancode
-scancode kbd_get();
+/// @brief Poll the keyboard, Don't use this if you don't have to
+/// @return scancode
+scancode kbd_poll();
 
 char kbd_code_to_ascii(scancode code);
 
 /// @brief Initialize the keyboard !!INIT INTERRUPTS FIRST!!
 void kbd_init();
+
+/// @brief Interface to read the current keyboard state
+extern struct kbd_state kbd;
 
 #endif

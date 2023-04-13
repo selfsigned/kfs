@@ -1,5 +1,6 @@
 #include "idt.h"
 #include "../../drivers/keyboard/keyboard.h"
+#include "../../drivers/keyboard/ps2.h"
 #include "../../drivers/vga/vga.h"
 #include "../../kernel.h"
 #include "../../klibc/libc.h"
@@ -41,13 +42,14 @@ static void _print_exception(int_frame *frame, char *msg, bool has_code,
 static void _handle_exception() {
   vga_printf((vga_info){.screen = 9, .print = true}, "\n\n\n%52s",
              "Press any key to restart");
-  while (!kbd_get()) { // wait on keyboard
+  while (!kbd_poll()) { // wait on keyboard
   }
   io_wait();
-  while (!kbd_get()) { // debounce x2
+  while (!kbd_poll()) { // debounce x2
   }
-  outb(0x64, 0xFE); // restart using the PS/2 controller
-  __asm__("hlt");   // rest
+  outb(KBD_IO_COMMAND_REGISTER,
+       KBD_IO_SHUTDOWN); // restart using the PS/2 controller
+  __asm__("hlt");        // halt the cpu until shutdown
 }
 
 /// @brief handle div by 0 exceptions
