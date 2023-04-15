@@ -10,7 +10,7 @@
 #define SCREEN_ERROR 9
 #endif
 
-#define IDT_NB_ENTRIES 256
+#define IDT_NB_GATES 256
 
 //// IDT ////
 
@@ -47,18 +47,18 @@ struct idt_ptr {
 /// @brief initialize the idt and load it
 void idt_init();
 
-/// @brief add an idt entry
-/// @param entry_nbr ISR number to give to the function
+/// @brief set an IDT gate
+/// @param gate_nbr gate to edit
 /// @param int_handler Interrupt handler
 /// @param access Access level (set RING permissions and if TRAP or INT)
-void idt_add_entry(uint8_t entry_nbr, void (*int_handler)(int_frame *frame),
-                   idt_access access);
+void idt_add_gate(uint8_t gate_nbr, void (*int_handler)(int_frame *frame),
+                  idt_access access);
 
-/// @brief delete an IDT entry
+/// @brief unset an IDT gate
 /// @param entry_nbr IDT entry to remove
-void idt_del_entry(uint8_t entry_nbr);
+void idt_del_gate(uint8_t gate_nbr);
 
-/// @brief get an idt entry
-struct idt_gate_desc idt_get_entry(uint8_t entry_nbr);
+/// @brief get an idt gate
+struct idt_gate_desc idt_get_gate(uint8_t gate_nbr);
 
 #endif

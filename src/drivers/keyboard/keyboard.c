@@ -111,7 +111,7 @@ INTERRUPT static void kbd_handler(int_frame *frame) {
 
     // set extended keys state (E0h)
     extended_keys = (code == KBD_EXTENDED_KEYS);
-    DEBUG_KBD_MSG("event:%i,received:%#.3x,mapped:%#.3x,ascii: %c", kbd.status,
+    DEBUG_KBD_MSG("event:%i,received:%#.3x,mapped:%#.3x,ascii: %C", kbd.status,
                   code, kbd.key, kbd.ascii);
   } else {
     WARN_MSG("Keyboard interrupt fired before 8042 controller was ready");

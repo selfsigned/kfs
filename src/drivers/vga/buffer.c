@@ -1,3 +1,4 @@
+#include "../../log.h"
 #include "vga_internal.h"
 
 vga_global_info g_vga_state = {};
@@ -201,6 +202,9 @@ bool vga_init(size_t history_size, uint16_t *buffer_addr) {
 #endif
     }
     init = true;
+    INFO_MSG("VGA Text driver initialized (buffer->addr:%p,nbr%d,size:%xh)",
+             buffer_addr, VGA_SCREEN_MAX,
+             (g_vga_state.buffer.size * sizeof(vga_char) * VGA_SCREEN_MAX));
   }
 
   return init;

@@ -43,7 +43,7 @@ void screen_init(uint8_t screen_nbr) {
     char title[40];
     void (*screen_init_func)(uint8_t);
   };
-  struct panel screen[12] = {
+  struct panel screen[SCREEN_TOTAL] = {
       [HOME_SCREEN] = {"Home screen (current)"},
       [NOTE_SCREEN] = {"Notepad", &notepad_greet},
       [IPSUM_SCREEN] = {"Lorem ipsum dolor sit amet", &screen_lorem_ipsum},
@@ -94,11 +94,12 @@ void screen_init(uint8_t screen_nbr) {
 void kernel_main(void) {
   volatile int *memory_signature = (void *)SIGNATURE_ADDRESS;
 
-  gdt_init();
-
   // initialized the vga driver and set screens
   vga_init(16, (uint16_t *)SCREEN_BUFFER_ADDR);
   screen_init(HOME_SCREEN);
+
+  // flat-memory model
+  gdt_init();
 
   // initialize interrupts
   int_init();
@@ -108,6 +109,7 @@ void kernel_main(void) {
 
   // Set the kernel signature
   *memory_signature = SIGNATURE_VALUE;
+  INFO_MSG("Kernel canary %p set at %p", SIGNATURE_VALUE, memory_signature);
 
   // call the home screen loop
   screen_loop(HOME_SCREEN, NOTE_SCREEN);

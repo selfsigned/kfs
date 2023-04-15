@@ -1,4 +1,5 @@
 #include "gdt.h"
+#include "../../log.h"
 #include "gdt_internal.h"
 
 struct gdt_segment_desc *gdt;
@@ -50,4 +51,5 @@ void gdt_init() {
   gdt_ptr.base = (uint32_t)gdt;
   fill_gdt_entry();
   _gdt_flush();
+  INFO_MSG("GDT loaded at %p", gdt_ptr.base);
 }

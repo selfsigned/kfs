@@ -5,8 +5,8 @@
 #include "drivers/vga/vga.h"
 
 // #define DEBUG_ALL // to enable all the following
-// #define DEBUG if you want to enable debugging
-// #define DEBUG_KBD if you want to debug keycodes (spamy, slow)
+// #define DEBUG // if you want to enable debugging
+// #define DEBUG_KBD // if you want to debug keycodes (spamy, slow)
 
 /// Enable ALL debugging
 #ifdef DEBUG_ALL
@@ -24,7 +24,7 @@
 #ifdef DEBUG
 /// Print a debug message to LOG_SCREEN in the fmt "DEBUG: format{parameters}"
 #define DEBUG_MSG(format, ...)                                                 \
-  GENERIC_MSG(DEBUG, format __VA_OPT__(, ) __VA_ARGS__)
+  GENERIC_MSG(DEBG, format __VA_OPT__(, ) __VA_ARGS__)
 #else
 #define DEBUG_MSG(format, ...) (void)42;
 #endif
