@@ -62,7 +62,7 @@ typedef enum kbd_scancode {
   KBD_J,
   KBD_K,
   KBD_L,
-  KBD_COLON,
+  KBD_SEMICOLON,
   KBD_SINGLE_QUOTE,
   KBD_BACKTICK,
 

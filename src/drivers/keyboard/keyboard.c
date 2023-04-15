@@ -2,10 +2,9 @@
 #include "../../hardware/interrupts/interrupts.h"
 #include "../../klibc/libc.h"
 #include "../../log.h"
-#include "keymap.h"
+#include "layout.h"
 #include "ps2.h"
 
-kbd_entry const *kbd_layout = layout_us_mode1;
 struct kbd_state kbd = {};
 uint8_t kbd_led_mask = 0;
 
