@@ -42,11 +42,8 @@ static void _print_exception(int_frame *frame, char *msg, bool has_code,
 static void _handle_exception() {
   vga_printf((vga_info){.screen = 9, .print = true}, "\n\n\n%52s",
              "Press any key to restart");
-  while (!kbd_poll()) { // wait on keyboard
-  }
-  io_wait();
-  while (!kbd_poll()) { // debounce x2
-  }
+  kbd_poll(); // wait on kbd
+  kbd_poll(); // debounce (no pressed/release management)
   outb(KBD_IO_COMMAND_REGISTER,
        KBD_IO_SHUTDOWN); // restart using the PS/2 controller
   __asm__("hlt");        // halt the cpu until shutdown

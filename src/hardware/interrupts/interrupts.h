@@ -46,8 +46,8 @@ typedef struct __attribute__((packed)) int_frame {
   uint16_t isr_value = 0;                                                      \
   if ((isr_value = int_irq_get_isr()) && isr_value != 1 << isr_nbr) {          \
     int_irq_spuriousnbr++;                                                     \
-    DEBUG_MSG("Spurious IRQ! ISR: %.8x nbr of spurious IRQs so far: %u",       \
-              isr_value, int_irq_spuriousnbr)                                  \
+    WARN_MSG("Spurious IRQ! ISR: %.8x nbr of spurious IRQs so far: %u",        \
+             isr_value, int_irq_spuriousnbr);                                  \
     if (isr_value > 7)                                                         \
       int_irq_end(7);                                                          \
     return;                                                                    \

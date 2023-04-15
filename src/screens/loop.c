@@ -3,7 +3,7 @@
 #include "../klibc/libc.h"
 #include "screens.h"
 
-static int set_scroll(uint8_t screen_nbr, scancode code, int scroll_state,
+static int set_scroll(uint8_t screen_nbr, kbd_scancode code, int scroll_state,
                       bool isnotup) {
   switch (code) {
   case KBD_HOME:
@@ -33,8 +33,10 @@ void screen_loop(uint8_t home_screen, uint8_t note_screen) {
   int scroll_state = 0;
   bool isnotup = vga_screen_show_scrolled(current_screen, scroll_state);
 
-  // TODO function or charmap for the homepage print
   while (42) {
+    if (kbd.status == KEY_RELEASED)
+      continue;
+
     if ((isprint(kbd.ascii) || kbd.key == KBD_SPACE) &&
         current_screen == note_screen) {
       vga_printf((vga_info){.screen = note_screen}, "%C", kbd.ascii);
