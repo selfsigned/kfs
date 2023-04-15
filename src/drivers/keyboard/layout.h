@@ -17,7 +17,6 @@ typedef struct kbd_entry {
   char alt;
 } kbd_entry;
 
-
 extern const struct kbd_entry layout_us_mode1[KBD_KEYS_END];
 extern const struct kbd_entry layout_fr_mode1[KBD_KEYS_END];
 extern const struct kbd_entry layout_colemak_mode1[KBD_KEYS_END];
