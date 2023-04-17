@@ -36,7 +36,7 @@ static void _print_exception(int_frame *frame, char *msg, bool has_code,
              msg, frame->eip, frame->cs, frame->eflags, frame->sp, frame->ss);
   if (has_code)
     vga_printf((vga_info){.screen = SCREEN_ERROR, .print = true},
-               "\n\t\tcode:%#.8x", code);
+               "\n\t\tcode:%#.8b", code);
 }
 
 /// @brief Do what must be done after an exception has been raised
@@ -46,8 +46,8 @@ static void _handle_exception() {
   kbd_poll(); // wait on kbd
   kbd_poll(); // debounce (no pressed/release management)
   outb(KBD_IO_COMMAND_REGISTER,
-       KBD_IO_SHUTDOWN); // restart using the PS/2 controller
-  __asm__("hlt");        // halt the cpu until shutdown
+       KBD_IO_SHUTDOWN);   // restart using the PS/2 controller
+  __asm__ volatile("hlt"); // halt the cpu until shutdown
 }
 
 /// @brief handle div by 0 exceptions
@@ -62,18 +62,18 @@ INTERRUPT void _exception_div0(int_frame *frame) {
 
 #define INT_EXCEPTION_HANDLER(N, MSG)                                          \
   INTERRUPT void _exception_##N(int_frame *frame) {                            \
-    __asm__("cli");                                                            \
+    __asm__ volatile("cli");                                                   \
     _print_exception(frame, "EXCEPTION #" #N ": " #MSG, false, 0);             \
     _handle_exception();                                                       \
-    __asm__("sti");                                                            \
+    __asm__ volatile("sti");                                                   \
   }
 
 #define INT_EXCEPTION_HANDLER_CODE(N, MSG)                                     \
   INTERRUPT void _exception_##N(int_frame *frame, uint32_t code) {             \
-    __asm__("cli");                                                            \
+    __asm__ volatile("cli");                                                   \
     _print_exception(frame, "EXCEPTION #" #N ": " #MSG, true, code);           \
     _handle_exception();                                                       \
-    __asm__("sti");                                                            \
+    __asm__ volatile("sti");                                                   \
   }
 
 // generic exceptions
@@ -163,7 +163,7 @@ void idt_init() {
 
   idt_ptr.limit = (sizeof(struct idt_gate_desc) * IDT_NB_GATES) - 1;
   idt_ptr.base = (uint32_t)&idt;
-  __asm__("lidt %0" ::"memory"(idt_ptr)); // L(oad)IDT
+  __asm__ volatile("lidt %0" ::"memory"(idt_ptr)); // L(oad)IDT
 }
 
 struct idt_gate_desc idt_get_gate(uint8_t gate_nbr) {

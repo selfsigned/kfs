@@ -46,7 +46,7 @@ static void fill_gdt_entry() {
 }
 
 void gdt_init() {
-  gdt = (uint32_t *)GDT_ADDRESS;
+  gdt = (struct gdt_segment_desc *)GDT_ADDRESS;
   gdt_ptr.limit = (sizeof(struct gdt_segment_desc) * GDT_NB_ENTRIES) - 1;
   gdt_ptr.base = (uint32_t)gdt;
   fill_gdt_entry();

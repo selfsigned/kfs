@@ -35,8 +35,7 @@ CPPFLAGS += \
  -fdebug-prefix-map=/build=.
  
 CFLAGS ?= \
- -Wextra -Wall \
- $(DBGFLAGS)
+ -Wextra -Wall
 CFLAGS += \
  -std=c11 \
  -fno-builtin \
@@ -86,7 +85,7 @@ ERROR_CC		= @$(error "[ERROR] $(CC) not found, either run `make use_docker $(MAK
 ERROR_GRUB	= @$(error "[ERROR] grub, xorriso or grub*-bios missing, either run `make use_docker $(MAKECMDGOALS)` or run: $(DOCKER_CMD)")
 
 ## Rulez ##
-.PHONY: all use_docker run run-curses gdb test clean fclean re
+.PHONY: all use_docker debug debug-all release run run-curses gdb test clean fclean re
 
 all: $(NAME) $(IMG_NAME)
 
@@ -119,6 +118,17 @@ else
 endif
 
 ## virtual  ##
+
+debug: CFLAGS += $(DBGFLAGS)
+debug: CPPFLAGS += -DDEBUG
+debug: $(IMG_NAME)
+
+debug-all: CFLAGS += $(DBGFLAGS)
+debug-all: CPPFLAGS += -DDEBUG_ALL
+debug-all: $(IMG_NAME)
+
+release: CFLAGS += -O2
+release: $(IMG_NAME)
 
 use_docker:
 ifdef INSIDE_DOCKER

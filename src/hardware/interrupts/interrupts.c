@@ -14,7 +14,7 @@ void int_init() {
   pic_init(IDT_PIC_OFFSET, IDT_PIC_OFFSET + 8);
   idt_init();
 
-  __asm__("sti"); // S(e)T I(nterrupts)
+  __asm__ volatile("sti"); // S(e)T I(nterrupts)
   INFO_MSG("IDT loaded, IF set");
 }
 

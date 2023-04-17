@@ -4,7 +4,7 @@
     {
       "label": "Rebuild kfs.iso",
       "type": "shell",
-      "command": "docker run -it --platform linux/amd64 --rm -v ${workspaceFolder}:/build ghcr.io/l-aurelie/i686-cc:latest make re",
+      "command": "docker run -it --platform linux/amd64 --rm -v ${workspaceFolder}:/build ghcr.io/l-aurelie/i686-cc:latest make fclean debug",
       "problemMatcher": [],
       "group": {
         "kind": "build",
@@ -14,7 +14,7 @@
     {
       "label": "Run QEMU",
       "type": "shell",
-      "command": "make use_docker && echo Starting QEMU& docker run -it --platform linux/amd64 --rm -p 4666:4666 -p 5999:5999 -v ${workspaceFolder}:/build ghcr.io/l-aurelie/i686-cc:latest make run",
+      "command": "docker run -it --platform linux/amd64 --rm -v ${workspaceFolder}:/build ghcr.io/l-aurelie/i686-cc:latest make debug && echo Starting QEMU& docker run -it --platform linux/amd64 --rm -p 4666:4666 -p 5999:5999 -v ${workspaceFolder}:/build ghcr.io/l-aurelie/i686-cc:latest make run",
       "isBackground": true,
       "problemMatcher": {
         "pattern": {
