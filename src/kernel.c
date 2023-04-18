@@ -95,7 +95,7 @@ void kernel_main(void) {
   volatile int *memory_signature = (void *)SIGNATURE_ADDRESS;
 
   // initialized the vga driver and set screens
-  vga_init(32, (uint16_t *)SCREEN_BUFFER_ADDR);
+  vga_init(8, (uint16_t *)SCREEN_BUFFER_ADDR);
   screen_init(HOME_SCREEN);
 
   // flat-memory model

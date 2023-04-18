@@ -67,7 +67,7 @@ endif
 #qemu
 VNC_DISPLAY  := 99
 GDB_PORT     := 4666
-QEMU_RAM     := 14M
+QEMU_RAM     := 4M
 
 # sources
 SRC_PATH		:= src
