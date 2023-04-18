@@ -42,6 +42,8 @@ void pic_init(uint8_t master_vector_offset, uint8_t slave_vector_offset) {
   io_wait();
   outb(PIC2_DATA, 0xff);
   io_wait();
+  INFO_MSG("PIC initialized (master vector offset:%d slave vector offset:%d)",
+           master_vector_offset, slave_vector_offset);
 }
 
 void pic_send_eoi(uint8_t irq) {

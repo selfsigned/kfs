@@ -1,4 +1,6 @@
+#include "../../log.h"
 #include "vga_internal.h"
+// This honestly needs a good re-factoring
 
 vga_global_info g_vga_state = {};
 
@@ -50,30 +52,24 @@ vga_screen_info *vga_set_cursor(vga_info *info, bool insert_newline) {
     if (info->noscroll)
       return 0;
 
-    // TODO cycle buffer at end of scroll
+    // cycle buffer if end of scroll reached
     if ((screen->buffer.pos + VGA_SCREEN_SIZE) >= screen->buffer.tail) {
-      // vga_char tmp[VGA_SCREEN_SIZE] = {0};
+      vga_char tmp[VGA_SCREEN_SIZE] = {0};
 
-      // memcpy(tmp, screen->buffer.pos, (VGA_SCREEN_SIZE) * sizeof(vga_char));
-      // bzero(screen->buffer.head, (VGA_SCREEN_SIZE) * sizeof(vga_char));
-      // screen->buffer.pos = screen->buffer.head;
-      // memcpy(screen->buffer.head, tmp + VGA_COL,
-      //        (VGA_SCREEN_SIZE - VGA_COL) * sizeof(vga_char));
+      memcpy(tmp, screen->buffer.pos, VGA_SCREEN_SIZE * sizeof(vga_char));
       bzero(screen->buffer.head, g_vga_state.buffer.size * sizeof(vga_char));
-      vga_screen_clear(0);
-      vga_screen_setcursorpos(info->screen, 0, 0);
       screen->buffer.pos = screen->buffer.head;
-    } else {
-      screen->buffer.pos += VGA_COL;
+      memcpy(screen->buffer.pos, tmp, VGA_SCREEN_SIZE * sizeof(vga_char));
     }
+    screen->buffer.pos += VGA_COL;
+    info->row = 24;
+    screen->cursor.row = 24;
 
     // carry over color attributes
     if (info->scrollattributes)
       for (uint8_t i = 0; i < VGA_COL; ++i)
         screen->buffer.pos[VGA_SCREEN_SIZE - VGA_COL + i].color =
             screen->attributes;
-
-    info->row = 24;
   }
 
   return screen;
@@ -201,6 +197,9 @@ bool vga_init(size_t history_size, uint16_t *buffer_addr) {
 #endif
     }
     init = true;
+    INFO_MSG("VGA Text driver initialized (buffer->addr:%p,nbr%d,size:%xh)",
+             buffer_addr, VGA_SCREEN_MAX,
+             (g_vga_state.buffer.size * sizeof(vga_char) * VGA_SCREEN_MAX));
   }
 
   return init;

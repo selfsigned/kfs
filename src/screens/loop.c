@@ -33,9 +33,9 @@ void screen_loop(uint8_t home_screen, uint8_t note_screen) {
   int scroll_state = 0;
   bool isnotup = vga_screen_show_scrolled(current_screen, scroll_state);
 
-  while (42) {
+  while (true) {
     if (kbd.status == KEY_RELEASED)
-      continue;
+      goto halt;
 
     if ((isprint(kbd.ascii) || kbd.key == KBD_SPACE) &&
         current_screen == note_screen) {
@@ -72,6 +72,7 @@ void screen_loop(uint8_t home_screen, uint8_t note_screen) {
       vga_screen_setvgacursor(note_screen, true);
     isnotup = vga_screen_show_scrolled(current_screen, scroll_state);
 
-    __asm__("HLT"); // halt until next interrupt
+  halt:
+    __asm__ volatile("HLT"); // halt until next interrupt
   }
 }

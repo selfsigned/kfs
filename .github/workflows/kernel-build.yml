@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Build the kernel
-        run: make all
+        run: make debug
 
       - name: Upload the kernel build artifacts
         uses: actions/upload-artifact@v3

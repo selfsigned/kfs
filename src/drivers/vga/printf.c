@@ -192,6 +192,8 @@ int vga_vdprintf(vga_info info,
       } else if (*format == 'p') {
         prefix[0] = '0';
         prefix[1] = 'x';
+        params.flags.precision = true;
+        params.precision = 8;
         unsigned int nbr = (uint64_t)va_arg(ap, void *);
         utoa(tmp, nbr, params.base);
       } else {
