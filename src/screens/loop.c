@@ -146,12 +146,10 @@ void screen_loop(uint8_t home_screen, uint8_t note_screen) {
             argv[argc] = ptr;
           }
 
-          for (struct command *cmd = g_cmds; !(cmd->flags & SHELL_CMD_END);
-               cmd++) {
-            if (!strncmp(cmd->name, arg_cmd, SHELL_MAX_CMDNAME)) {
-              vga_printf((vga_info){.screen = note_screen}, "\n");
-              cmd->func(note_screen, argc, argv);
-            }
+          struct command *cmd = NULL;
+          if ((cmd = shell_get_cmd(arg_cmd))) {
+            vga_printf((vga_info){.screen = note_screen}, "\n");
+            cmd->func(note_screen, argc, argv);
           }
 
           vga_printf((vga_info){.screen = note_screen}, "\n>");
