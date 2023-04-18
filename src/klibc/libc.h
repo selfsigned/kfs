@@ -98,6 +98,19 @@ size_t strlen(const char *s);
 /// @return strlen(s) if string is shorter than maxlen, otherwise maxlen
 size_t strnlen(const char *s, size_t maxlen);
 
+/// @brief compare two strings
+/// @param s1 first string to compare
+/// @param s2 second string to compare
+/// @return 0 if s1 == s2, negative if s1 < s2, positive if s1 > s2
+int strcmp(const char *s1, const char *s2);
+
+/// @brief compare first n bytes of two strings
+/// @param s1 first string to compare
+/// @param s2 second string to compare
+/// @param n first n bytes to compare
+/// @return 0 if s1 == s2, negative if s1 < s2, positive if s1 > s2
+int strncmp(const char *s1, const char *s2, size_t n);
+
 /// @brief find character in string
 /// @param s string to find the character c in
 /// @param c character to find
@@ -108,6 +121,22 @@ size_t strnlen(const char *s, size_t maxlen);
 char *strchr(const char *s, int c);
 
 //// strings nonstandard //
+
+/// @brief extract tokens from strings
+/// @param str string to be broken into sequence of tokens
+/// @param delim set of bytes that delimit tokens (may change between calls)
+/// @return ptr to a null-terminated str containing the next token,
+/// NULL if done
+char *strtok(char *str, const char *delim);
+
+/// @brief extract tokens from strings (re-entrant version)
+/// @param str first call->string to be parsed (ignoring *saveptr),
+/// subsequent calls->should be NULL
+/// @param delim set of bytes that delimit tokens (may change between calls)
+/// @param saveptr first call->ignored
+/// @return ptr to a null-terminated str containing the next token,
+/// NULL if done
+char *strtok_r(char *str, const char *delim, char **saveptr);
 
 /// @brief reverse a string
 /// @param s string to reverse

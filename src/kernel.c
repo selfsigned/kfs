@@ -17,17 +17,17 @@
 
 enum screen_numbers {
   HOME_SCREEN,
-  NOTE_SCREEN,
+  SHELL_SCREEN,
   IPSUM_SCREEN,
   PRINTF_DEMO_SCREEN,
   VGA_DEMO_SCREEN,
   KERNEL_LOG = LOG_SCREEN,
 };
 
-static void notepad_greet(uint8_t screen_nbr) {
+static void shell_greet(uint8_t screen_nbr) {
   vga_printf(
       (vga_info){.screen = screen_nbr, .row = 1, .column = 35},
-      "%aNotepad%a\n\n>",
+      "%aShell%a\n\n>",
       (vga_attributes){.bg = VGA_COLOR_LIGHT_GREY, .fg = VGA_COLOR_BLACK},
       (vga_attributes){.fg = VGA_COLOR_WHITE});
 }
@@ -45,7 +45,7 @@ void screen_init(uint8_t screen_nbr) {
   };
   struct panel screen[SCREEN_TOTAL] = {
       [HOME_SCREEN] = {"Home screen (current)"},
-      [NOTE_SCREEN] = {"Notepad", &notepad_greet},
+      [SHELL_SCREEN] = {"Basic shell", &shell_greet},
       [IPSUM_SCREEN] = {"Lorem ipsum dolor sit amet", &screen_lorem_ipsum},
       [PRINTF_DEMO_SCREEN] = {"vga_printf() demo", &screen_test_printf},
       [VGA_DEMO_SCREEN] = {"CP437 and Colors demo", &vga_demo},
@@ -112,5 +112,5 @@ void kernel_main(void) {
   INFO_MSG("Kernel canary %p set at %p", SIGNATURE_VALUE, memory_signature);
 
   // call the home screen loop
-  screen_loop(HOME_SCREEN, NOTE_SCREEN);
+  screen_loop(HOME_SCREEN, SHELL_SCREEN);
 }

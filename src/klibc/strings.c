@@ -41,6 +41,31 @@ size_t strnlen(const char *s, size_t maxlen) {
   return t - s;
 }
 
+int strcmp(const char *s1, const char *s2) {
+  // TODO better optimized
+  const unsigned char *tmp1 = (const unsigned char *)s1;
+  const unsigned char *tmp2 = (const unsigned char *)s2;
+  size_t i = 0;
+
+  while ((tmp1[i] && tmp2[i]) && tmp1[i] == tmp2[i])
+    ++i;
+  return (tmp1[i] - tmp2[i]);
+}
+
+int strncmp(const char *s1, const char *s2, size_t n) {
+  // TODO better optimized
+  const unsigned char *tmp1 = (const unsigned char *)s1;
+  const unsigned char *tmp2 = (const unsigned char *)s2;
+  size_t i = 0;
+
+  if (!n)
+    return (0);
+
+  while ((i + 1) < n && (tmp1[i] && tmp2[i]) && tmp1[i] == tmp2[i])
+    i++;
+  return (tmp1[i] - tmp2[i]);
+}
+
 char *strchr(const char *s, int c) {
   while (*s) {
     if (*s == c)
