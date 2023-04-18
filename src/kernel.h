@@ -13,8 +13,8 @@
 //  MEMORY
 
 #ifndef SIGNATURE_ADDRESS
-/// Signature of our kernel, at around 3MB
-#define SIGNATURE_ADDRESS 0x0030DEAD
+/// Where the signature is set, used to test if the kernel initialized correctly
+#define SIGNATURE_ADDRESS 0x00001337
 #endif
 #ifndef SIGNATURE_VALUE
 /// The value we want to set as our signature

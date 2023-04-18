@@ -18,7 +18,7 @@ AS			:= $(PREFIX)-as
 HAS_CC	:= $(shell $(CC) --version 2>/dev/null)
 
 # macros
-SIGNATURE_ADDRESS=0x0030DEAD
+SIGNATURE_ADDRESS=0x00001337
 SIGNATURE_VALUE=0x00DEAD42 # !! NEEDS TO BE A WORD FOR THE TEST TO WORK !!
 
 # git version
@@ -67,7 +67,7 @@ endif
 #qemu
 VNC_DISPLAY  := 99
 GDB_PORT     := 4666
-QEMU_RAM     := 4M
+QEMU_RAM     := 14M
 
 # sources
 SRC_PATH		:= src

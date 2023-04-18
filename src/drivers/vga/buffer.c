@@ -1,5 +1,6 @@
 #include "../../log.h"
 #include "vga_internal.h"
+// This honestly needs a good re-factoring
 
 vga_global_info g_vga_state = {};
 
@@ -65,6 +66,8 @@ vga_screen_info *vga_set_cursor(vga_info *info, bool insert_newline) {
       vga_screen_setcursorpos(info->screen, 0, 0);
       screen->buffer.pos = screen->buffer.head;
     } else {
+      info->row = 24;
+      screen->cursor.row = 24;
       screen->buffer.pos += VGA_COL;
     }
 
