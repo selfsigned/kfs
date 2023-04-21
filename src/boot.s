@@ -21,12 +21,12 @@ and a description of the memory should beprovided to the kernel)
 .long CHECKSUM
 
 
-/* Initialize space for a stack  of 16KiB, for the kernel */
+/* Initialize space for a stack of 32KiB, for the kernel */
 
 .section .bss
 .align 16
 stack_bottom:
-.skip 16384 # 16 KiB
+.skip 32768 # 32 KiB
 stack_top:
 
 

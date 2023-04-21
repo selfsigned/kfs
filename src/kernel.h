@@ -10,6 +10,11 @@
 
 #define OS_NAME "KFS"
 
+// Displays
+
+/// number of screens
+#define SCREEN_NBR 12
+
 //  MEMORY
 
 #ifndef SIGNATURE_ADDRESS
