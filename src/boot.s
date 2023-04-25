@@ -44,8 +44,10 @@ _start:
 	mov $stack_top, %esp
 
 
-/* Calls the function of the kernel called kernel_main (in kernel.c) */
+/* Set %ebp to NULL (Used to walk the stack) */
+  xor %ebp, %ebp
 
+/* Calls the function of the kernel called kernel_main (in kernel.c) */
 	call kernel_main
 
 

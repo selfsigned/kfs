@@ -3,6 +3,7 @@
 // Debug facility macros
 
 #include "drivers/vga/vga.h"
+#include "kernel.h"
 
 // #define DEBUG_ALL // to enable all the following
 // #define DEBUG // if you want to enable debugging
@@ -15,7 +16,9 @@
 #endif
 
 /// screen to write kernel messages to
-#define LOG_SCREEN 9
+#ifndef LOG_SCREEN
+#error "LOG_SCREEN should be set in kernel.h!"
+#endif
 
 #define GENERIC_MSG(MSGLVL, format, ...)                                       \
   vga_printf((vga_info){.screen = LOG_SCREEN},                                 \

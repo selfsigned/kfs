@@ -1,5 +1,6 @@
 #include "cmds/cmd_greet.h"
 #include "cmds/cmd_help.h"
+#include "cmds/cmd_stack.h"
 #include "cmds/cmds_power.h"
 #include "cmds/cmds_vgatest.h"
 #include "shell.h"
@@ -24,6 +25,9 @@ struct shell_cmd g_shell_cmds[] = {
      "test_cp437",
      cmd_test_cp437,
      {CMD_TEST_CP437_SMSG, CMD_TEST_CP437_LMSG}},
+
+    // stack
+    {0, "stack", cmd_stack, {CMD_STACK_SMSG, CMD_STACK_LMSG}},
 
     // cmds_power
     {0, "reboot", cmd_reboot, {CMD_REBOOT_SMSG, CMD_REBOOT_LMSG}},

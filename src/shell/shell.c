@@ -55,6 +55,7 @@ void shell_run(shell_state *state, struct kbd_state key) {
       if ((cmd = shell_get_cmd(arg_cmd))) {
         vga_printf(screen_info, "\n");
         state->return_code = cmd->func(state->screen, argc, argv);
+        state->last_cmd = cmd;
       } else {
         vga_printf(screen_info, "\nCommand not found: \"%s\"", arg_cmd);
       }

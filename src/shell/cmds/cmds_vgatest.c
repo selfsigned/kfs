@@ -39,7 +39,7 @@
 /// @param height height of the box, starting from 0
 /// @return 1 if box too big 0 if succeed
 bool _create_box_light(uint8_t screen_nbr, uint8_t width, uint8_t height) {
-  uint8_t column, row = 0;
+  uint8_t column = 0, row = 0;
 
   if (width >= VGA_COL || height >= VGA_ROW) {
     return 1;
@@ -106,9 +106,12 @@ int cmd_test_box(uint8_t screen_nbr, int argc, char **argv) {
 int cmd_test_ipsum(uint8_t screen_nbr, int argc, char **argv) {
   (void)argc, (void)argv;
   vga_printf((vga_info){.screen = screen_nbr, .nowrapchar = true}, LOREM_IPSUM);
+  return 0;
 }
 
 int cmd_test_vga(uint8_t screen_nbr, int argc, char **argv) {
+  (void)argc, (void)argv; // ignored
+
   // clear the screen
   vga_screen_clear(screen_nbr);
 
@@ -145,9 +148,12 @@ int cmd_test_vga(uint8_t screen_nbr, int argc, char **argv) {
       42, 42, 42, 42);
   vga_printf((vga_info){.screen = screen_nbr, .row = 24, .column = 78}, "%CY",
              CP437_YEN_SIGN);
+  return 0;
 }
 
 int cmd_test_colors(uint8_t screen_nbr, int argc, char **argv) {
+  (void)argc, (void)argv; // ignored
+
   for (uint8_t bg = 0; bg < 8; ++bg) {
     for (uint8_t fg = 0; fg < 16; ++fg) {
       vga_printf((vga_info){.screen = screen_nbr, .nowrap = true}, "%a%C",
@@ -155,13 +161,16 @@ int cmd_test_colors(uint8_t screen_nbr, int argc, char **argv) {
     }
     vga_printf((vga_info){.screen = screen_nbr}, "\n");
   }
+  return 0;
 }
 
 int cmd_test_cp437(uint8_t screen_nbr, int argc, char **argv) {
+  (void)argc, (void)argv; // ignored
   uint8_t cp437[255] = {0};
 
   for (uint8_t c = 1; c < 255; ++c)
     cp437[c] = c;
   vga_printf((vga_info){.screen = screen_nbr, .nowrapchar = true}, "%C%S", 0,
              cp437 + 1);
+  return 0;
 }

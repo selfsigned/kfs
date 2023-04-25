@@ -13,7 +13,11 @@
 // Displays
 
 /// number of screens
-#define SCREEN_NBR 12
+#define SCREEN_NBR 4
+/// number of shells
+#define SHELL_NBR SCREEN_NBR - 1
+/// screen ID of the log screen
+#define LOG_SCREEN SCREEN_NBR - 1
 
 //  MEMORY
 

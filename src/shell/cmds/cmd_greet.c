@@ -18,9 +18,9 @@ int cmd_greet(uint8_t screen_nbr, int ac, char **av) {
   vga_screen_setattributes(screen_nbr, (vga_attributes){.fg = VGA_COLOR_WHITE});
 
   vga_printf(screen_info,
-             "\nF1...F10: Select a screen(F10:log) %C %C Home End: Scroll up "
+             "\nF1...F%u: Select a screen(F%u:log) %C %C Home End: Scroll up "
              "and down\n",
-             CP437_UP_ARROW, CP437_DOWN_ARROW);
+             SHELL_NBR, LOG_SCREEN, CP437_UP_ARROW, CP437_DOWN_ARROW);
 
   vga_printf(screen_info,
              "\nWelcome to " OS_NAME

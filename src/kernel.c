@@ -13,8 +13,6 @@
 #include "log.h"
 #include "shell/shell.h"
 
-#define SHELL_NBR 5
-
 static int set_scroll(uint8_t screen_nbr, kbd_scancode code, int scroll_state,
                       bool isnotup) {
   switch (code) {
@@ -96,7 +94,7 @@ void kernel_main(void) {
   volatile int *memory_signature = (void *)SIGNATURE_ADDRESS;
 
   // initialized the vga driver and set screens
-  vga_init(8, (uint16_t *)SCREEN_BUFFER_ADDR);
+  vga_init(256, (uint16_t *)SCREEN_BUFFER_ADDR);
 
   // flat-memory model
   gdt_init();
