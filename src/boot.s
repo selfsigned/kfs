@@ -45,7 +45,7 @@ _start:
 
 
 /* Set %ebp to NULL (Used to walk the stack) */
-  xor %ebp, %ebp
+mov %ebp, 0
 
 /* Calls the function of the kernel called kernel_main (in kernel.c) */
 	call kernel_main

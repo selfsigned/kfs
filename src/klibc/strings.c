@@ -91,6 +91,30 @@ int atoi(const char *str) {
 
 // non-standard
 
+uint32_t atou_base(const char *str, unsigned short base) {
+  uint32_t r = 0;
+
+  for (; isspace(*str) || *str == '0' || *str == 'x'; ++str)
+    ;
+  for (; isalnum(*str); ++str)
+    if (base <= 10 && (*str >= '0' && *str <= '0' + base - 1)) {
+      r = r * base + (*str - '0');
+    } else if (base <= 16) {
+      if (isdigit(*str)) {
+        r = r * base + (*str - '0');
+      } else if (*str >= 'a' && *str <= 'a' + base - 11) {
+        r = r * base + (10 + *str - 'a');
+      } else if (*str >= 'A' && *str <= 'A' + base - 11) {
+        r = r * base + (10 + *str - 'A');
+      } else {
+        break;
+      }
+    } else
+      break;
+
+  return r;
+}
+
 void strrev(char *s) {
   char c;
 

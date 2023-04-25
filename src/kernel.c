@@ -33,6 +33,13 @@ static int set_scroll(uint8_t screen_nbr, kbd_scancode code, int scroll_state,
       scroll_state = vga_screen_getscrolloffset(screen_nbr) - 1;
     }
     break;
+  case KBD_PAGE_DOWN:
+    if (scroll_state > 0)
+      for (int i = 10; scroll_state && i; scroll_state--, i--)
+        ;
+    if (scroll_state == -1)
+      scroll_state = vga_screen_getscrolloffset(screen_nbr) - 10;
+    break;
   default:
   }
   return scroll_state;

@@ -1,5 +1,6 @@
 #include "cmds/cmd_greet.h"
 #include "cmds/cmd_help.h"
+#include "cmds/cmd_hexdump.h"
 #include "cmds/cmd_stack.h"
 #include "cmds/cmds_power.h"
 #include "cmds/cmds_vgatest.h"
@@ -25,6 +26,9 @@ struct shell_cmd g_shell_cmds[] = {
      "test_cp437",
      cmd_test_cp437,
      {CMD_TEST_CP437_SMSG, CMD_TEST_CP437_LMSG}},
+
+    // hexdump
+    {0, "hexdump", cmd_hexdump, {CMD_HEXDUMP_SMSG, CMD_HEXDUMP_LMSG}},
 
     // stack
     {0, "stack", cmd_stack, {CMD_STACK_SMSG, CMD_STACK_LMSG}},

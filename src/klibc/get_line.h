@@ -1,10 +1,10 @@
 #ifndef GET_LINE_H
 #define GET_LINE_H
-// Separate get_line from the klibc because of the reliance on the vga and keyboard drivers
+// Separate get_line from the klibc because of the reliance on the vga and
+// keyboard drivers
 
 #include <stddef.h>
 #include <stdint.h>
-
 
 /// @brief Reads a line of input (ends at '\n')
 /// @param dest destination buffer, needs to be at least maxlen big

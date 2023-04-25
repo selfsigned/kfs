@@ -122,6 +122,11 @@ char *strchr(const char *s, int c);
 
 //// strings nonstandard //
 
+/// @brief convert a string with an arbitrary base to an uint32
+/// @param nptr pointer to a string that starts with a number or '0x'
+/// @return converted value or 0 on error
+uint32_t atou_base(const char *str, unsigned short base);
+
 /// @brief extract tokens from strings
 /// @param str string to be broken into sequence of tokens
 /// @param delim set of bytes that delimit tokens (may change between calls)
