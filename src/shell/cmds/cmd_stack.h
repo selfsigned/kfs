@@ -2,6 +2,7 @@
 #define CMD_STACK_H
 // Stack printing command (required by KFS-2)
 
+#include "../../debug/stack.h"
 #include "../shell.h"
 
 /// max number of stackframes to step into by default

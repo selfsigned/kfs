@@ -8,7 +8,7 @@
 
 #define CMD_HELP_LMSG                                                          \
   "To display all the available commands and their use:\n"                     \
-  ">help\n\n"                                                                  \
+  ">help\n"                                                                    \
   "To get more informations about a command:\n"                                \
   ">help <cmd>"
 

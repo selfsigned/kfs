@@ -2,10 +2,6 @@
 #include "../../cp437.h"
 #include "../../klibc/libc.h"
 
-/// @brief equivalent of hexdump -C, doesn't care about endian-ness
-/// @param screen_nbr screen to print to
-/// @param data what to dump
-/// @param size how many bytes to dump
 void hexdump(uint8_t screen_nbr, void *data, size_t size) {
   vga_info screen_info = {.screen = screen_nbr};
   const uint8_t *p = (const uint8_t *)data;
@@ -35,7 +31,6 @@ void hexdump(uint8_t screen_nbr, void *data, size_t size) {
   }
 }
 
-/// @brief equivalent of hexdump -C, doesn't care about endian-ness
 int cmd_hexdump(uint8_t screen_nbr, int ac, char **av) {
   vga_info screen_info = {.screen = screen_nbr};
   int input_size;

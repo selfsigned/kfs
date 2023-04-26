@@ -62,8 +62,9 @@ void shell_run(shell_state *state, struct kbd_state key) {
 
     next_line:
       vga_printf( // reset colors, go to newline, print PS1
-          screen_info, "%a\n" SHELL_PS1,
-          (vga_attributes){.bg = VGA_COLOR_BLACK, .fg = VGA_COLOR_WHITE});
+          screen_info, "%a\n%d%s",
+          (vga_attributes){.bg = VGA_COLOR_BLACK, .fg = VGA_COLOR_WHITE},
+          state->return_code, SHELL_PS1);
       bzero(state->input.buf, sizeof(state->input.buf));
       state->input.idx = 0;
       break;

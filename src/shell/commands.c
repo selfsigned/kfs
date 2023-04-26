@@ -5,6 +5,10 @@
 #include "cmds/cmds_power.h"
 #include "cmds/cmds_vgatest.h"
 #include "shell.h"
+
+#ifdef DEBUG
+#include "cmds/cmds_debug.h"
+#endif
 // Available shell commands are defined here
 
 struct shell_cmd g_shell_cmds[] = {
@@ -32,6 +36,13 @@ struct shell_cmd g_shell_cmds[] = {
 
     // stack
     {0, "stack", cmd_stack, {CMD_STACK_SMSG, CMD_STACK_LMSG}},
+
+#ifdef DEBUG
+    {0, "int0", cmd_int0, {CMD_INT0_SMSG, CMD_INT_LMSG}},
+    {0, "int3", cmd_int3, {CMD_INT3_SMSG, CMD_INT_LMSG}},
+    {0, "intspurious", cmd_intspurious, {CMD_INTSPURIOUS_SMSG, CMD_INT_LMSG}},
+    {0, "intsyscall", cmd_intsyscall, {CMD_INTSYSCALL_SMSG, CMD_INT_LMSG}},
+#endif
 
     // cmds_power
     {0, "reboot", cmd_reboot, {CMD_REBOOT_SMSG, CMD_REBOOT_LMSG}},

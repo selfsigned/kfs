@@ -4,40 +4,24 @@
 #include "../../klibc/libc.h"
 #include "cmd_hexdump.h"
 
-struct stack_frame {
-  struct stack_frame *ebp;
-  void *ret;
-} __attribute__((packed));
-
 uint8_t g_stack_frame_screen = 0;
+size_t g_chosen_frame = 0;
 
-void _stack_printframes(struct stack_frame *frame, size_t count) {
+/// @brief  stack printing callback
+static void _stack_printframes(struct stack_frame *frame, size_t count) {
   vga_printf((vga_info){.screen = g_stack_frame_screen, .print = true},
              "%d) frame->ret:%p frame->ebp:%p size:%u\n", count, frame->ret,
              frame->ebp, (void *)frame->ebp - (void *)frame->ret);
 }
 
-size_t _stack_walk(struct stack_frame *ebp, size_t max,
-                   void (*callback)(struct stack_frame *, size_t)) {
-  struct stack_frame *frame = ebp;
-  size_t count;
-
-  for (count = 0; frame && frame->ebp && count < max; ++count) {
-    callback(frame, count);
-    frame = frame->ebp;
-  }
-  return count;
-}
-
-size_t g_chosen_frame = 0;
-
-void _stack_dumpframe(struct stack_frame *frame, size_t count) {
+/// @brief stack dumping callback
+static void _stack_dumpframe(struct stack_frame *frame, size_t count) {
   if (count == g_chosen_frame)
     hexdump(g_stack_frame_screen, frame->ret,
             ((void *)frame->ebp - (void *)frame->ret));
 }
 
-void _get_ebp(struct stack_frame **ebp) {
+static void _get_ebp(struct stack_frame **ebp) {
   __asm__ volatile("mov %%ebp, %0" : "=r"(*ebp));
 }
 
@@ -59,7 +43,7 @@ int cmd_stack(uint8_t screen_nbr, int ac, char **av) {
 
   // show the stack frames
   g_stack_frame_screen = screen_nbr;
-  frame_nbr = _stack_walk(ebp, frame_max, _stack_printframes);
+  frame_nbr = stack_walk(ebp, frame_max, _stack_printframes);
 
   // Prompt the user for the stack frame
   vga_printf(screen_info, "Select frame%C ", CP437_RIGHT_ARROW);
@@ -79,6 +63,6 @@ int cmd_stack(uint8_t screen_nbr, int ac, char **av) {
   }
 
   // Dump the chosen frame
-  _stack_walk(ebp, g_chosen_frame + 1, _stack_dumpframe);
+  stack_walk(ebp, g_chosen_frame + 1, _stack_dumpframe);
   return 0;
 }

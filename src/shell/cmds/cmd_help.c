@@ -17,7 +17,7 @@ int cmd_help(uint8_t screen_nbr, int ac, char *av[]) {
   // display short help and long help
   while (ac--) {
     if ((cmd = shell_get_cmd(av[ac]))) {
-      vga_printf(screen_info, "%s - %s:\n%s", cmd->name, cmd->help.smsg,
+      vga_printf(screen_info, "%s - %s:\n\n%s", cmd->name, cmd->help.smsg,
                  cmd->help.lmsg);
     }
   }

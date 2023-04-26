@@ -3,12 +3,9 @@
 
 #include "interrupts.h"
 
+#include "../../log.h"
 #include <stdbool.h>
 #include <stdint.h>
-
-#ifndef SCREEN_ERROR
-#define SCREEN_ERROR 9
-#endif
 
 #define IDT_NB_GATES 256
 
