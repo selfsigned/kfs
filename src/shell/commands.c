@@ -1,6 +1,7 @@
 #include "cmds/cmd_greet.h"
 #include "cmds/cmd_help.h"
 #include "cmds/cmd_hexdump.h"
+#include "cmds/cmd_kbd.h"
 #include "cmds/cmd_stack.h"
 #include "cmds/cmds_power.h"
 #include "cmds/cmds_vgatest.h"
@@ -36,6 +37,9 @@ struct shell_cmd g_shell_cmds[] = {
 
     // stack
     {0, "stack", cmd_stack, {CMD_STACK_SMSG, CMD_STACK_LMSG}},
+
+    // keyboard
+    {0, "kbd", cmd_kbd, {CMD_KBD_SMSG, CMD_KBD_LMSG}},
 
 #ifdef DEBUG
     {0, "int0", cmd_int0, {CMD_INT0_SMSG, CMD_INT_LMSG}},
