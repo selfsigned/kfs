@@ -13,4 +13,8 @@
 /// @return number of characters read, 0 if C^c pressed
 size_t get_line(char *dest, int screen, size_t maxlen);
 
+/// @brief Reads a character
+/// @return ascii value read
+char get_char();
+
 #endif

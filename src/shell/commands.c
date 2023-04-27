@@ -1,3 +1,4 @@
+#include "cmds/cmd_brainfuck.h"
 #include "cmds/cmd_greet.h"
 #include "cmds/cmd_help.h"
 #include "cmds/cmd_hexdump.h"
@@ -37,6 +38,9 @@ struct shell_cmd g_shell_cmds[] = {
 
     // stack
     {0, "stack", cmd_stack, {CMD_STACK_SMSG, CMD_STACK_LMSG}},
+
+    // stack
+    {0, "brainfuck", cmd_brainfuck, {CMD_BRAINFUCK_SMSG, CMD_BRAINFUCK_LMSG}},
 
     // keyboard
     {0, "kbd", cmd_kbd, {CMD_KBD_SMSG, CMD_KBD_LMSG}},
