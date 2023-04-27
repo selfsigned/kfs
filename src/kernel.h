@@ -10,6 +10,15 @@
 
 #define OS_NAME "KFS"
 
+// Displays
+
+/// number of screens
+#define SCREEN_NBR 4
+/// number of shells
+#define SHELL_NBR SCREEN_NBR - 1
+/// screen ID of the log screen
+#define LOG_SCREEN SCREEN_NBR - 1
+
 //  MEMORY
 
 #ifndef SIGNATURE_ADDRESS
@@ -26,13 +35,13 @@
 
 // Screens
 #define KFS_LOGO                                                               \
-  "                  d8888  .d8888b.                                      \n"  \
-  "                 d8P888 d88P  Y88b '||        .'|.        '            \n"  \
-  "                d8P 888        888  ||  ..  .||.    ....     /|        \n"  \
-  "               d8P  888      .d88P  || .'    ||    ||. '    /||        \n"  \
-  "              d88   888  .od888P\"   ||'|.    ||    . '|..    ||        \n" \
-  "              8888888888d88P\"      .||. ||. .||.   |'..|'    ||        \n" \
-  "                    888 888\"                                 ||        \n" \
-  "                    888 888888888                           ,/-'       \n"
+  "                      d8888  .d8888b.                                  \n"  \
+  "                     d8P888 d88P  Y88b '||        .'|.                 \n"  \
+  "                    d8P 888        888  ||  ..  .||.    ....           \n"  \
+  "                   d8P  888      .d88P  || .'    ||    ||. '           \n"  \
+  "                  d88   888  .od888P\"   ||'|.    ||    . '|..          \n" \
+  "                  8888888888d88P\"      .||. ||. .||.   |'..|'          \n" \
+  "                        888 888\"                                       \n" \
+  "                        888 888888888 "
 
 #endif

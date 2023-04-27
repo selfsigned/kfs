@@ -5,6 +5,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+/// use to set max nbr of screens
+#include "../../kernel.h"
+
 // VGA text driver //
 
 #define VGA_ROW 25
@@ -13,7 +16,11 @@
 #define VGA_SCREEN_SIZE 2000
 
 /// max number of screens
-#define VGA_SCREEN_MAX 12
+#ifdef SCREEN_NBR
+#define VGA_SCREEN_MAX SCREEN_NBR
+#else
+#error "SCREEN_NBR should set in kernel.h!"
+#endif
 
 /// default character used when wrapping
 #define VGA_WRAP_DEFAULT_CHAR '>'

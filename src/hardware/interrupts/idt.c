@@ -17,15 +17,15 @@ struct idt_ptr idt_ptr;
 /// @param code -1 if no code, otherwise code
 static void _print_exception(int_frame *frame, char *msg, bool has_code,
                              uint32_t code) {
-  vga_screen_clear(SCREEN_ERROR);
-  vga_screen_fillbackground(SCREEN_ERROR, VGA_COLOR_BLUE);
-  vga_printf((vga_info){.screen = SCREEN_ERROR, .column = 37, .row = 7},
+  vga_screen_clear(LOG_SCREEN);
+  vga_screen_fillbackground(LOG_SCREEN, VGA_COLOR_BLUE);
+  vga_printf((vga_info){.screen = LOG_SCREEN, .column = 37, .row = 7},
 
              "%a %s %a\n\n\tAn error has occurred:\n",
              (vga_attributes){.bg = VGA_COLOR_LIGHT_GREY, .fg = VGA_COLOR_BLUE},
              OS_NAME,
              (vga_attributes){.bg = VGA_COLOR_BLUE, .fg = VGA_COLOR_WHITE});
-  vga_printf((vga_info){.screen = SCREEN_ERROR, .print = true},
+  vga_printf((vga_info){.screen = LOG_SCREEN, .print = true},
              "\n\t%s\n\n\t\t"
              "eip:%p "
              "cs:%p "
@@ -35,13 +35,13 @@ static void _print_exception(int_frame *frame, char *msg, bool has_code,
              "ss:%p",
              msg, frame->eip, frame->cs, frame->eflags, frame->sp, frame->ss);
   if (has_code)
-    vga_printf((vga_info){.screen = SCREEN_ERROR, .print = true},
+    vga_printf((vga_info){.screen = LOG_SCREEN, .print = true},
                "\n\t\tcode:%#.8b", code);
 }
 
 /// @brief Do what must be done after an exception has been raised
 static void _handle_exception() {
-  vga_printf((vga_info){.screen = 9, .print = true}, "\n\n\n%52s",
+  vga_printf((vga_info){.screen = LOG_SCREEN, .print = true}, "\n\n\n%52s",
              "Press any key to restart");
   kbd_poll(); // wait on kbd
   kbd_poll(); // debounce (no pressed/release management)

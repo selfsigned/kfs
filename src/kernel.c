@@ -11,83 +11,89 @@
 
 #include "cp437.h"
 #include "log.h"
-#include "screens/screens.h"
+#include "shell/shell.h"
 
-#define SCREEN_TOTAL 12
-
-enum screen_numbers {
-  HOME_SCREEN,
-  NOTE_SCREEN,
-  IPSUM_SCREEN,
-  PRINTF_DEMO_SCREEN,
-  VGA_DEMO_SCREEN,
-  KERNEL_LOG = LOG_SCREEN,
-};
-
-static void notepad_greet(uint8_t screen_nbr) {
-  vga_printf(
-      (vga_info){.screen = screen_nbr, .row = 1, .column = 35},
-      "%aNotepad%a\n\n>",
-      (vga_attributes){.bg = VGA_COLOR_LIGHT_GREY, .fg = VGA_COLOR_BLACK},
-      (vga_attributes){.fg = VGA_COLOR_WHITE});
+static int set_scroll(uint8_t screen_nbr, kbd_scancode code, int scroll_state,
+                      bool isnotup) {
+  switch (code) {
+  case KBD_HOME:
+    scroll_state = -1;
+    break;
+  case KBD_END:
+    scroll_state = 0;
+    break;
+  case KBD_CURSOR_UP:
+    if (isnotup)
+      scroll_state++;
+    break;
+  case KBD_CURSOR_DOWN:
+    if (scroll_state > 0)
+      scroll_state--;
+    if (scroll_state == -1) {
+      scroll_state = vga_screen_getscrolloffset(screen_nbr) - 1;
+    }
+    break;
+  case KBD_PAGE_DOWN:
+    if (scroll_state > 0)
+      for (int i = 10; scroll_state && i; scroll_state--, i--)
+        ;
+    if (scroll_state == -1)
+      scroll_state = vga_screen_getscrolloffset(screen_nbr) - 10;
+    break;
+  default:
+  }
+  return scroll_state;
 }
 
-static void vga_demo(uint8_t screen_nbr) {
-  screen_test_cp437(screen_nbr);
-  vga_printf((vga_info){.screen = screen_nbr}, "\n");
-  screen_test_color(screen_nbr, CP437_SMILEY);
-}
+void screen_loop() {
+  shell_state shell[SHELL_NBR] = {0}; // shell internal state
+                                      // !! WILL BREAK THE STACK IF TOO BIG!!
+  uint8_t current_screen = 0;
+  int scroll_state = 0;
+  bool isnotup = vga_screen_show_scrolled(current_screen, scroll_state);
 
-void screen_init(uint8_t screen_nbr) {
-  struct panel {
-    char title[40];
-    void (*screen_init_func)(uint8_t);
-  };
-  struct panel screen[SCREEN_TOTAL] = {
-      [HOME_SCREEN] = {"Home screen (current)"},
-      [NOTE_SCREEN] = {"Notepad", &notepad_greet},
-      [IPSUM_SCREEN] = {"Lorem ipsum dolor sit amet", &screen_lorem_ipsum},
-      [PRINTF_DEMO_SCREEN] = {"vga_printf() demo", &screen_test_printf},
-      [VGA_DEMO_SCREEN] = {"CP437 and Colors demo", &vga_demo},
-      [KERNEL_LOG] = {"Kernel messages"},
-  };
-  uint8_t last_row, last_col;
+  // initialize shells
+  for (size_t i = 0; i < SHELL_NBR; ++i) {
+    shell[i].screen = i;
+  }
 
-  vga_screen_setattributes(screen_nbr, (vga_attributes){.fg = VGA_COLOR_RED});
+  while (true) {
+    if (kbd.status == KEY_RELEASED)
+      goto halt;
 
-  // logo
-  vga_printf((vga_info){.screen = screen_nbr, .setcursor = true, .row = 2},
-             "%s\n", KFS_LOGO);
-
-  // version
-  vga_printf((vga_info){.screen = screen_nbr, .nowrap = true, .column = 35},
-             "vers: %s\n", VERSION);
-
-  // silly box
-  vga_screen_getcursorpos(screen_nbr, &last_col, &last_row);
-  vga_screen_setcursorpos(screen_nbr, 0, 0);
-  screen_create_box_light(screen_nbr, VGA_COL - 1, VGA_ROW - 1);
-  vga_screen_setcursorpos(screen_nbr, last_col, last_row);
-
-  // Print function keys and init screens
-  vga_screen_setattributes(screen_nbr, (vga_attributes){.fg = VGA_COLOR_WHITE});
-  for (uint8_t i = 0; i < SCREEN_TOTAL; ++i)
-    if (screen[i].title[0]) {
-      if (screen[i].screen_init_func)
-        screen[i].screen_init_func(i);
-
-      vga_printf((vga_info){.screen = screen_nbr, .column = 5}, "F%u:\t%s\n",
-                 i + 1, screen[i].title);
+    if (isprint(kbd.ascii))
+      scroll_state = 0;
+    else {
+      // control characters
+      switch (kbd.key) {
+      case KBD_F1 ... KBD_F10:
+        // switch screen
+        current_screen = kbd.key - KBD_F1;
+        scroll_state = 0;
+        break;
+      case KBD_HOME ... KBD_PAGE_DOWN:
+        // scroll
+        scroll_state =
+            set_scroll(current_screen, kbd.key, scroll_state, isnotup);
+        break;
+      default:
+        break;
+      }
     }
 
-  vga_printf((vga_info){.screen = screen_nbr, .column = 5},
-             "%C %C:\tScroll up and down\n", CP437_UP_ARROW, CP437_DOWN_ARROW);
-  vga_printf((vga_info){.screen = screen_nbr, .column = 5},
-             "HOME:\tScroll to the top of the screen\n");
-  vga_printf((vga_info){.screen = screen_nbr, .column = 5},
-             "END:\tScroll to the bottom of the screen\n");
+    // TODO check if more conditions needed
+    if (current_screen < SHELL_NBR && current_screen != LOG_SCREEN) {
+      shell_run(&shell[current_screen], kbd);
+    }
 
-  vga_screen_show(screen_nbr);
+    // set cursor
+    vga_screen_setvgacursor(current_screen, current_screen != LOG_SCREEN);
+    // display and check if at top of history
+    isnotup = vga_screen_show_scrolled(current_screen, scroll_state);
+
+  halt:
+    __asm__ volatile("HLT"); // halt until next interrupt
+  }
 }
 
 /// @brief The entrypoint of our kernel
@@ -95,8 +101,7 @@ void kernel_main(void) {
   volatile int *memory_signature = (void *)SIGNATURE_ADDRESS;
 
   // initialized the vga driver and set screens
-  vga_init(8, (uint16_t *)SCREEN_BUFFER_ADDR);
-  screen_init(HOME_SCREEN);
+  vga_init(256, (uint16_t *)SCREEN_BUFFER_ADDR);
 
   // flat-memory model
   gdt_init();
@@ -112,5 +117,5 @@ void kernel_main(void) {
   INFO_MSG("Kernel canary %p set at %p", SIGNATURE_VALUE, memory_signature);
 
   // call the home screen loop
-  screen_loop(HOME_SCREEN, NOTE_SCREEN);
+  screen_loop();
 }
