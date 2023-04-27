@@ -14,7 +14,9 @@ struct brainfuck_demo_tape {
 };
 
 #define CMD_BRAINFUCK_SMSG "Brainfuck interpreter"
-#define CMD_BRAINFUCK_LMSG "TODO"
+#define CMD_BRAINFUCK_LMSG                                                     \
+  "Demo mode: Run the command without parameters to chose a demo program\n"    \
+  "Interpreter: brainfuck <input>"
 
 /// @brief runs a brainfuck program
 int cmd_brainfuck(uint8_t screen_nbr, int ac, char **av);

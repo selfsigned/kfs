@@ -75,6 +75,36 @@ char *strchr(const char *s, int c) {
   return NULL;
 }
 
+char *strtok_r(char *str, const char *delim, char **saveptr) {
+  char *token;
+
+  if (str != NULL)
+    *saveptr = str;
+  if (*saveptr == NULL)
+    return NULL;
+  token = *saveptr;
+  while (*token && strchr(delim, *token))
+    token++;
+  if (!*token) {
+    *saveptr = NULL;
+    return NULL;
+  }
+  str = token;
+  while (*str && !strchr(delim, *str))
+    str++;
+  if (*str) {
+    *str = '\0';
+    *saveptr = str + 1;
+  } else
+    *saveptr = NULL;
+  return token;
+}
+
+char *strtok(char *str, const char *delim) {
+  static char *saveptr = NULL;
+  return strtok_r((char *)str, delim, &saveptr);
+}
+
 int atoi(const char *str) {
   long int r = 0;
   bool neg = false;
