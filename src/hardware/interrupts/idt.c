@@ -56,7 +56,7 @@ INTERRUPT void _exception_div0(int_frame *frame) {
   WARN_MSG("Div by 0 exception handled\n\t->eip:%p cs:%p eflags:%p sp:%p ss:%p",
            frame->eip, frame->cs, frame->eflags, frame->sp, frame->ss);
 
-  frame->eip++; // go to next instruction
+  frame->eip += 2; // go to next instruction (Opcode f7 + f1 -> +2)
   return;
 }
 
