@@ -9,7 +9,8 @@
 
 #define IDT_NB_GATES 256
 
-//// IDT ////
+//// IDT/IVT ////
+// we'll referer to both as the IDT for simplicity's sake
 
 // offset to map the PIC at
 #define IDT_PIC_OFFSET 32             /// start of user defined interrupts
@@ -21,6 +22,8 @@ typedef enum idt_access {
       0x8E, // P = 1, DPL = 00, S = 0, Type = 1110 (32bit interrupt gate)
   TRAP_GATE_FLAGS =
       0x8F, /// P = 1, DPL = 00, S = 0, Type = 1111 (32bit trap gate)
+  INT_GATE_USER_FLAGS =
+      0xEE, /// P = 1, DPL = 11, S = 0, Type = 1110 (RING(PL)3)
 } idt_access;
 
 /// @brief entry in the IDT

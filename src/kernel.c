@@ -8,6 +8,7 @@
 #include "hardware/interrupts/interrupts.h"
 #include "kernel.h"
 #include "klibc/libc.h"
+#include "syscalls/syscalls.h"
 
 #include "cp437.h"
 #include "log.h"
@@ -108,6 +109,9 @@ void kernel_main(void) {
 
   // initialize interrupts
   int_init();
+
+  // initialize syscalls
+  syscalls_init();
 
   // initalize the PS2 Keyboard controller
   kbd_init();

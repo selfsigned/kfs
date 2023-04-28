@@ -18,4 +18,12 @@ int cmd_int3(uint8_t screen_nbr, int ac, char **av);
 int cmd_intspurious(uint8_t screen_nbr, int ac, char **av);
 int cmd_intsyscall(uint8_t screen_nbr, int ac, char **av);
 
+#define CMD_MODE_SMSG "Checks the cpu current mode (PE)"
+#define CMD_MODE_LMSG                                                          \
+  "Real mode is the 16 bit compatibility mode, Protected mode allows the use " \
+  "of all the cpu features"
+
+/// @brief check cpu mode
+int cmd_mode(uint8_t screen_nbr, int ac, char **av);
+
 #endif
