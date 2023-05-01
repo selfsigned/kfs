@@ -50,16 +50,6 @@ static void _handle_exception() {
   __asm__ volatile("hlt"); // halt the cpu until shutdown
 }
 
-/// @brief handle div by 0 exceptions
-/// @param frame stack frame
-INTERRUPT void _exception_div0(int_frame *frame) {
-  WARN_MSG("Div by 0 exception handled\n\t->eip:%p cs:%p eflags:%p sp:%p ss:%p",
-           frame->eip, frame->cs, frame->eflags, frame->sp, frame->ss);
-
-  frame->eip += 2; // go to next instruction (Opcode f7 + f1 -> +2)
-  return;
-}
-
 #define INT_EXCEPTION_HANDLER(N, MSG)                                          \
   INTERRUPT void _exception_##N(int_frame *frame) {                            \
     __asm__ volatile("cli");                                                   \
@@ -77,6 +67,7 @@ INTERRUPT void _exception_div0(int_frame *frame) {
   }
 
 // generic exceptions
+INT_EXCEPTION_HANDLER(0, DIV BY 0)
 INT_EXCEPTION_HANDLER(1, RESERVED)
 INT_EXCEPTION_HANDLER(2, NMI Interrupt)
 INT_EXCEPTION_HANDLER(3, Breakpoint)
@@ -123,41 +114,18 @@ INT_EXCEPTION_HANDLER(31, RESERVED)
 
 void idt_init() {
   struct idt_gate_desc new_idt[IDT_NB_GATES] = {
-      [0] = {IDT_ADD_FUNC((uint32_t)(&_exception_div0)),
-             .access = TRAP_GATE_FLAGS,
-             .segment_selector = IDT_CODE_SEGMENT_SELECTOR},
       // painful
-      IDT_EXCEPTION(1),
-      IDT_EXCEPTION(2),
-      IDT_EXCEPTION(3),
-      IDT_EXCEPTION(4),
-      IDT_EXCEPTION(5),
-      IDT_EXCEPTION(6),
-      IDT_EXCEPTION(7),
-      IDT_EXCEPTION(8),
-      IDT_EXCEPTION(9),
-      IDT_EXCEPTION(10),
-      IDT_EXCEPTION(11),
-      IDT_EXCEPTION(12),
-      IDT_EXCEPTION(13),
-      IDT_EXCEPTION(14),
-      IDT_EXCEPTION(15),
-      IDT_EXCEPTION(16),
-      IDT_EXCEPTION(17),
-      IDT_EXCEPTION(18),
-      IDT_EXCEPTION(19),
-      IDT_EXCEPTION(20),
-      IDT_EXCEPTION(21),
-      IDT_EXCEPTION(22),
-      IDT_EXCEPTION(23),
-      IDT_EXCEPTION(24),
-      IDT_EXCEPTION(25),
-      IDT_EXCEPTION(26),
-      IDT_EXCEPTION(27),
-      IDT_EXCEPTION(28),
-      IDT_EXCEPTION(29),
-      IDT_EXCEPTION(30),
-      IDT_EXCEPTION(31),
+      IDT_EXCEPTION(0),  IDT_EXCEPTION(1),  IDT_EXCEPTION(2),
+      IDT_EXCEPTION(3),  IDT_EXCEPTION(4),  IDT_EXCEPTION(5),
+      IDT_EXCEPTION(6),  IDT_EXCEPTION(7),  IDT_EXCEPTION(8),
+      IDT_EXCEPTION(9),  IDT_EXCEPTION(10), IDT_EXCEPTION(11),
+      IDT_EXCEPTION(12), IDT_EXCEPTION(13), IDT_EXCEPTION(14),
+      IDT_EXCEPTION(15), IDT_EXCEPTION(16), IDT_EXCEPTION(17),
+      IDT_EXCEPTION(18), IDT_EXCEPTION(19), IDT_EXCEPTION(20),
+      IDT_EXCEPTION(21), IDT_EXCEPTION(22), IDT_EXCEPTION(23),
+      IDT_EXCEPTION(24), IDT_EXCEPTION(25), IDT_EXCEPTION(26),
+      IDT_EXCEPTION(27), IDT_EXCEPTION(28), IDT_EXCEPTION(29),
+      IDT_EXCEPTION(30), IDT_EXCEPTION(31),
   };
   memcpy(idt, new_idt, sizeof(idt));
 
