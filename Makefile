@@ -98,7 +98,7 @@ ifdef HAS_GRUB
 	mkdir -p $(IMG_BUILD_DIR)/boot/grub
 	cp $(NAME) $(IMG_BUILD_DIR)/boot
 	printf "set timeout=$(TIMEOUT_GRUB)\nmenuentry \"$(NAME:.bin=)\" { multiboot /boot/$(NAME) }" > $(IMG_BUILD_DIR)/boot/grub/grub.cfg
-	grub-mkrescue -o $(IMG_NAME) $(IMG_BUILD_DIR)
+	grub-mkrescue --compress=gz -o $(IMG_NAME) $(IMG_BUILD_DIR)
 else
 	$(ERROR_GRUB)
 endif
